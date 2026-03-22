@@ -1,0 +1,6 @@
+usr/bin/generate_*.py
+usr/lib/python3*/site-packages/genAnsibleConf/**
+usr/share/locale/*/LC_MESSAGES/ansibleConfigGenerator.mo
+usr/share/genAnsibleConf/schema/*.yaml
+etc/genAnsibleConf/config.yaml
+usr/share/genAnsibleConf/examples/genAnsibleConf.user-config.yaml

@@ -1,0 +1,6 @@
+PyYAML
+jsonschema
+pytest
+sphinx
+sphinx-rtd-theme
+sphinxcontrib-napoleon

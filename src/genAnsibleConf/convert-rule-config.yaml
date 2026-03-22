@@ -1,0 +1,424 @@
+# convert-rule-config:
+# 変換ルール関連設定を1つのファイルへ集約した設定。
+
+service_settings:
+  # service_settings:
+  # サービス設定を all-config 互換スカラーへ変換するルール。
+  #
+  # services:
+  # - キー: サービス名。
+  # - 値: service_rules と同一形式のルール辞書。
+  #
+  # 使用可能な主項目:
+  # disabled_service_cleanup_keys:
+  #   - サービス固有スカラーキー集合。サービス非有効ノードで除去対象になる。
+  # enabled_flag:
+  #   - 対象サービスがそのノードで有効な時, 常に true を出力するキー名。
+  #     例: enabled_flag: k8s_multus_enabled とすると, multus サービスが
+  #       有効なノードで k8s_multus_enabled: true が出力される。
+  #       ansible側で, roleの実行条件やテンプレート条件にこのスカラーを参照することで,
+  #       サービス有効ノードだけに特定の処理を適用するために使用することを想定。
+  #
+  # key_map:
+  #   - config の入力キーから出力スカラーキーへの変換定義。
+  # fixed_values:
+  #   - 出力へ常に追加する固定値のマッピング。
+  # passthrough_all_config:
+  #   - true の場合, key_map で変換済み以外の config キーもそのまま出力。
+  # config_keys:
+  #   - passthrough_all_config=false 時に, 出力を許可する config キー一覧。
+
+  services:
+    # gitlab:
+    # - hostname を gitlab_hostname へ変換し, それ以外の config はそのまま出力する。
+    # - backup 関連キーを disabled_service_cleanup_keys に含め, サービス無効ノードで除去対象にする。
+    gitlab:
+      disabled_service_cleanup_keys:
+        - gitlab_enable_backup_script
+        - gitlab_backup_rotation
+        - gitlab_backup_nfs_server
+        - gitlab_backup_nfs_dir
+        - gitlab_backup_mount_point
+        - gitlab_backup_dir_on_nfs
+        - gitlab_hostname
+      key_map:
+        hostname: gitlab_hostname
+      passthrough_all_config: true
+
+    # cilium:
+    # - cilium 関連設定キーを k8s_cilium_* へ変換する。
+    cilium:
+      key_map:
+        version: k8s_cilium_version
+        shared_ca_enabled: k8s_cilium_shared_ca_enabled
+        shared_ca_reuse_k8s_ca: k8s_cilium_shared_ca_reuse_k8s_ca
+        shared_ca_auto_create: k8s_cilium_shared_ca_auto_create
+        shared_ca_output_dir: k8s_cilium_shared_ca_output_dir
+        ca_cert_filename: k8s_cilium_shared_ca_cert_filename
+        ca_key_filename: k8s_cilium_shared_ca_key_filename
+        ca_cert_path: k8s_cilium_shared_ca_cert_path
+        ca_key_path: k8s_cilium_shared_ca_key_path
+        ca_kubeconfig: cilium_shared_ca_kubeconfig
+
+    # multus:
+    # - k8s_multus_enabled=true を自動付与し, version を k8s_multus_version へ変換する。
+    multus:
+      enabled_flag: k8s_multus_enabled
+      key_map:
+        version: k8s_multus_version
+
+    # whereabouts:
+    # - k8s_whereabouts_enabled=true を自動付与し, 各設定キーを k8s_whereabouts_* へ変換する。
+    whereabouts:
+      enabled_flag: k8s_whereabouts_enabled
+      key_map:
+        version: k8s_whereabouts_version
+        ipv4_range_start: k8s_whereabouts_ipv4_range_start
+        ipv4_range_end: k8s_whereabouts_ipv4_range_end
+        ipv6_range_start: k8s_whereabouts_ipv6_range_start
+        ipv6_range_end: k8s_whereabouts_ipv6_range_end
+
+    # hubble_cli:
+    # - k8s_hubble_cli_enabled=true を自動付与する。
+    hubble_cli:
+      enabled_flag: k8s_hubble_cli_enabled
+
+    # hubble_ui:
+    # - k8s_hubble_ui_enabled=true を自動付与する。
+    hubble_ui:
+      enabled_flag: k8s_hubble_ui_enabled
+
+    # helm:
+    # - k8s_helm_enabled=true を自動付与し, version を k8s_helm_version へ変換する。
+    helm:
+      enabled_flag: k8s_helm_enabled
+      key_map:
+        version: k8s_helm_version
+
+    # terraform:
+    # - terraform_enabled=true のみを出力する。
+    terraform:
+      disabled_service_cleanup_keys:
+        - terraform_enabled
+      enabled_flag: terraform_enabled
+
+    # ntp-server:
+    # - external_ntp_servers_list と ntp_allow のみを出力対象に限定する。
+    # - passthrough_all_config は未指定 (false 扱い) のため, config_keys 以外は出力しない。
+    ntp-server:
+      disabled_service_cleanup_keys:
+        - ntp_allow
+        - external_ntp_servers_list
+      config_keys:
+        - external_ntp_servers_list
+        - ntp_allow
+
+    # dns-server:
+    # - config の全キーをそのまま出力する。
+    # - DNS関連の主要キーを disabled_service_cleanup_keys に定義し, サービススコープ制御へ参加させる。
+    dns-server:
+      disabled_service_cleanup_keys:
+        - dns_server
+        - dns_server_ipv4_address
+        - dns_server_ipv6_address
+        - dns_network
+        - dns_network_ipv4_prefix
+        - dns_network_ipv4_prefix_len
+        - dns_network_ipv6_prefix
+        - dns_network_ipv6_prefix_len
+        - dns_ddns_key_secret
+        - dns_network_ipv6_prefix_filename
+      passthrough_all_config: true
+
+    # netgauge:
+    # - netgauge_enabled=true を自動付与し, そのほかの config はそのまま出力する。
+    netgauge:
+      disabled_service_cleanup_keys:
+        - netgauge_version
+        - netgauge_dir
+        - netgauge_configure
+        - netgauge_enabled
+      enabled_flag: netgauge_enabled
+      passthrough_all_config: true
+
+    # docker-ce:
+    # - config の全キーをそのまま出力する。
+    docker-ce:
+      disabled_service_cleanup_keys:
+        - docker_ce_users
+        - docker_ce_enable_backup_script
+        - docker_ce_backup_rotation
+        - docker_ce_backup_nfs_server
+        - docker_ce_backup_nfs_dir
+        - docker_ce_backup_mount_point
+        - docker_ce_backup_dir_on_nfs
+      passthrough_all_config: true
+
+    # backup_home:
+    # - config の全キーをそのまま出力する。
+    backup_home:
+      disabled_service_cleanup_keys:
+        - user_settings_backup_home_script_enabled
+        - user_settings_backup_home_rotation
+        - user_settings_backup_home_nfs_server
+        - user_settings_backup_home_nfs_dir
+        - user_settings_backup_home_mount_point
+        - user_settings_backup_dir_on_nfs
+        - user_settings_backup_users_list
+      passthrough_all_config: true
+
+    # rancher:
+    # - config の全キーをそのまま出力する。
+    rancher:
+      disabled_service_cleanup_keys:
+        - rancher_host
+        - rancher_cert_domain_name
+        - rancher_cert_subject_country
+        - rancher_cert_subject_state
+        - rancher_cert_subject_locality
+        - rancher_cert_subject_org
+      passthrough_all_config: true
+
+    # ldap:
+    # - config の全キーをそのまま出力する。
+    ldap:
+      disabled_service_cleanup_keys:
+        - ldap_organization
+        - ldap_domain
+        - ldap_admin_password
+        - ldap_admin_port
+      passthrough_all_config: true
+
+    # nfs-server:
+    # - NFS関連スカラーをサービススコープとして管理する。
+    nfs-server:
+      disabled_service_cleanup_keys:
+        - nfs_export_directory
+        - nfs_network
+        - nfs_options
+      passthrough_all_config: true
+
+    # redmine:
+    # - Redmine バックアップ関連スカラーをサービススコープとして管理する。
+    redmine:
+      disabled_service_cleanup_keys:
+        - redmine_enable_backup_script
+        - redmine_backup_rotation
+        - redmine_backup_nfs_server
+        - redmine_backup_nfs_dir
+        - redmine_backup_mount_point
+        - redmine_backup_dir_on_nfs
+      passthrough_all_config: true
+
+    # kea-dhcp:
+    # - GPM管理ネットワーク関連スカラーをサービススコープとして管理する。
+    kea-dhcp:
+      disabled_service_cleanup_keys:
+        - gpm_mgmt_ipv4_prefix
+        - gpm_mgmt_ipv4_network_gateway
+      passthrough_all_config: true
+
+    # internal_router:
+    # - ルーター転送/NAT 設定と管理ネットワーク関連スカラーをサービススコープとして管理する。
+    internal_router:
+      disabled_service_cleanup_keys:
+        - router_forwarding_enabled
+        - router_nat_enabled
+        - gpm_mgmt_ipv4_network_cidr
+        - gpm_mgmt_ipv6_network_cidr
+        - network_ipv4_network_address
+        - network_ipv4_prefix_len
+        - network_ipv6_network_address
+        - network_ipv6_prefix_len
+      passthrough_all_config: true
+
+    # radvd:
+    # - radvd ルーター広告関連スカラーをサービススコープとして管理する。
+    radvd:
+      disabled_service_cleanup_keys:
+        - radvd_router_advertisement_prefix
+        - radvd_dns_servers
+        - radvd_search_domains
+      passthrough_all_config: true
+
+    # nm_ddns:
+    # - DNS 逆引き・サーバアドレス関連スカラーをサービススコープとして管理する。
+    nm_ddns:
+      disabled_service_cleanup_keys:
+        - use_nm_ddns_update_scripts
+        - dns_server_ipv4_address
+        - dns_server_ipv6_address
+        - dns_ipv4_reverse
+        - dns_ipv6_reverse
+      passthrough_all_config: true
+
+    # k8s_control_plane_base:
+    # - k8s コントロールプレーン固有スカラーをサービススコープとして管理する。
+    k8s_control_plane_base:
+      disabled_service_cleanup_keys:
+        - k8s_reserved_system_cpus_default
+      passthrough_all_config: true
+
+    # k8s_worker_base:
+    # - k8s ワーカーノード固有スカラーをサービススコープとして管理する。
+    k8s_worker_base:
+      disabled_service_cleanup_keys:
+        - k8s_worker_enable_nodeport
+        - k8s_worker_nodeport_range
+      passthrough_all_config: true
+
+    # k8s_node_common:
+    # - k8s 共通スカラーをサービススコープとして管理する。
+    k8s_node_common:
+      disabled_service_cleanup_keys:
+        - k8s_major_minor
+        - enable_create_k8s_ca
+        - k8s_shared_ca_source_host
+        - k8s_common_ca
+        - k8s_shared_ca_output_dir
+        - k8s_shared_ca_replace_kube_ca
+        - k8s_operator_github_key_list
+        - k8s_operator_authorized_key_list
+      passthrough_all_config: true
+
+    # vm_params:
+    # - ノード固有 VM パラメータをそのまま出力する。
+    vm_params:
+      passthrough_all_config: true
+
+    # mdns:
+    # - mDNS 関連設定をそのまま出力する。
+    mdns:
+      disabled_service_cleanup_keys:
+        - mdns_enabled
+        - mdns_host_list
+      passthrough_all_config: true
+
+    # ntp_client:
+    # - NTP クライアント設定をそのまま出力する。
+    ntp_client:
+      disabled_service_cleanup_keys:
+        - ntp_servers_list
+      passthrough_all_config: true
+
+    # proxy_client:
+    # - プロキシ設定をそのまま出力する。
+    proxy_client:
+      disabled_service_cleanup_keys:
+        - no_proxy
+        - proxy_server
+        - proxy_port
+        - proxy_user
+        - proxy_password
+      passthrough_all_config: true
+
+    # sudo:
+    # - sudo 権限設定をそのまま出力する。
+    sudo:
+      disabled_service_cleanup_keys:
+        - sudo_nopasswd_absent
+        - sudo_nopasswd_groups_autodetect
+        - sudo_nopasswd_groups_extra
+        - sudo_nopasswd_users
+      passthrough_all_config: true
+
+    # user_skel:
+    # - スケルトン生成とユーザー作成後処理設定をそのまま出力する。
+    user_skel:
+      disabled_service_cleanup_keys:
+        - user_settings_create_aspell_skel
+        - user_settings_create_bash_skel
+        - user_settings_create_curl_skel
+        - user_settings_create_emacs_skel
+        - user_settings_create_gdb_skel
+        - user_settings_create_git_skel
+        - user_settings_create_gitignore_on_homedir_skel
+        - user_settings_create_screen_skel
+        - user_settings_create_ssh_skel
+        - user_settings_create_tmux_skel
+        - user_settings_create_wget_skel
+        - user_settings_create_zsh_skel
+        - create_user_emacs_package_list
+        - post_user_create_gitconfig_enabled
+        - post_user_create_gitconfig_use_login_name
+      passthrough_all_config: true
+
+
+network_role:
+  # network_role:
+  # ネットワーク role 名と用途ごとの判定ポリシー定義
+
+  # role_priority:
+  # - 用途: dns_domain の自動導出時に, どの role の dns_search を優先するかを決める。
+  # - 設定値: role 名をキー, 優先度を整数値で指定する。
+  #   値が小さいほど優先される。
+  # - 動作: ノードが複数管理ネットワークへ接続している場合, 最小値の role を持つ
+  #   interface 側 dns_search が採用される。
+  # - 注意: ここに未定義の role は dns_domain 自動導出の優先候補に入らない。
+
+  role_priority:
+    private_control_plane_network: 0
+    external_control_plane_network: 1
+
+  # management_roles:
+  # - 用途: 管理系ネットワーク role の集合定義。
+  # - 設定値: role 名の配列。
+  # - 動作: 現在は主にポリシーの意味づけと将来拡張時の参照元として使う。
+  # - 注意: 判定対象を追加する場合は internal_mgmt_role / external_mgmt_role との
+  #   整合も合わせて確認する。
+
+  management_roles:
+    - private_control_plane_network
+    - external_control_plane_network
+
+  # data_plane_roles:
+  # - 用途: derive_nic_variables で k8s_nic 候補を選ぶ role 集合。
+  # - 設定値: role 名の配列。
+  # - 動作: ノードの datacenter / cluster と一致する network のうち,
+  #   ここに含まれる role の interface を k8s_nic 候補として扱う。
+
+  data_plane_roles:
+    - data_plane_network
+
+  # frr_advertise_roles:
+  # - 用途: build_frr_networks で FRR 広報対象ネットワークを選ぶ role 集合。
+  # - 設定値: role 名の配列。
+  # - 動作: 同一データセンタのノードが接続する network のうち,
+  #   ここに含まれる role の CIDR が frr_networks_v4 / frr_networks_v6 に出力される。
+  # - 注意: ここから role を外すと, その role の経路は広報対象から除外される。
+
+  frr_advertise_roles:
+    - external_control_plane_network
+    - private_control_plane_network
+    - data_plane_network
+    - bgp_transport_network
+
+  # internal_network_list_roles:
+  # - 用途: internal_network_list 自動生成時に含める role 集合。
+  # - 設定値: role 名の配列。
+  # - 動作: globals.networks のうち, ここに含まれる role の network だけが
+  #   internal_network_list 値として抽出される。
+
+  internal_network_list_roles:
+    - private_control_plane_network
+    - data_plane_network
+
+  # internal_mgmt_role:
+  # - 用途: 内部管理ネットワークとして扱う単一 role 名。
+  # - 設定値: role 名の文字列。
+  # - 動作: 以下の判定で使用される。
+  #   1) _is_internal_mgmt_connected の接続判定
+  #   2) _derive_radvd_auto_config の対象network選択
+  #   3) _derive_internal_router_auto_config の内部側network選択
+  #   4) derive_nic_variables の gpm_mgmt_nic 判定
+
+  internal_mgmt_role: private_control_plane_network
+
+  # external_mgmt_role:
+  # - 用途: 外部管理ネットワークとして扱う単一 role 名。
+  # - 設定値: role 名の文字列。
+  # - 動作: 以下の判定で使用される。
+  #   1) _derive_internal_router_auto_config の外部側network選択
+  #   2) derive_nic_variables の mgmt_nic 優先選択
+
+  external_mgmt_role: external_control_plane_network

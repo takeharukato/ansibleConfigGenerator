@@ -1,0 +1,464 @@
+$schema: https://json-schema.org/draft/2020-12/schema
+$id: network_topology.schema.v2.yaml
+title: network topology input schema (v2)
+description: |
+  データセンタ構造を中心としたネットワークトポロジー入力スキーマ。
+  データセンタ、Kubernetesクラスタ、ノードの階層関係を明示し、
+  iBGP/eBGPネイバー関係を自動導出可能にする。
+type: object
+required:
+  - version
+  - globals
+  - nodes
+additionalProperties: false
+properties:
+  version:
+    type: integer
+    minimum: 2
+  globals:
+    type: object
+    required:
+      - networks
+      - datacenters
+    additionalProperties: false
+    properties:
+      auto_meshed_ebgp_transport_enabled:
+        type: boolean
+        description: "データセンタ間eBGPトランスポートを自動メッシュ生成するか"
+      generate_internal_network_list:
+        type: boolean
+        description: "dns-server 向け internal_network_list を生成するか"
+      reserved_nic_pairs:
+        type: array
+        description: "管理ネットワーク ネットワークインターフェース (NIC) 予約ペア定義"
+        items:
+          type: array
+          minItems: 2
+          maxItems: 2
+          items:
+            type: string
+      networks:
+        type: object
+        description: "ネットワークセグメント定義"
+        minProperties: 1
+        additionalProperties:
+          $ref: '#/$defs/network'
+      datacenters:
+        type: object
+        description: "データセンタ定義"
+        minProperties: 1
+        additionalProperties:
+          $ref: '#/$defs/datacenter'
+      services:
+        type: object
+        description: "全ノード共通サービス既定値"
+        additionalProperties:
+          $ref: '#/$defs/service_entry'
+      roles:
+        type: object
+        description: "ロール名からサービス一覧へのマップ（globals.roles.<role_name> がロールの有効なサービスリストを保持する。サービスの割り当てを持たない用途別ロールは空配列 [] で定義できる）"
+        additionalProperties:
+          type: array
+          items:
+            type: string
+      scalars:
+        type: object
+        description: "全ホスト向けスカラー既定値"
+        additionalProperties:
+          $ref: '#/$defs/json_value'
+      proxy:
+        type: object
+        description: "プロキシ設定既定値"
+        additionalProperties: false
+        properties:
+          no_proxy:
+            type: string
+          proxy_server:
+            type: string
+          proxy_port:
+            anyOf:
+              - type: string
+              - type: integer
+          proxy_user:
+            type: string
+          proxy_password:
+            type: string
+      kubernetes:
+        $ref: '#/$defs/kubernetes_globals'
+  nodes:
+    type: array
+    description: "ノード定義リスト"
+    minItems: 1
+    items:
+      $ref: '#/$defs/node'
+$defs:
+  network:
+    type: object
+    description: "ネットワークセグメント定義"
+    additionalProperties: false
+    properties:
+      role:
+        type: string
+        description: "ネットワークの役割"
+        enum:
+          - external_control_plane_network
+          - private_control_plane_network
+          - data_plane_network
+          - bgp_transport_network
+      datacenter:
+        type: string
+        description: "このネットワークが所属するデータセンタ識別子 (ID)"
+      cluster:
+        type: string
+        description: "このネットワークが所属する Kubernetes クラスタ識別子 (ID)"
+      ipv4_cidr:
+        type: string
+        description: "インターネットプロトコルバージョン4 (IPv4) クラスレスルーティング (CIDR) 表記"
+      ipv6_cidr:
+        type: string
+        description: "インターネットプロトコルバージョン6 (IPv6) クラスレスルーティング (CIDR) 表記"
+      gateway4:
+        type: string
+        description: "デフォルトインターネットプロトコルバージョン4 (IPv4) ゲートウェイ"
+      gateway6:
+        type: string
+        description: "デフォルトインターネットプロトコルバージョン6 (IPv6) ゲートウェイ"
+      gateway_node:
+        type: string
+        description: "ゲートウェイとなるノード識別子 (ID)（private_control_plane_network で使用）"
+      dns_search:
+        type: string
+        description: "ドメインネームシステム (DNS) 検索ドメイン"
+      name_servers_ipv4:
+        type: array
+        description: "インターネットプロトコルバージョン4 (IPv4) ドメインネームシステム (DNS) サーバーリスト"
+        items:
+          type: string
+      name_servers_ipv6:
+        type: array
+        description: "インターネットプロトコルバージョン6 (IPv6) ドメインネームシステム (DNS) サーバーリスト"
+        items:
+          type: string
+      use_dhcp4:
+        type: boolean
+        description: "動的ホスト構成プロトコル (DHCP) v4 が使用可能か"
+      use_slaac:
+        type: boolean
+        description: "ステートレスアドレス自動設定 (SLAAC) が使用可能か"
+      ignore_auto_ipv4_dns:
+        type: boolean
+        description: "自動取得したインターネットプロトコルバージョン4 (IPv4) ドメインネームシステム (DNS) を無視するか"
+      ignore_auto_ipv6_dns:
+        type: boolean
+        description: "自動取得したインターネットプロトコルバージョン6 (IPv6) ドメインネームシステム (DNS) を無視するか"
+      route_metric_ipv4:
+        type: integer
+        description: "インターネットプロトコルバージョン4 (IPv4) ルートメトリック"
+      route_metric_ipv6:
+        type: integer
+        description: "インターネットプロトコルバージョン6 (IPv6) ルートメトリック"
+  datacenter:
+    type: object
+    description: "データセンタ定義"
+    required:
+      - name
+      - asn
+    additionalProperties: false
+    properties:
+      name:
+        type: string
+        description: "データセンタ名"
+      asn:
+        type: integer
+        description: "自律システム (AS) 番号"
+        minimum: 1
+        maximum: 4294967295
+      route_reflector:
+        type: string
+        description: "このデータセンタのルートリフレクタノード識別子 (ID)"
+  node:
+    type: object
+    description: "ノード定義"
+    required:
+      - name
+      - hostname_fqdn
+      - roles
+      - interfaces
+    additionalProperties: false
+    properties:
+      name:
+        type: string
+        description: "ノード識別子 (ID)（内部参照用）"
+        pattern: ^[A-Za-z0-9_-]+$
+      hostname_fqdn:
+        type: string
+        description: "ホスト名（完全修飾ドメイン名 (FQDN)）"
+        pattern: ^[A-Za-z0-9._-]+$
+      roles:
+        type: array
+        description: "ノードに割り当てるロール名のリスト (list 形式)"
+        minItems: 1
+        items:
+          type: string
+      datacenter:
+        type: string
+        description: "所属データセンタ識別子 (ID)"
+      cluster:
+        type: string
+        description: "所属 Kubernetes クラスタ識別子 (ID) (K8sノードの場合)"
+      control_plane:
+        type: string
+        description: "所属ワーカーノードが参照するコントロールプレーンノード識別子 (ID)"
+      interfaces:
+        type: array
+        description: "インターフェース定義リスト"
+        minItems: 1
+        items:
+          $ref: '#/$defs/interface'
+      scalars:
+        type: object
+        description: "ホスト固有のスカラー変数"
+        additionalProperties:
+          $ref: '#/$defs/json_value'
+        properties:
+          k8s_ctrlplane_host_fqdn:
+            type: string
+            description: "Kubernetes コントロールプレーンホスト名（完全修飾ドメイン名 (FQDN)）"
+          k8s_ctrlplane_endpoint:
+            type: string
+            description: "Kubernetes コントロールプレーン接続先アドレス"
+          k8s_cilium_cm_cluster_name:
+            type: string
+            description: "Cilium Cluster Mesh 用クラスタ名"
+          k8s_cilium_cm_cluster_id:
+            type: integer
+            description: "Cilium Cluster Mesh 用クラスタ識別子"
+            minimum: 1
+          k8s_pod_ipv4_network_cidr:
+            type: string
+            description: "Kubernetes Pod CIDR (IPv4)"
+          k8s_pod_ipv6_network_cidr:
+            type: string
+            description: "Kubernetes Pod CIDR (IPv6)"
+          k8s_pod_ipv4_service_subnet:
+            type: string
+            description: "Kubernetes Service CIDR (IPv4)"
+          k8s_pod_ipv6_service_subnet:
+            type: string
+            description: "Kubernetes Service CIDR (IPv6)"
+      services:
+        type: object
+        description: "ノードレベルのサービス有効化設定（globals.services 既定値を上書き）"
+        additionalProperties:
+          $ref: '#/$defs/service_entry'
+      k8s_bgp:
+        type: object
+        description: "Kubernetes ボーダーゲートウェイプロトコル (BGP) コントロールプレーン設定"
+      k8s_worker_frr:
+        type: object
+        description: "Kubernetes ワーカー Free Range Routing (FRR) 設定"
+      vcinstances_clusterversions:
+        type: array
+        description: "仮想クラスタバージョン定義"
+        items:
+          type: object
+      vcinstances_virtualclusters:
+        type: array
+        description: "仮想クラスタインスタンス定義"
+        items:
+          type: object
+    allOf:
+      - if:
+          properties:
+            roles:
+              contains:
+                const: k8s_control_plane
+          required:
+            - roles
+        then:
+          required:
+            - datacenter
+            - cluster
+            - scalars
+          properties:
+            scalars:
+              required:
+                - k8s_ctrlplane_endpoint
+                - k8s_cilium_cm_cluster_name
+                - k8s_cilium_cm_cluster_id
+              allOf:
+                - anyOf:
+                    - required:
+                        - k8s_pod_ipv4_network_cidr
+                    - required:
+                        - k8s_pod_ipv6_network_cidr
+                - if:
+                    required:
+                      - k8s_pod_ipv4_network_cidr
+                  then:
+                    required:
+                      - k8s_pod_ipv4_service_subnet
+                - if:
+                    required:
+                      - k8s_pod_ipv4_service_subnet
+                  then:
+                    required:
+                      - k8s_pod_ipv4_network_cidr
+                - if:
+                    required:
+                      - k8s_pod_ipv6_network_cidr
+                  then:
+                    required:
+                      - k8s_pod_ipv6_service_subnet
+                - if:
+                    required:
+                      - k8s_pod_ipv6_service_subnet
+                  then:
+                    required:
+                      - k8s_pod_ipv6_network_cidr
+      - if:
+          properties:
+            roles:
+              contains:
+                const: k8s_worker
+          required:
+            - roles
+        then:
+          required:
+            - control_plane
+  service_entry:
+    type: object
+    description: "サービス有効化エントリ"
+    additionalProperties: false
+    properties:
+      enabled:
+        type: boolean
+        description: "サービスを有効にするかどうか"
+      config:
+        type: object
+        description: "サービス固有の設定"
+        additionalProperties:
+          $ref: '#/$defs/json_value'
+  json_value:
+    anyOf:
+      - type: string
+      - type: integer
+      - type: boolean
+      - type: number
+      - type: 'null'
+      - type: array
+        items:
+          $ref: '#/$defs/json_value'
+      - type: object
+        additionalProperties:
+          $ref: '#/$defs/json_value'
+  kubernetes_globals:
+    type: object
+    description: "Kubernetes クラスタ共通設定 (k8s_control_plane ロール向け既定値)"
+    additionalProperties: false
+    properties:
+      version:
+        type: string
+        description: "Kubernetes バージョン (例: '1.31')"
+      pki:
+        type: object
+        description: "公開鍵基盤 (PKI) 設定"
+        additionalProperties: false
+        properties:
+          shared_ca:
+            type: object
+            description: "クラスタ間共有認証局 (CA) 設定"
+            additionalProperties: false
+            properties:
+              enabled:
+                type: boolean
+                description: "共有 CA を使用するかどうか"
+              source_host:
+                type: string
+                description: "CA 証明書/鍵を取得するホスト名"
+              common_ca_path:
+                type: string
+                description: "共通 CA 証明書ファイルのパス"
+              output_dir:
+                type: string
+                description: "証明書出力先ディレクトリ"
+              replace_kube_ca:
+                type: boolean
+                description: "Kubernetes 組み込み CA を置き換えるかどうか"
+      operator:
+        type: object
+        description: "Kubernetes Operator 設定"
+        additionalProperties: false
+        properties:
+          user:
+            type: string
+            description: "Kubernetes Operator 実行ユーザー名"
+      helm:
+        type: object
+        description: "Helm 設定"
+        additionalProperties: false
+        properties:
+          version:
+            type: string
+            description: "Helm バージョン (例: '3.16.0')"
+      services:
+        type: object
+        description: "k8s_control_plane ノード向けサービス既定値"
+        additionalProperties:
+          $ref: '#/$defs/service_entry'
+  interface:
+    type: object
+    description: "インターフェース定義"
+    required:
+      - netif
+      - network
+    additionalProperties: false
+    properties:
+      netif:
+        type: string
+        description: "ネットワークインターフェース名"
+      network:
+        type: string
+        description: "接続先ネットワーク識別子 (ID)"
+      mac:
+        type: string
+        description: "メディアアクセス制御 (MAC) アドレス"
+      static_ipv4_addr:
+        type: string
+        description: "静的インターネットプロトコルバージョン4 (IPv4) アドレス（未指定時はDHCPv4を使用）"
+      static_ipv6_addr:
+        type: string
+        description: "静的インターネットプロトコルバージョン6 (IPv6) アドレス（未指定時はSLAACを使用）"
+      gateway4:
+        type: string
+        description: "インターネットプロトコルバージョン4 (IPv4) ゲートウェイ（ネットワーク既定値を上書き）"
+      gateway6:
+        type: string
+        description: "インターネットプロトコルバージョン6 (IPv6) ゲートウェイ（ネットワーク既定値を上書き）"
+      dns_search:
+        type: string
+        description: "ドメインネームシステム (DNS) 検索ドメイン（ネットワーク既定値を上書き）"
+      name_server_ipv4_1:
+        type: string
+        description: "インターネットプロトコルバージョン4 (IPv4) ドメインネームシステム (DNS) サーバー 1"
+      name_server_ipv4_2:
+        type: string
+        description: "インターネットプロトコルバージョン4 (IPv4) ドメインネームシステム (DNS) サーバー 2"
+      name_server_ipv6_1:
+        type: string
+        description: "インターネットプロトコルバージョン6 (IPv6) ドメインネームシステム (DNS) サーバー 1"
+      name_server_ipv6_2:
+        type: string
+        description: "インターネットプロトコルバージョン6 (IPv6) ドメインネームシステム (DNS) サーバー 2"
+      route_metric_ipv4:
+        type: integer
+        description: "インターネットプロトコルバージョン4 (IPv4) ルートメトリック"
+      route_metric_ipv6:
+        type: integer
+        description: "インターネットプロトコルバージョン6 (IPv6) ルートメトリック"
+      ignore_auto_ipv4_dns:
+        type: boolean
+        description: "自動取得したインターネットプロトコルバージョン4 (IPv4) ドメインネームシステム (DNS) を無視するか"
+      ignore_auto_ipv6_dns:
+        type: boolean
+        description: "自動取得したインターネットプロトコルバージョン6 (IPv6) ドメインネームシステム (DNS) を無視するか"

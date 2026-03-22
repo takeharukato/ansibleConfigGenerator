@@ -1,0 +1,29 @@
+Source: ansibleconfiggenerator
+Section: utils
+Priority: optional
+Maintainer: Takeharu KATO <tkato1219@gmail.com>
+Build-Depends:
+ debhelper-compat (= 13),
+ dh-python,
+ python3-all,
+ python3-setuptools,
+ python3-yaml,
+ gettext,
+ bash,
+ autoconf,
+ automake,
+ pkg-config
+Standards-Version: 4.6.2
+Homepage: https://github.com/yourusername/ansibleConfigGenerator
+
+Package: ansibleconfiggenerator
+Architecture: all
+Depends:
+ ${misc:Depends},
+ ${python3:Depends},
+ python3 (>= 3.9),
+ python3-yaml
+Description: genAnsibleConf command-line generators
+ Generates host_vars, tfvars, and design-sheet artifacts from topology inputs.
+ Includes generator scripts, Python modules, schema/config YAML files,
+ and runtime configuration templates.

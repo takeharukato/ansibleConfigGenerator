@@ -1,0 +1,217 @@
+$schema: https://json-schema.org/draft/2020-12/schema
+$id: host_vars_structured.schema.yaml
+title: host_vars_structured schema
+description: "scripts/hostvars-generator/host_vars_structured.yamlから生成されたスキーマ"
+type: object
+required:
+- hosts
+additionalProperties: false
+properties:
+  hosts:
+    type: array
+    minItems: 1
+    items:
+      $ref: '#/$defs/host'
+$defs:
+  host:
+    type: object
+    required:
+    - hostname
+    - netif_list
+    - scalars
+    additionalProperties: false
+    properties:
+      hostname:
+        type: string
+        pattern: ^[A-Za-z0-9._-]+$
+      scalars:
+        type: object
+        additionalProperties:
+          anyOf:
+          - type: string
+          - type: integer
+          - type: boolean
+      netif_list:
+        type: array
+        items:
+          $ref: '#/$defs/netif'
+      k8s_bgp:
+        $ref: '#/$defs/k8s_bgp'
+      k8s_worker_frr:
+        $ref: '#/$defs/k8s_worker_frr'
+      frr_ebgp_neighbors:
+        type: array
+        items:
+          $ref: '#/$defs/frr_neighbor'
+      frr_ebgp_neighbors_v6:
+        type: array
+        items:
+          $ref: '#/$defs/frr_neighbor'
+      frr_ibgp_neighbors:
+        type: array
+        items:
+          $ref: '#/$defs/frr_neighbor'
+      frr_ibgp_neighbors_v6:
+        type: array
+        items:
+          $ref: '#/$defs/frr_neighbor'
+      frr_networks_v4:
+        type: array
+        items:
+          type: string
+      frr_networks_v6:
+        type: array
+        items:
+          type: string
+      vcinstances_clusterversions:
+        type: array
+        items:
+          $ref: '#/$defs/vcinstances_clusterversion'
+      vcinstances_virtualclusters:
+        type: array
+        items:
+          $ref: '#/$defs/vcinstances_virtualcluster'
+  netif:
+    type: object
+    required:
+    - netif
+    additionalProperties: false
+    properties:
+      dns_search:
+        type: string
+      gateway4:
+        type: string
+      gateway6:
+        type: string
+      ignore_auto_ipv4_dns:
+        type: boolean
+      ignore_auto_ipv6_dns:
+        type: boolean
+      mac:
+        type: string
+      name_server_ipv4_1:
+        type: string
+      name_server_ipv4_2:
+        type: string
+      name_server_ipv6_1:
+        type: string
+      name_server_ipv6_2:
+        type: string
+      netif:
+        type: string
+      network_ipv4_prefix_len:
+        type: integer
+      network_ipv6_prefix_len:
+        type: integer
+      route_metric_ipv4:
+        type: integer
+      route_metric_ipv6:
+        type: integer
+      static_ipv4_addr:
+        type: string
+      static_ipv6_addr:
+        type: string
+  frr_neighbor:
+    type: object
+    required:
+    - addr
+    - asn
+    - desc
+    additionalProperties: false
+    properties:
+      addr:
+        type: string
+      asn:
+        type: integer
+      desc:
+        type: string
+  vcinstances_clusterversion:
+    type: object
+    required:
+    - name
+    additionalProperties: true
+    properties:
+      name:
+        type: string
+  vcinstances_virtualcluster:
+    type: object
+    required:
+    - name
+    - namespace
+    - clusterVersionName
+    - clusterDomain
+    - kubeConfigSecretName
+    additionalProperties: true
+    properties:
+      name:
+        type: string
+      namespace:
+        type: string
+      clusterVersionName:
+        type: string
+      clusterDomain:
+        type: string
+      kubeConfigSecretName:
+        type: string
+  k8s_bgp:
+    type: object
+    required:
+    - enabled
+    - node_name
+    - local_asn
+    - kubeconfig
+    - export_pod_cidr
+    - advertise_services
+    - address_families
+    - neighbors
+    additionalProperties: true
+    properties:
+      enabled:
+        type: boolean
+      node_name:
+        type: string
+      local_asn:
+        type: integer
+      kubeconfig:
+        type: string
+      export_pod_cidr:
+        type: boolean
+      advertise_services:
+        type: boolean
+      address_families:
+        type: array
+        items:
+          type: string
+      neighbors:
+        type: array
+        items:
+          type: object
+          required:
+          - peer_address
+          - peer_asn
+          - peer_port
+          - hold_time_seconds
+          - connect_retry_seconds
+          additionalProperties: true
+          properties:
+            peer_address:
+              type: string
+            peer_asn:
+              type: integer
+            peer_port:
+              type: integer
+            hold_time_seconds:
+              type: integer
+            connect_retry_seconds:
+              type: integer
+  k8s_worker_frr:
+    type: object
+    required:
+    - enabled
+    - local_asn
+    additionalProperties: true
+    properties:
+      enabled:
+        type: boolean
+      local_asn:
+        type: integer

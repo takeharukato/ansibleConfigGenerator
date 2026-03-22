@@ -1,0 +1,145 @@
+$schema: https://json-schema.org/draft/2020-12/schema
+$id: field_metadata.schema.yaml
+title: field_metadata schema
+description: "ホスト変数比較CSVで使用されるスカラー設定のメタデータスキーマ"
+type: object
+required:
+  - version
+  - fields
+additionalProperties: false
+properties:
+  version:
+    type: integer
+    minimum: 1
+  description:
+    type: string
+    minLength: 1
+  fields:
+    type: object
+    minProperties: 1
+    patternProperties:
+      ^[A-Za-z_][A-Za-z0-9_]*$:
+        $ref: '#/$defs/field_entry'
+    additionalProperties: false
+$defs:
+  field_entry:
+    type: object
+    required:
+      - type
+      - description
+      - category
+    additionalProperties: false
+    properties:
+      type:
+        type: string
+        enum:
+          - string
+          - integer
+          - number
+          - boolean
+          - cidr
+          - ip
+          - hostname
+          - interface
+      description:
+        type: string
+        minLength: 1
+      category:
+        type: string
+        enum:
+          - network_interface
+          - routing_bgp
+          - k8s_network
+          - k8s_control_plane
+          - k8s_features
+          - storage
+          - infrastructure
+      allowed_range:
+        oneOf:
+          - $ref: '#/$defs/range_numeric'
+          - $ref: '#/$defs/range_enum'
+          - $ref: '#/$defs/range_pattern'
+          - $ref: '#/$defs/range_semantic'
+      allowed_values:
+        type: array
+        minItems: 1
+        uniqueItems: true
+        items:
+          type: string
+          minLength: 1
+      examples:
+        type: array
+        minItems: 1
+        items:
+          oneOf:
+            - type: string
+            - type: integer
+            - type: number
+            - type: boolean
+      notes:
+        type: string
+        minLength: 1
+  range_numeric:
+    type: object
+    required:
+      - kind
+      - min
+      - max
+    additionalProperties: false
+    properties:
+      kind:
+        type: string
+        const: numeric
+      min:
+        type: number
+      max:
+        type: number
+  range_enum:
+    type: object
+    required:
+      - kind
+      - values
+    additionalProperties: false
+    properties:
+      kind:
+        type: string
+        const: enum
+      values:
+        type: array
+        minItems: 1
+        uniqueItems: true
+        items:
+          type: string
+          minLength: 1
+  range_pattern:
+    type: object
+    required:
+      - kind
+      - regex
+    additionalProperties: false
+    properties:
+      kind:
+        type: string
+        const: pattern
+      regex:
+        type: string
+        minLength: 1
+  range_semantic:
+    type: object
+    required:
+      - kind
+      - name
+    additionalProperties: false
+    properties:
+      kind:
+        type: string
+        const: semantic
+      name:
+        type: string
+        enum:
+          - cidr_ipv4
+          - cidr_ipv6
+          - fqdn
+          - ifname
+          - ip_or_fqdn
+          - asn

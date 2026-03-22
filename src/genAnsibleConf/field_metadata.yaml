@@ -1,0 +1,1263 @@
+version: 1
+description: ホスト変数構造化出力のスカラー設定に関するメタデータの初期テンプレート。
+fields:
+  build_docker_ce_backup_container_image:
+    type: boolean
+    description: Docker CE バックアップコンテナイメージの構築フラグ
+    category: infrastructure
+    allowed_values:
+    - 'true'
+    - 'false'
+  external_net_nic:
+    type: interface
+    description: 外部ネットワークNIC
+    category: network_interface
+    allowed_range:
+      kind: semantic
+      name: ifname
+  frr_bgp_asn:
+    type: integer
+    description: FRR BGP 自律システム番号
+    category: routing_bgp
+    allowed_range:
+      kind: numeric
+      min: 1
+      max: 4294967295
+  frr_bgp_router_id:
+    type: string
+    description: FRR BGP ルーター ID
+    category: routing_bgp
+    allowed_range:
+      kind: semantic
+      name: ip_or_fqdn
+  gitlab_hostname:
+    type: hostname
+    description: GitLab ホスト名
+    category: infrastructure
+    allowed_range:
+      kind: semantic
+      name: fqdn
+  gpm_mgmt_nic:
+    type: interface
+    description: GPM 管理用 NIC
+    category: network_interface
+    allowed_range:
+      kind: semantic
+      name: ifname
+  gpm_mgmt_ipv4_prefix:
+    type: string
+    description: GPM 管理ネットワーク IPv4 プレフィックス
+    category: network
+    allowed_range:
+      kind: semantic
+      name: ipv4_prefix
+  gpm_mgmt_ipv4_network_gateway:
+    type: ipv4
+    description: GPM 管理ネットワーク IPv4 ゲートウェイアドレス
+    category: network
+    allowed_range:
+      kind: semantic
+      name: ipv4
+  hubble_ui_enabled:
+    type: boolean
+    description: Hubble UI有効化フラグ
+    category: k8s_features
+    allowed_values:
+    - 'true'
+    - 'false'
+  k8s_major_minor:
+    type: string
+    description: Kubernetes メジャー.マイナーバージョン
+    category: k8s_control_plane
+  enable_create_k8s_ca:
+    type: boolean
+    description: Kubernetes 共通 CA の作成/再利用を有効化するフラグ
+    category: k8s_control_plane
+    allowed_values:
+    - 'true'
+    - 'false'
+  k8s_shared_ca_source_host:
+    type: string
+    description: Kubernetes 共通 CA のソースホスト
+    category: k8s_control_plane
+  k8s_common_ca:
+    type: string
+    description: Kubernetes 共通 CA 証明書内容
+    category: k8s_control_plane
+  k8s_shared_ca_output_dir:
+    type: string
+    description: Kubernetes 共通 CA の出力ディレクトリ
+    category: k8s_control_plane
+  k8s_shared_ca_replace_kube_ca:
+    type: boolean
+    description: Kubernetes 標準 CA を共通 CA で置き換えるフラグ
+    category: k8s_control_plane
+    allowed_values:
+    - 'true'
+    - 'false'
+  k8s_cilium_version:
+    type: string
+    description: Cilium バージョン
+    category: k8s_features
+  k8s_cilium_shared_ca_enabled:
+    type: boolean
+    description: Cilium 共通 CA を有効化するフラグ
+    category: k8s_features
+    allowed_values:
+    - 'true'
+    - 'false'
+  k8s_cilium_shared_ca_reuse_k8s_ca:
+    type: boolean
+    description: Kubernetes CA を Cilium CA として再利用するフラグ
+    category: k8s_features
+    allowed_values:
+    - 'true'
+    - 'false'
+  k8s_cilium_shared_ca_auto_create:
+    type: boolean
+    description: Cilium 共通 CA を自動作成するフラグ
+    category: k8s_features
+    allowed_values:
+    - 'true'
+    - 'false'
+  k8s_cilium_shared_ca_output_dir:
+    type: string
+    description: Cilium 共通 CA の出力ディレクトリ
+    category: k8s_features
+  k8s_cilium_shared_ca_cert_filename:
+    type: string
+    description: Cilium 共通 CA 証明書ファイル名
+    category: k8s_features
+  k8s_cilium_shared_ca_key_filename:
+    type: string
+    description: Cilium 共通 CA 秘密鍵ファイル名
+    category: k8s_features
+  k8s_cilium_shared_ca_cert_path:
+    type: string
+    description: Cilium 共通 CA 証明書パス
+    category: k8s_features
+  k8s_cilium_shared_ca_key_path:
+    type: string
+    description: Cilium 共通 CA 秘密鍵パス
+    category: k8s_features
+  cilium_shared_ca_kubeconfig:
+    type: string
+    description: Cilium 共通 CA 用 kubeconfig パス
+    category: k8s_features
+  k8s_multus_enabled:
+    type: boolean
+    description: Multus を有効化するフラグ
+    category: k8s_features
+    allowed_values:
+    - 'true'
+    - 'false'
+  k8s_multus_version:
+    type: string
+    description: Multus バージョン
+    category: k8s_features
+  k8s_whereabouts_enabled:
+    type: boolean
+    description: Whereabouts を有効化するフラグ
+    category: k8s_features
+    allowed_values:
+    - 'true'
+    - 'false'
+  k8s_whereabouts_version:
+    type: string
+    description: Whereabouts バージョン
+    category: k8s_features
+  k8s_whereabouts_ipv4_range_start:
+    type: string
+    description: Whereabouts IPv4 レンジ開始アドレス
+    category: k8s_network
+  k8s_whereabouts_ipv4_range_end:
+    type: string
+    description: Whereabouts IPv4 レンジ終了アドレス
+    category: k8s_network
+  k8s_whereabouts_ipv6_range_start:
+    type: string
+    description: Whereabouts IPv6 レンジ開始アドレス
+    category: k8s_network
+  k8s_whereabouts_ipv6_range_end:
+    type: string
+    description: Whereabouts IPv6 レンジ終了アドレス
+    category: k8s_network
+  k8s_hubble_cli_enabled:
+    type: boolean
+    description: Hubble CLI 有効化フラグ
+    category: k8s_features
+    allowed_values:
+    - 'true'
+    - 'false'
+  k8s_hubble_ui_enabled:
+    type: boolean
+    description: Hubble UI 有効化フラグ
+    category: k8s_features
+    allowed_values:
+    - 'true'
+    - 'false'
+  services:
+    type: object
+    description: サービス別設定
+    category: common
+  cilium:
+    type: object
+    description: Cilium サービス設定
+    category: k8s_features
+  multus:
+    type: object
+    description: Multus サービス設定
+    category: k8s_features
+  whereabouts:
+    type: object
+    description: Whereabouts サービス設定
+    category: k8s_features
+  hubble_cli:
+    type: object
+    description: Hubble CLI サービス設定
+    category: k8s_features
+  hubble_ui:
+    type: object
+    description: Hubble UI サービス設定
+    category: k8s_features
+  config:
+    type: object
+    description: サービス固有設定
+    category: common
+  version:
+    type: string
+    description: コンポーネントのバージョン
+    category: common
+  shared_ca_enabled:
+    type: boolean
+    description: Cilium 共通 CA を有効化するフラグ
+    category: k8s_features
+    allowed_values:
+    - 'true'
+    - 'false'
+  shared_ca_reuse_k8s_ca:
+    type: boolean
+    description: Kubernetes CA を Cilium CA として再利用するフラグ
+    category: k8s_features
+    allowed_values:
+    - 'true'
+    - 'false'
+  shared_ca_auto_create:
+    type: boolean
+    description: Cilium 共通 CA を自動作成するフラグ
+    category: k8s_features
+    allowed_values:
+    - 'true'
+    - 'false'
+  shared_ca_output_dir:
+    type: string
+    description: Cilium 共通 CA の出力ディレクトリ
+    category: k8s_features
+  ca_cert_filename:
+    type: string
+    description: Cilium CA 証明書ファイル名
+    category: k8s_features
+  ca_key_filename:
+    type: string
+    description: Cilium CA 秘密鍵ファイル名
+    category: k8s_features
+  ca_cert_path:
+    type: string
+    description: Cilium CA 証明書パス
+    category: k8s_features
+  ca_key_path:
+    type: string
+    description: Cilium CA 秘密鍵パス
+    category: k8s_features
+  ca_kubeconfig:
+    type: string
+    description: Cilium 共通 CA 用 kubeconfig パス
+    category: k8s_features
+  ipv4_range_start:
+    type: string
+    description: セカンダリネットワークのIPv4レンジ開始アドレス
+    category: k8s_network
+  ipv4_range_end:
+    type: string
+    description: セカンダリネットワークのIPv4レンジ終了アドレス
+    category: k8s_network
+  ipv6_range_start:
+    type: string
+    description: セカンダリネットワークのIPv6レンジ開始アドレス
+    category: k8s_network
+  ipv6_range_end:
+    type: string
+    description: セカンダリネットワークのIPv6レンジ終了アドレス
+    category: k8s_network
+  k8s_cilium_cm_cluster_id:
+    type: string
+    description: Kubernetes Cilium クラスタマップクラスタID
+    category: k8s_control_plane
+    allowed_range:
+      kind: enum
+      values:
+      - '1'
+      - '2'
+  k8s_cilium_cm_cluster_name:
+    type: string
+    description: Kubernetes Cilium クラスタマップクラスタ名
+    category: k8s_control_plane
+  k8s_ctrlplane_endpoint:
+    type: string
+    description: Kubernetes コントロールプレーンエンドポイント
+    category: k8s_control_plane
+  k8s_ctrlplane_host:
+    type: hostname
+    description: Kubernetes コントロールプレーンホスト
+    category: k8s_control_plane
+    allowed_range:
+      kind: semantic
+      name: fqdn
+  k8s_kubelet_nic:
+    type: interface
+    description: Kubernetes Kubelet NIC
+    category: network_interface
+    allowed_range:
+      kind: semantic
+      name: ifname
+  k8s_nic:
+    type: interface
+    description: Kubernetes NIC
+    category: network_interface
+    allowed_range:
+      kind: semantic
+      name: ifname
+  k8s_pod_ipv4_network_cidr:
+    type: cidr
+    description: Kubernetes Pod IPv4ネットワークCIDR
+    category: k8s_network
+    allowed_range:
+      kind: semantic
+      name: cidr_ipv4
+  k8s_pod_ipv4_service_subnet:
+    type: string
+    description: Kubernetes Pod IPv4サービスサブネット
+    category: k8s_network
+  k8s_pod_ipv6_network_cidr:
+    type: cidr
+    description: Kubernetes Pod IPv6ネットワークCIDR
+    category: k8s_network
+    allowed_range:
+      kind: semantic
+      name: cidr_ipv6
+  k8s_pod_ipv6_service_subnet:
+    type: string
+    description: Kubernetes Pod IPv6サービスサブネット
+    category: k8s_network
+  k8s_vcinstances_enabled:
+    type: boolean
+    description: Kubernetes 仮想クラスタインスタンス有効化フラグ
+    category: k8s_features
+    allowed_values:
+    - 'true'
+    - 'false'
+  k8s_virtualcluster_enabled:
+    type: boolean
+    description: Kubernetes 仮想クラスタ有効化フラグ
+    category: k8s_features
+    allowed_values:
+    - 'true'
+    - 'false'
+  mgmt_nic:
+    type: interface
+    description: 管理用NIC
+    category: network_interface
+    allowed_range:
+      kind: semantic
+      name: ifname
+  gpm_mgmt_ipv4_network_cidr:
+    type: cidr
+    description: 内部管理ネットワークIPv4 CIDR
+    category: network_interface
+    allowed_range:
+      kind: semantic
+      name: cidr_ipv4
+  gpm_mgmt_ipv6_network_cidr:
+    type: cidr
+    description: 内部管理ネットワークIPv6 CIDR
+    category: network_interface
+    allowed_range:
+      kind: semantic
+      name: cidr_ipv6
+  network_ipv4_network_address:
+    type: string
+    description: 外部管理ネットワークIPv4 ネットワークアドレス
+    category: network_interface
+  network_ipv6_network_address:
+    type: string
+    description: 外部管理ネットワークIPv6 ネットワークアドレス
+    category: network_interface
+  router_forwarding_enabled:
+    type: boolean
+    description: ルーター転送有効化フラグ
+    category: routing_bgp
+    allowed_values:
+    - 'true'
+    - 'false'
+  router_nat_enabled:
+    type: boolean
+    description: ルーター NAT 有効化フラグ
+    category: routing_bgp
+    allowed_values:
+    - 'true'
+    - 'false'
+  terraform_enabled:
+    type: boolean
+    description: Terraform 対象ロール有効化フラグ
+    category: infrastructure
+    allowed_values:
+    - 'true'
+    - 'false'
+  radvd_router_advertisement_prefix:
+    type: cidr
+    description: ルーター広告 (RA) で通知する IPv6 プレフィックス (CIDR 表記)
+    category: network_interface
+    allowed_range:
+      kind: semantic
+      name: cidr_ipv6
+  radvd_dns_servers:
+    type: array
+    description: ルーター広告 (RA) で通知する IPv6 DNS サーバアドレス一覧
+    category: network_interface
+  radvd_search_domains:
+    type: array
+    description: ルーター広告 (RA) で通知する DNS サーチドメイン一覧
+    category: network_interface
+  vcinstances_etcd_storage_class:
+    type: string
+    description: 仮想クラスタインスタンス etcd ストレージクラス
+    category: storage
+  vcinstances_etcd_storage_enabled:
+    type: boolean
+    description: 仮想クラスタインスタンス etcd ストレージ有効化フラグ
+    category: storage
+    allowed_values:
+    - 'true'
+    - 'false'
+  vcinstances_etcd_storage_size:
+    type: string
+    description: 仮想クラスタインスタンス etcd ストレージサイズ
+    category: storage
+  netif_list:
+    type: array
+    description: ホストに設定するネットワークインターフェース一覧
+    category: network_interface
+  netif:
+    type: interface
+    description: ネットワークインターフェース名
+    category: network_interface
+  mac:
+    type: string
+    description: ネットワークインターフェースのMACアドレス
+    category: network_interface
+  static_ipv4_addr:
+    type: string
+    description: 固定IPv4アドレス
+    category: network_interface
+  network_ipv4_prefix_len:
+    type: integer
+    description: IPv4プレフィックス長
+    category: network_interface
+  static_ipv6_addr:
+    type: string
+    description: 固定IPv6アドレス
+    category: network_interface
+  network_ipv6_prefix_len:
+    type: integer
+    description: IPv6プレフィックス長
+    category: network_interface
+  gateway4:
+    type: string
+    description: 既定IPv4ゲートウェイアドレス
+    category: network_interface
+  gateway6:
+    type: string
+    description: 既定IPv6ゲートウェイアドレス
+    category: network_interface
+  dns_search:
+    type: string
+    description: DNSサーチドメイン
+    category: network_interface
+  ipv4_name_server1:
+    type: string
+    description: 優先IPv4 DNSサーバアドレス
+    category: network_interface
+  ipv4_name_server2:
+    type: string
+    description: 代替IPv4 DNSサーバアドレス
+    category: network_interface
+  ipv6_name_server1:
+    type: string
+    description: 優先IPv6 DNSサーバアドレス
+    category: network_interface
+  ipv6_name_server2:
+    type: string
+    description: 代替IPv6 DNSサーバアドレス
+    category: network_interface
+  users_list:
+    type: array
+    description: ユーザ定義リスト
+    category: user
+  users_authorized_keys:
+    type: object
+    description: ユーザごとの追加公開鍵定義
+    category: user
+  ntp_servers_list:
+    type: array
+    description: NTPクライアント参照先サーバ一覧
+    category: time
+  external_ntp_servers_list:
+    type: array
+    description: NTPサーバ参照先の外部時刻サーバ一覧
+    category: time
+  ntp_allow:
+    type: string
+    description: NTPサーバの許可ネットワーク
+    category: time
+  internal_network_list:
+    type: array
+    description: DNS逆引き用の内部ネットワーク定義
+    category: network_interface
+  netgauge_enabled:
+    type: boolean
+    description: netgaugeサービス有効化フラグ
+    category: monitoring
+    allowed_values:
+    - 'true'
+    - 'false'
+  no_proxy:
+    type: string
+    description: プロキシ除外先
+    category: infrastructure
+  proxy_server:
+    type: string
+    description: プロキシサーバアドレス
+    category: infrastructure
+  proxy_port:
+    type: string
+    description: プロキシサーバポート
+    category: infrastructure
+  proxy_user:
+    type: string
+    description: プロキシ認証ユーザ名
+    category: infrastructure
+  proxy_password:
+    type: string
+    description: プロキシ認証パスワード
+    category: infrastructure
+  name_server_ipv4_1:
+    type: string
+    description: 優先IPv4 DNSサーバアドレス
+    category: network_interface
+  name_server_ipv4_2:
+    type: string
+    description: 代替IPv4 DNSサーバアドレス
+    category: network_interface
+  name_server_ipv6_1:
+    type: string
+    description: 優先IPv6 DNSサーバアドレス
+    category: network_interface
+  name_server_ipv6_2:
+    type: string
+    description: 代替IPv6 DNSサーバアドレス
+    category: network_interface
+  ignore_auto_ipv4_dns:
+    type: boolean
+    description: 自動取得IPv4 DNS設定を無視するフラグ
+    category: network_interface
+  ignore_auto_ipv6_dns:
+    type: boolean
+    description: 自動取得IPv6 DNS設定を無視するフラグ
+    category: network_interface
+  route_metric_ipv4:
+    type: integer
+    description: IPv4経路メトリクス
+    category: network_interface
+  route_metric_ipv6:
+    type: integer
+    description: IPv6経路メトリクス
+    category: network_interface
+  frr_ebgp_neighbors:
+    type: array
+    description: FRR eBGP IPv4ネイバー一覧
+    category: routing_bgp
+  frr_ebgp_neighbors_v6:
+    type: array
+    description: FRR eBGP IPv6ネイバー一覧
+    category: routing_bgp
+  frr_ibgp_neighbors:
+    type: array
+    description: FRRとKubernetesノード間のiBGP IPv4ネイバー一覧
+    category: routing_bgp
+  frr_ibgp_neighbors_v6:
+    type: array
+    description: FRRとKubernetesノード間のiBGP IPv6ネイバー一覧
+    category: routing_bgp
+  frr_networks_v4:
+    type: array
+    description: FRRで広告するIPv4ネットワーク一覧
+    category: routing_bgp
+  frr_networks_v6:
+    type: array
+    description: FRRで広告するIPv6ネットワーク一覧
+    category: routing_bgp
+  addr:
+    type: string
+    description: ネイバーアドレス
+    category: routing_bgp
+  asn:
+    type: integer
+    description: ネイバーAS番号
+    category: routing_bgp
+  desc:
+    type: string
+    description: ネイバー説明
+    category: routing_bgp
+  k8s_bgp:
+    type: object
+    description: Kubernetes BGP Control Plane 設定
+    category: routing_bgp
+  enabled:
+    type: boolean
+    description: 機能有効化フラグ
+    category: common
+  node_name:
+    type: string
+    description: Kubernetesノード名
+    category: k8s_control_plane
+  local_asn:
+    type: integer
+    description: ローカルAS番号
+    category: routing_bgp
+  kubeconfig:
+    type: string
+    description: kubeconfigファイルパス
+    category: k8s_control_plane
+  export_pod_cidr:
+    type: boolean
+    description: Pod CIDRをBGP広告するフラグ
+    category: routing_bgp
+  advertise_services:
+    type: boolean
+    description: Service CIDRをBGP広告するフラグ
+    category: routing_bgp
+  address_families:
+    type: array
+    description: 有効化するアドレスファミリー一覧
+    category: routing_bgp
+  neighbors:
+    type: array
+    description: BGPネイバー一覧
+    category: routing_bgp
+  peer_address:
+    type: string
+    description: ピアアドレス
+    category: routing_bgp
+  peer_asn:
+    type: integer
+    description: ピアAS番号
+    category: routing_bgp
+  peer_port:
+    type: integer
+    description: ピア接続ポート番号
+    category: routing_bgp
+  hold_time_seconds:
+    type: integer
+    description: BGPホールドタイマー秒数
+    category: routing_bgp
+  connect_retry_seconds:
+    type: integer
+    description: BGP再接続待ち秒数
+    category: routing_bgp
+  k8s_worker_frr:
+    type: object
+    description: Kubernetes Worker向けFRR設定
+    category: routing_bgp
+  rfc5549_enabled:
+    type: boolean
+    description: RFC5549を有効化するフラグ
+    category: routing_bgp
+  ipv4_transport_ipv6_nlri_enabled:
+    type: boolean
+    description: IPv4トランスポート上でIPv6 NLRI交換を有効化するフラグ
+    category: routing_bgp
+  router_id:
+    type: string
+    description: BGPルーターID
+    category: routing_bgp
+  cluster_name:
+    type: string
+    description: Kubernetesクラスタ名
+    category: k8s_control_plane
+  dc_frr_addresses:
+    type: object
+    description: データセンタFRRノードのIPv4アドレスマップ
+    category: routing_bgp
+  dc_frr_addresses_v6:
+    type: object
+    description: データセンタFRRノードのIPv6アドレスマップ
+    category: routing_bgp
+  advertise_host_route_ipv4:
+    type: string
+    description: 広告するホストIPv4ルート
+    category: routing_bgp
+  advertise_host_route_ipv6:
+    type: string
+    description: 広告するホストIPv6ルート
+    category: routing_bgp
+  prefix_filter:
+    type: object
+    description: BGP広告プレフィックスフィルタ設定
+    category: routing_bgp
+  ipv4:
+    type: object
+    description: IPv4向け設定
+    category: routing_bgp
+  ipv6:
+    type: object
+    description: IPv6向け設定
+    category: routing_bgp
+  pod_min_length:
+    type: integer
+    description: Podプレフィックス最小長
+    category: routing_bgp
+  pod_max_length:
+    type: integer
+    description: Podプレフィックス最大長
+    category: routing_bgp
+  service_min_length:
+    type: integer
+    description: Serviceプレフィックス最小長
+    category: routing_bgp
+  service_max_length:
+    type: integer
+    description: Serviceプレフィックス最大長
+    category: routing_bgp
+  clusters:
+    type: object
+    description: クラスタ別BGP広告対象CIDR定義
+    category: routing_bgp
+  cluster1:
+    type: object
+    description: cluster1のCIDR定義
+    category: routing_bgp
+  cluster2:
+    type: object
+    description: cluster2のCIDR定義
+    category: routing_bgp
+  pod_cidrs_v4:
+    type: array
+    description: Pod IPv4 CIDR一覧
+    category: routing_bgp
+  service_cidrs_v4:
+    type: array
+    description: Service IPv4 CIDR一覧
+    category: routing_bgp
+  pod_cidrs_v6:
+    type: array
+    description: Pod IPv6 CIDR一覧
+    category: routing_bgp
+  service_cidrs_v6:
+    type: array
+    description: Service IPv6 CIDR一覧
+    category: routing_bgp
+  vcinstances_clusterversions:
+    type: array
+    description: 仮想クラスタ向けクラスタバージョン一覧
+    category: k8s_features
+  vcinstances_virtualclusters:
+    type: array
+    description: 仮想クラスタインスタンス一覧
+    category: k8s_features
+  name:
+    type: string
+    description: 名前
+    category: common
+  namespace:
+    type: string
+    description: 名前空間
+    category: k8s_features
+  clusterVersionName:
+    type: string
+    description: クラスタバージョン名
+    category: k8s_features
+  clusterDomain:
+    type: string
+    description: クラスタドメイン名
+    category: k8s_features
+  kubeConfigSecretName:
+    type: string
+    description: kubeconfigシークレット名
+    category: k8s_features
+  frr01.local:
+    type: string
+    description: frr01.localに対応するアドレス
+    category: routing_bgp
+  frr02.local:
+    type: string
+    description: frr02.localに対応するアドレス
+    category: routing_bgp
+  common_timezone:
+    type: string
+    description: システムタイムゾーン
+    category: common
+  common_selinux_state:
+    type: string
+    description: SELinux動作モード
+    category: common
+  common_disable_cron_mails:
+    type: boolean
+    description: cronメール無効化フラグ
+    category: common
+  use_vmware:
+    type: boolean
+    description: VMware利用フラグ
+    category: infrastructure
+  use_xcpng:
+    type: boolean
+    description: XCP-ng利用フラグ
+    category: infrastructure
+  force_reboot:
+    type: boolean
+    description: 設定反映後の再起動フラグ
+    category: common
+  enable_firewall:
+    type: boolean
+    description: ファイアウォール有効化フラグ
+    category: security
+  group:
+    type: string
+    description: ユーザの所属グループ
+    category: user
+  password:
+    type: string
+    description: ユーザパスワードハッシュ
+    category: user
+  update_password:
+    type: string
+    description: パスワード更新条件
+    category: user
+  shell:
+    type: string
+    description: ユーザログインシェル
+    category: user
+  home:
+    type: string
+    description: ユーザホームディレクトリ
+    category: user
+  comment:
+    type: string
+    description: ユーザコメント
+    category: user
+  email:
+    type: string
+    description: ユーザメールアドレス
+    category: user
+  github:
+    type: string
+    description: GitHubアカウント名
+    category: user
+  auto_user_add_for_users_authorized_keys:
+    type: boolean
+    description: 公開鍵追加時のユーザ自動作成フラグ
+    category: user
+  sudo_nopasswd_users:
+    type: array
+    description: 無パスワードsudoを許可するユーザ一覧
+    category: security
+  sudo_nopasswd_groups_extra:
+    type: array
+    description: 無パスワードsudoを許可する追加グループ一覧
+    category: security
+  sudo_nopasswd_groups_autodetect:
+    type: boolean
+    description: ディストリビューション別sudoグループ自動検出フラグ
+    category: security
+  sudo_nopasswd_absent:
+    type: boolean
+    description: sudoers設定削除フラグ
+    category: security
+  dns_host_list:
+    type: array
+    description: DNS正引き登録ホスト一覧
+    category: infrastructure
+  ipv4_addr:
+    type: string
+    description: IPv4アドレス末尾オクテットまたはホスト部
+    category: network_interface
+  ipv6_addr:
+    type: string
+    description: IPv6アドレス末尾フィールド
+    category: network_interface
+  ssh_legacy_key_hosts:
+    type: array
+    description: 旧SSH鍵許可ホスト一覧
+    category: security
+  mdns_enabled:
+    type: boolean
+    description: mDNS有効化フラグ
+    category: network_interface
+  mdns_host_list:
+    type: array
+    description: mDNS登録ホスト一覧
+    category: network_interface
+  dns_server:
+    type: string
+    description: DNSサーバFQDN
+    category: infrastructure
+  dns_server_ipv4_address:
+    type: string
+    description: DNSサーバIPv4アドレス
+    category: infrastructure
+  dns_server_ipv6_address:
+    type: string
+    description: DNSサーバIPv6アドレス
+    category: infrastructure
+  dns_domain:
+    type: string
+    description: 管理ドメイン名
+    category: infrastructure
+  dns_network:
+    type: string
+    description: named ACL向けIPv4ネットワークアドレス
+    category: infrastructure
+  dns_network_ipv4_prefix:
+    type: string
+    description: IPv4ネットワークプレフィクス
+    category: infrastructure
+  dns_network_ipv4_prefix_len:
+    type: string
+    description: IPv4ネットワークプレフィクス長
+    category: infrastructure
+  dns_network_ipv6_prefix:
+    type: string
+    description: IPv6ネットワークプレフィクス
+    category: infrastructure
+  dns_network_ipv6_prefix_len:
+    type: string
+    description: IPv6ネットワークプレフィクス長
+    category: infrastructure
+  dns_network_ipv6_prefix_filename:
+    type: string
+    description: IPv6逆引きゾーンファイル名
+    category: infrastructure
+  dns_ipv4_reverse:
+    type: string
+    description: IPv4逆引きゾーン名
+    category: infrastructure
+  dns_ipv6_reverse:
+    type: string
+    description: IPv6逆引きゾーン名
+    category: infrastructure
+  dns_ddns_key_secret:
+    type: string
+    description: Dynamic DNS更新鍵シークレット
+    category: security
+  use_nm_ddns_update_scripts:
+    type: boolean
+    description: Dynamic DNS自動更新スクリプト有効化フラグ
+    category: infrastructure
+  nfs_export_directory:
+    type: string
+    description: NFS公開ディレクトリ
+    category: infrastructure
+  nfs_network:
+    type: string
+    description: NFSクライアント許可ネットワーク
+    category: infrastructure
+  nfs_options:
+    type: string
+    description: NFS exportオプション
+    category: infrastructure
+  rancher_host:
+    type: string
+    description: Rancherホスト名
+    category: infrastructure
+  rancher_cert_domain_name:
+    type: string
+    description: Rancher証明書ドメイン名
+    category: infrastructure
+  rancher_cert_subject_country:
+    type: string
+    description: Rancher証明書サブジェクト国コード
+    category: infrastructure
+  rancher_cert_subject_state:
+    type: string
+    description: Rancher証明書サブジェクト都道府県
+    category: infrastructure
+  rancher_cert_subject_locality:
+    type: string
+    description: Rancher証明書サブジェクト市区町村
+    category: infrastructure
+  rancher_cert_subject_org:
+    type: string
+    description: Rancher証明書サブジェクト組織名
+    category: infrastructure
+  docker_ce_users:
+    type: array
+    description: Docker CE利用ユーザ一覧
+    category: infrastructure
+  docker_ce_enable_backup_script:
+    type: boolean
+    description: Docker CEバックアップスクリプト有効化フラグ
+    category: infrastructure
+  docker_ce_backup_rotation:
+    type: integer
+    description: Docker CEバックアップ世代数
+    category: infrastructure
+  docker_ce_backup_nfs_server:
+    type: string
+    description: Docker CEバックアップ先NFSサーバ
+    category: infrastructure
+  docker_ce_backup_nfs_dir:
+    type: string
+    description: Docker CEバックアップ先共有ディレクトリ
+    category: infrastructure
+  docker_ce_backup_mount_point:
+    type: string
+    description: Docker CEバックアップ時NFSマウントポイント
+    category: infrastructure
+  docker_ce_backup_dir_on_nfs:
+    type: string
+    description: Docker CEバックアップ配置先ディレクトリ
+    category: infrastructure
+  user_settings_create_bash_skel:
+    type: boolean
+    description: Bash用skel作成フラグ
+    category: user
+  user_settings_create_zsh_skel:
+    type: boolean
+    description: zsh用skel作成フラグ
+    category: user
+  user_settings_create_ssh_skel:
+    type: boolean
+    description: ssh用skel作成フラグ
+    category: user
+  user_settings_create_curl_skel:
+    type: boolean
+    description: curl用skel作成フラグ
+    category: user
+  user_settings_create_wget_skel:
+    type: boolean
+    description: wget用skel作成フラグ
+    category: user
+  user_settings_create_screen_skel:
+    type: boolean
+    description: screen用skel作成フラグ
+    category: user
+  user_settings_create_tmux_skel:
+    type: boolean
+    description: tmux用skel作成フラグ
+    category: user
+  user_settings_create_aspell_skel:
+    type: boolean
+    description: aspell用skel作成フラグ
+    category: user
+  user_settings_create_git_skel:
+    type: boolean
+    description: git用skel作成フラグ
+    category: user
+  user_settings_create_gitignore_on_homedir_skel:
+    type: boolean
+    description: ホーム直下.gitignore作成フラグ
+    category: user
+  user_settings_create_gdb_skel:
+    type: boolean
+    description: gdb用skel作成フラグ
+    category: user
+  user_settings_create_emacs_skel:
+    type: boolean
+    description: Emacs用skel作成フラグ
+    category: user
+  post_user_create_gitconfig_enabled:
+    type: boolean
+    description: ユーザごとの.gitconfig作成フラグ
+    category: user
+  post_user_create_gitconfig_use_login_name:
+    type: boolean
+    description: .gitconfig user.nameにログイン名を使用するフラグ
+    category: user
+  user_settings_backup_home_script_enabled:
+    type: boolean
+    description: ホームディレクトリバックアップスクリプト有効化フラグ
+    category: user
+  user_settings_backup_home_rotation:
+    type: integer
+    description: ホームディレクトリバックアップ世代数
+    category: user
+  user_settings_backup_home_nfs_server:
+    type: string
+    description: ホームディレクトリバックアップ先NFSサーバ
+    category: user
+  user_settings_backup_home_nfs_dir:
+    type: string
+    description: ホームディレクトリバックアップ先共有ディレクトリ
+    category: user
+  user_settings_backup_home_mount_point:
+    type: string
+    description: ホームディレクトリバックアップ時NFSマウントポイント
+    category: user
+  user_settings_backup_dir_on_nfs:
+    type: string
+    description: ホームディレクトリバックアップ配置先ディレクトリ
+    category: user
+  user_settings_backup_users_list:
+    type: array
+    description: ホームディレクトリバックアップ対象ユーザ一覧
+    category: user
+  create_user_emacs_package_list:
+    type: array
+    description: ユーザ用Emacsパッケージ一覧
+    category: user
+  ldap_organization:
+    type: string
+    description: LDAP組織名
+    category: infrastructure
+  ldap_domain:
+    type: string
+    description: LDAPドメイン名
+    category: infrastructure
+  ldap_admin_password:
+    type: string
+    description: LDAP管理者パスワード
+    category: infrastructure
+  ldap_admin_port:
+    type: integer
+    description: LDAP管理Web画面ポート番号
+    category: infrastructure
+  redmine_enable_backup_script:
+    type: boolean
+    description: Redmineバックアップスクリプト有効化フラグ
+    category: infrastructure
+  redmine_backup_rotation:
+    type: integer
+    description: Redmineバックアップ世代数
+    category: infrastructure
+  redmine_backup_nfs_server:
+    type: string
+    description: Redmineバックアップ先NFSサーバ
+    category: infrastructure
+  redmine_backup_nfs_dir:
+    type: string
+    description: Redmineバックアップ先共有ディレクトリ
+    category: infrastructure
+  redmine_backup_mount_point:
+    type: string
+    description: Redmineバックアップ時NFSマウントポイント
+    category: infrastructure
+  redmine_backup_dir_on_nfs:
+    type: string
+    description: Redmineバックアップ配置先ディレクトリ
+    category: infrastructure
+  gitlab_enable_backup_script:
+    type: boolean
+    description: GitLabバックアップスクリプト有効化フラグ
+    category: infrastructure
+  gitlab_backup_rotation:
+    type: integer
+    description: GitLabバックアップ世代数
+    category: infrastructure
+  gitlab_backup_nfs_server:
+    type: string
+    description: GitLabバックアップ先NFSサーバ
+    category: infrastructure
+  gitlab_backup_nfs_dir:
+    type: string
+    description: GitLabバックアップ先共有ディレクトリ
+    category: infrastructure
+  gitlab_backup_mount_point:
+    type: string
+    description: GitLabバックアップ時NFSマウントポイント
+    category: infrastructure
+  gitlab_backup_dir_on_nfs:
+    type: string
+    description: GitLabバックアップ配置先ディレクトリ
+    category: infrastructure
+  netgauge_version:
+    type: string
+    description: Netgaugeバージョン
+    category: monitoring
+  netgauge_dir:
+    type: string
+    description: Netgaugeインストールディレクトリ
+    category: monitoring
+  netgauge_configure:
+    type: string
+    description: Netgauge configureオプション
+    category: monitoring
+  k8s_reserved_system_cpus_default:
+    type: string
+    description: Kubernetesシステム予約CPU値
+    category: k8s_control_plane
+  k8s_worker_enable_nodeport:
+    type: boolean
+    description: Kubernetes NodePort有効化フラグ
+    category: k8s_control_plane
+  k8s_worker_nodeport_range:
+    type: string
+    description: Kubernetes NodePortポート範囲
+    category: k8s_control_plane
+  k8s_operator_github_key_list:
+    type: array
+    description: Kubernetes運用者公開鍵取得用GitHubアカウント一覧
+    category: k8s_control_plane
+  k8s_operator_authorized_key_list:
+    type: array
+    description: Kubernetes運用者公開鍵文字列一覧
+    category: k8s_control_plane
+
+design_sheet_descriptions:
+  role:
+    k8s_control_plane: Kubernetesコントロールプレーンノード向けサービス一覧
+    k8s_worker: Kubernetesワーカーノード向けサービス一覧
+    infra_server: インフラサーバ向けサービス一覧
+    rancher: Rancherサーバ向けサービス一覧
+    docker: Docker運用ノード向けサービス一覧
+    dev_linux: 開発用Linuxノード向けサービス一覧
+    route_reflector: BGPルートリフレクタ向けサービス一覧
+    internal_router: 内部ルータノード向けサービス一覧
+    terraform_orchestration: Terraformオーケストレーション用途ロールのサービス一覧
+  host_scalar:
+    build_docker_ce_backup_container_image: Docker CEバックアップ用コンテナイメージを構築するか
+    frr_bgp_asn: FRR BGP 自律システム番号
+    frr_bgp_router_id: FRR BGP ルーターID
+    k8s_cilium_cm_cluster_id: CiliumクラスタマップのクラスタID
+    k8s_cilium_cm_cluster_name: Ciliumクラスタマップのクラスタ名
+    k8s_ctrlplane_endpoint: Kubernetesコントロールプレーン接続先エンドポイント
+    k8s_ctrlplane_host_fqdn: KubernetesコントロールプレーンホストFQDN
+    k8s_pod_ipv4_network_cidr: Kubernetes Pod IPv4 CIDR
+    k8s_pod_ipv4_service_subnet: Kubernetes Service IPv4 CIDR
+    k8s_pod_ipv6_network_cidr: Kubernetes Pod IPv6 CIDR
+    k8s_pod_ipv6_service_subnet: Kubernetes Service IPv6 CIDR
+    k8s_vcinstances_enabled: 仮想クラスタインスタンス機能を有効化するか
+    k8s_virtualcluster_enabled: 仮想クラスタ機能を有効化するか
+    vcinstances_etcd_storage_class: 仮想クラスタetcdのストレージクラス
+    vcinstances_etcd_storage_enabled: 仮想クラスタetcdストレージを有効化するか
+    vcinstances_etcd_storage_size: 仮想クラスタetcdのストレージ容量
+  host_service:
+    gitlab:
+      config:
+        hostname: GitLabサービスの公開ホスト名
+        gitlab_enable_backup_script: GitLabバックアップスクリプトを有効化するか
+        gitlab_backup_rotation: GitLabバックアップ世代数
+        gitlab_backup_nfs_server: GitLabバックアップ先NFSサーバ
+        gitlab_backup_nfs_dir: GitLabバックアップ先共有ディレクトリ
+        gitlab_backup_mount_point: GitLabバックアップ時マウントポイント
+        gitlab_backup_dir_on_nfs: GitLabバックアップ格納先ディレクトリ
+    vm_params:
+      config:
+        firmware: 仮想マシンのファームウェア種別
+        resource_profile: 仮想マシンのリソースプロファイル
+        template_type: 仮想マシンテンプレート種別
+        vm_group: 仮想マシングループ名
+    whereabouts:
+      config:
+        ipv4_range_start: Whereabouts IPv4レンジ開始アドレス
+        ipv4_range_end: Whereabouts IPv4レンジ終了アドレス
+        ipv6_range_start: Whereabouts IPv6レンジ開始アドレス
+        ipv6_range_end: Whereabouts IPv6レンジ終了アドレス

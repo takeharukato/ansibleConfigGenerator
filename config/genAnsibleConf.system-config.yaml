@@ -1,0 +1,15 @@
+# genAnsibleConf system configuration
+# Installed path: /etc/genAnsibleConf/config.yaml
+schema_search_paths:
+  # Optional per-file absolute paths or directory paths.
+  # If a value is a directory, the resolver appends each default filename.
+  # field_metadata: /opt/genAnsibleConf/schema/field_metadata.yaml
+  # network_topology: /opt/genAnsibleConf/schema/network_topology.schema.yaml
+  # type_schema: /opt/genAnsibleConf/schema/type_schema.yaml
+  # convert_rule_config: /opt/genAnsibleConf/schema/convert-rule-config.yaml
+
+  # Optional shared directory for unresolved file keys.
+  # default_dir: /opt/genAnsibleConf/schema
+
+  # Default to package-installed schema directory.
+  default_dir: /usr/share/genAnsibleConf/schema
