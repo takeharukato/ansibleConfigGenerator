@@ -1,4 +1,4 @@
-# フィールドメタデータ参照 (field_metadata.yaml)
+# フィールドメタデータリファレンスマニュアル (field_metadata.yaml)
 
 `field_metadata.yaml` はスカラー変数の名称,型,説明,値の制約を定義するファイルです。`generate_hostvars_matrix.py` が参照し, CSV 形式のホスト変数比較シートの列ヘッダや値の検証条件を決定します。
 
