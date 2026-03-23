@@ -316,12 +316,12 @@ generate_host_vars_structured.py [-h] input output
 | dns_search | オプション | string | ドメイン名 | DNS検索ドメイン | `"example.com"` |
 | name_servers_ipv4 | オプション | array | - | IPv4 DNSサーバーリスト | [表4] |
 | name_servers_ipv6 | オプション | array | - | IPv6 DNSサーバーリスト | [表5] |
-| use_dhcp4 | オプション | boolean | true/false | DHCPv4を使用するか | `false` |
-| use_slaac | オプション | boolean | true/false | SLAAC (IPv6自動設定) を使用するか | `true` |
+| use_dhcp4 | オプション | boolean | true/false | DHCPv4を使用する指定 | `false` |
+| use_slaac | オプション | boolean | true/false | SLAAC (IPv6自動設定) を使用する指定 | `true` |
 | route_metric_ipv4 | オプション | integer | 0以上 | IPv4のルートメトリック値 | `100` |
 | route_metric_ipv6 | オプション | integer | 0以上 | IPv6のルートメトリック値 | `100` |
-| ignore_auto_ipv4_dns | オプション | boolean | true/false | 自動取得したIPv4 DNSを無視するか | `true` |
-| ignore_auto_ipv6_dns | オプション | boolean | true/false | 自動取得したIPv6 DNSを無視するか | `true` |
+| ignore_auto_ipv4_dns | オプション | boolean | true/false | 自動取得したIPv4 DNSを無視する指定 | `true` |
+| ignore_auto_ipv6_dns | オプション | boolean | true/false | 自動取得したIPv6 DNSを無視する指定 | `true` |
 
 #### ネットワークロール (role) の説明
 

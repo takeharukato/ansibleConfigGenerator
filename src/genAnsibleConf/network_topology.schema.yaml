@@ -141,16 +141,16 @@ $defs:
           type: string
       use_dhcp4:
         type: boolean
-        description: "動的ホスト構成プロトコル (DHCP) v4 が使用可能か"
+        description: "動的ホスト構成プロトコル (DHCP) v4 を使用する指定"
       use_slaac:
         type: boolean
-        description: "ステートレスアドレス自動設定 (SLAAC) が使用可能か"
+        description: "ステートレスアドレス自動設定 (SLAAC) を使用する指定"
       ignore_auto_ipv4_dns:
         type: boolean
-        description: "自動取得したインターネットプロトコルバージョン4 (IPv4) ドメインネームシステム (DNS) を無視するか"
+        description: "自動取得したインターネットプロトコルバージョン4 (IPv4) ドメインネームシステム (DNS) を無視する指定"
       ignore_auto_ipv6_dns:
         type: boolean
-        description: "自動取得したインターネットプロトコルバージョン6 (IPv6) ドメインネームシステム (DNS) を無視するか"
+        description: "自動取得したインターネットプロトコルバージョン6 (IPv6) ドメインネームシステム (DNS) を無視する指定"
       route_metric_ipv4:
         type: integer
         description: "インターネットプロトコルバージョン4 (IPv4) ルートメトリック"
@@ -333,7 +333,7 @@ $defs:
     properties:
       enabled:
         type: boolean
-        description: "サービスを有効にするかどうか"
+        description: "サービスを有効化する指定"
       config:
         type: object
         description: "サービス固有の設定"
@@ -372,7 +372,7 @@ $defs:
             properties:
               enabled:
                 type: boolean
-                description: "共有 CA を使用するかどうか"
+                description: "共有 CA を使用する指定"
               source_host:
                 type: string
                 description: "CA 証明書/鍵を取得するホスト名"
@@ -384,7 +384,7 @@ $defs:
                 description: "証明書出力先ディレクトリ"
               replace_kube_ca:
                 type: boolean
-                description: "Kubernetes 組み込み CA を置き換えるかどうか"
+                description: "Kubernetes 組み込み CA を置き換える指定"
       operator:
         type: object
         description: "Kubernetes Operator 設定"
@@ -458,7 +458,7 @@ $defs:
         description: "インターネットプロトコルバージョン6 (IPv6) ルートメトリック"
       ignore_auto_ipv4_dns:
         type: boolean
-        description: "自動取得したインターネットプロトコルバージョン4 (IPv4) ドメインネームシステム (DNS) を無視するか"
+        description: "自動取得したインターネットプロトコルバージョン4 (IPv4) ドメインネームシステム (DNS) を無視する指定"
       ignore_auto_ipv6_dns:
         type: boolean
-        description: "自動取得したインターネットプロトコルバージョン6 (IPv6) ドメインネームシステム (DNS) を無視するか"
+        description: "自動取得したインターネットプロトコルバージョン6 (IPv6) ドメインネームシステム (DNS) を無視する指定"

@@ -56,10 +56,10 @@
 | `dns_search` | 任意 | string | DNS 検索ドメイン |
 | `name_servers_ipv4` | 任意 | array | IPv4 DNS サーバリスト |
 | `name_servers_ipv6` | 任意 | array | IPv6 DNS サーバリスト |
-| `use_dhcp4` | 任意 | boolean | DHCP v4 を使用するか |
-| `use_slaac` | 任意 | boolean | SLAAC (ステートレスアドレス自動設定) を使用するか |
-| `ignore_auto_ipv4_dns` | 任意 | boolean | 自動取得 IPv4 DNS を無視するか |
-| `ignore_auto_ipv6_dns` | 任意 | boolean | 自動取得 IPv6 DNS を無視するか |
+| `use_dhcp4` | 任意 | boolean | DHCP v4 を使用する指定 |
+| `use_slaac` | 任意 | boolean | SLAAC (ステートレスアドレス自動設定) を使用する指定 |
+| `ignore_auto_ipv4_dns` | 任意 | boolean | 自動取得 IPv4 DNS を無視する指定 |
+| `ignore_auto_ipv6_dns` | 任意 | boolean | 自動取得 IPv6 DNS を無視する指定 |
 | `route_metric_ipv4` | 任意 | integer | IPv4 ルートメトリック |
 | `route_metric_ipv6` | 任意 | integer | IPv6 ルートメトリック |
 
@@ -141,8 +141,8 @@
 | `name_server_ipv4_2` | 任意 | string | DNS サーバ 2 (IPv4) |
 | `name_server_ipv6_1` | 任意 | string | DNS サーバ 1 (IPv6) |
 | `name_server_ipv6_2` | 任意 | string | DNS サーバ 2 (IPv6) |
-| `ignore_auto_ipv4_dns` | 任意 | boolean | 自動取得 IPv4 DNS を無視するか |
-| `ignore_auto_ipv6_dns` | 任意 | boolean | 自動取得 IPv6 DNS を無視するか |
+| `ignore_auto_ipv4_dns` | 任意 | boolean | 自動取得 IPv4 DNS を無視する指定 |
+| `ignore_auto_ipv6_dns` | 任意 | boolean | 自動取得 IPv6 DNS を無視する指定 |
 | `mac` | 任意 | string | MAC アドレス |
 | `route_metric_ipv4` | 任意 | integer | IPv4 ルートメトリック |
 | `route_metric_ipv6` | 任意 | integer | IPv6 ルートメトリック |

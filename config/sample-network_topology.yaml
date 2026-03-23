@@ -35,7 +35,7 @@ globals:
     - [ens160, ens194]
     - [eth0, eth1]
 
-  # generate_internal_network_list: dns-server 向け internal_network_list を生成するかどうか
+  # generate_internal_network_list: dns-server 向け internal_network_list を生成する指定
   generate_internal_network_list: false
 
   #
@@ -74,11 +74,11 @@ globals:
   #
   #   name_servers_ipv6 (オプション): IPv6 DNS サーバーアドレスのリスト
   #
-  #   ignore_auto_ipv4_dns (オプション): IPv4 の自動 DNS 設定 (DHCP から取得したサーバー) を無視するかどうか (bool)
+  #   ignore_auto_ipv4_dns (オプション): IPv4 の自動 DNS 設定 (DHCP から取得したサーバー) を無視する指定 (bool)
   #     false の場合, DHCP から取得した IPv4 DNS サーバーも使用される
   #     true の場合, name_servers_ipv4 で明示的に指定したサーバーのみ使用される
   #
-  #   ignore_auto_ipv6_dns (オプション): IPv6 の自動 DNS 設定 (RA/DHCPv6 から取得したサーバー) を無視するかどうか (bool)
+  #   ignore_auto_ipv6_dns (オプション): IPv6 の自動 DNS 設定 (RA/DHCPv6 から取得したサーバー) を無視する指定 (bool)
   #     false の場合, RA/DHCPv6 から取得した IPv6 DNS サーバーも使用される
   #     true の場合, name_servers_ipv6 で明示的に指定したサーバーのみ使用される
   #
@@ -358,7 +358,7 @@ globals:
   #
   #   gitlab: GitLab (ソースコード管理・CI/CD 基盤) サービス設定
   #     config.hostname: GitLab サーバーのホスト名 (string)
-  #     config.gitlab_enable_backup_script: バックアップスクリプトを有効にするかどうか (bool)
+  #     config.gitlab_enable_backup_script: バックアップスクリプトを有効化する指定 (bool)
   #     config.gitlab_backup_rotation: バックアップの世代数 (int)
   #     config.gitlab_backup_nfs_server: バックアップ先 NFS サーバーのホスト名 (string)
   #     config.gitlab_backup_nfs_dir: NFS サーバー上のエクスポートディレクトリ (string)
@@ -405,7 +405,7 @@ globals:
   #
   #   docker-ce: Docker CE (コンテナエンジン) サービス設定
   #     config.docker_ce_users: Docker グループに追加するユーザー名のリスト (list)
-  #     config.docker_ce_enable_backup_script: バックアップスクリプトを有効にするかどうか (bool)
+  #     config.docker_ce_enable_backup_script: バックアップスクリプトを有効化する指定 (bool)
   #     config.docker_ce_backup_rotation: バックアップの世代数 (int)
   #     config.docker_ce_backup_nfs_server: バックアップ先 NFS サーバーのホスト名 (string)
   #     config.docker_ce_backup_nfs_dir: NFS サーバー上のエクスポートディレクトリ (string)
@@ -413,7 +413,7 @@ globals:
   #     config.docker_ce_backup_dir_on_nfs: NFS 上のバックアップ保存ディレクトリ (string)
   #
   #   redmine: Redmine (プロジェクト管理・課題追跡ツール) サービス設定
-  #     config.redmine_enable_backup_script: バックアップスクリプトを有効にするかどうか (bool)
+  #     config.redmine_enable_backup_script: バックアップスクリプトを有効化する指定 (bool)
   #     config.redmine_backup_rotation: バックアップの世代数 (int)
   #     config.redmine_backup_nfs_server: バックアップ先 NFS サーバーのホスト名 (string)
   #     config.redmine_backup_nfs_dir: NFS サーバー上のエクスポートディレクトリ (string)
@@ -426,7 +426,7 @@ globals:
   #     config.netgauge_configure: configure スクリプトへ渡すオプション文字列 (string)
   #
   #   backup_home: ホームディレクトリバックアップサービス設定
-  #     config.user_settings_backup_home_script_enabled: バックアップスクリプトを有効にするかどうか (bool)
+  #     config.user_settings_backup_home_script_enabled: バックアップスクリプトを有効化する指定 (bool)
   #     config.user_settings_backup_home_rotation: バックアップの世代数 (int)
   #     config.user_settings_backup_home_nfs_server: バックアップ先 NFS サーバーのホスト名 (string)
   #     config.user_settings_backup_home_nfs_dir: NFS サーバー上のエクスポートディレクトリ (string)
@@ -779,9 +779,9 @@ globals:
 #       k8s_pod_ipv6_service_subnet      : Service ネットワーク CIDR (IPv6, string)
 #       k8s_cilium_cm_cluster_name       : Cilium Cluster Mesh 用クラスタ名 (string)
 #       k8s_cilium_cm_cluster_id         : Cilium Cluster Mesh 用クラスタ識別子 (int)
-#       k8s_virtualcluster_enabled       : VirtualCluster 機能を有効にするかどうか (bool)
-#       k8s_vcinstances_enabled          : VirtualCluster インスタンス機能を有効にするかどうか (bool)
-#       vcinstances_etcd_storage_enabled : VirtualCluster の etcd ストレージを有効にするかどうか (bool)
+#       k8s_virtualcluster_enabled       : VirtualCluster 機能を有効化する指定 (bool)
+#       k8s_vcinstances_enabled          : VirtualCluster インスタンス機能を有効化する指定 (bool)
+#       vcinstances_etcd_storage_enabled : VirtualCluster の etcd ストレージを有効化する指定 (bool)
 #       vcinstances_etcd_storage_size    : VirtualCluster の etcd ストレージサイズ (string, 例: "10Gi")
 #       vcinstances_etcd_storage_class   : VirtualCluster の etcd ストレージクラス名 (string)
 #
@@ -799,12 +799,12 @@ globals:
 #         globals.services.xcp_ng_environment.config.vm_group_map のフォールバックより優先される
 #
 #   k8s_bgp (オプション): BGP Control Plane 設定 (k8s_control_plane ロールを持つノードのみ)
-#     enabled              : BGP Control Plane 設定を有効にするかどうか (bool)
+#     enabled              : BGP Control Plane 設定を有効化する指定 (bool)
 #     node_name            : BGP 設定を適用するノードの name (string)
 #     local_asn            : ローカル BGP ASN (int)
 #     kubeconfig           : kubeconfig ファイルのパス (string)
-#     export_pod_cidr      : Pod CIDR を BGP で広告するかどうか (bool)
-#     advertise_services   : Service を BGP で広告するかどうか (bool)
+#     export_pod_cidr      : Pod CIDR を BGP で広告する指定 (bool)
+#     advertise_services   : Service を BGP で広告する指定 (bool)
 #     address_families     : 使用するアドレスファミリーのリスト (list, 例: [ipv4, ipv6])
 #     neighbors            : BGP ピアの定義のリスト
 #       - peer_address          : BGP ピアの IP アドレス (CIDR 形式, string)
