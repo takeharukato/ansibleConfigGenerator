@@ -16,6 +16,13 @@
 
 ## プロジェクト固有の設定ファイルサンプルをここに追加する
 
+## examples として導入するファイル
+genansibleconfexamplesdir = $(datadir)/genAnsibleConf/examples
+genansibleconfexamples_DATA = \
+	sample-network_topology.yaml \
+	genAnsibleConf.system-config.yaml \
+	genAnsibleConf.user-config.yaml
+
 ## 配布アーカイブに含めるファイル（プレースホルダー）
 EXTRA_DIST = \
 	sample-network_topology.yaml \

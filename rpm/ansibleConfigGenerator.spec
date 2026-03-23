@@ -45,6 +45,7 @@ install -D -m 0644 config/genAnsibleConf.user-config.yaml \
 %files
 %license LICENSE
 %{_bindir}/generate_*.py
+%{_bindir}/validate_hostvars_matrix.py
 %dir /usr/lib/python*/site-packages/genAnsibleConf
 /usr/lib/python*/site-packages/genAnsibleConf/*
 
@@ -53,13 +54,11 @@ install -D -m 0644 config/genAnsibleConf.user-config.yaml \
 %dir %{_datadir}/genAnsibleConf/schema
 %{_datadir}/genAnsibleConf/schema/*.yaml
 %dir %{_datadir}/genAnsibleConf/examples
-%{_datadir}/genAnsibleConf/examples/genAnsibleConf.user-config.yaml
+%{_datadir}/genAnsibleConf/examples/*.yaml
 
 # locale
 %dir %{_datadir}/locale
 %{_datadir}/locale/*/LC_MESSAGES/ansibleConfigGenerator.mo
-
-# Add project-specific files here
 
 %changelog
 * Wed Feb 11 2026 Takeharu KATO <tkato1219@gmail.com> - 0.1.0-1

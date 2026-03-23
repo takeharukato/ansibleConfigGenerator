@@ -31,8 +31,8 @@ SUBDIRS = \
 EXTRA_DIST = \
 	autogen.sh \
 	requirements.txt \
-	ReadmeJP.md \
 	Readme.md \
+	ReadmeEN.md \
 	LICENSE	\
 	debian \
 	rpm/ansibleConfigGenerator.spec \

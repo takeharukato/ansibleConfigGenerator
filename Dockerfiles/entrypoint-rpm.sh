@@ -9,23 +9,41 @@ mkdir -p "${WORKDIR}"
 cp -a /src/. "${WORKDIR}/"
 cd "${WORKDIR}"
 
-echo "[entrypoint-rpm] autogen.sh / configure / update-po / dist / rpmbuild を実行します"
+echo "[entrypoint-rpm] autogen.sh / configure / ソース tarball 生成 / rpmbuild を実行します"
 
-# 1. autotools と i18n 更新
+# 1. autotools 設定生成
 ./autogen.sh
+sed -i 's/^DISTFILESDEPS_ = update-po$/DISTFILESDEPS_ =/' po/Makefile.in.in
 ./configure
 
-# po カタログ更新
-( cd po && make update-po )
+# 2. rpmbuild 用のソースアーカイブ生成
+VERSION="$(sed -n 's/^Version:[[:space:]]*//p' rpm/ansibleConfigGenerator.spec | head -n 1)"
+PKGROOT="ansibleconfiggenerator-${VERSION}"
+STAGEDIR="/tmp/${PKGROOT}"
+TARBALL="${PKGROOT}.tar.gz"
 
-# 2. 配布用ソースアーカイブ生成 (ansibleConfigGenerator-<version>.tar.gz)
-make dist
+if [ -z "$VERSION" ]; then
+  echo "ERROR: rpm/ansibleConfigGenerator.spec から Version を取得できません" >&2
+  exit 1
+fi
 
-TARBALL="$(ls -t *.tar.gz | head -n 1 || true)"
+rm -rf "$STAGEDIR" "$TARBALL"
+mkdir -p "$STAGEDIR"
 
-if [ -z "$TARBALL" ] || [ ! -f "$TARBALL" ]; then
-    echo "ERROR: make dist で *.tar.gz が生成されていません" >&2
-    exit 1
+tar \
+  --exclude-vcs \
+  --exclude='./dist' \
+  --exclude='./.pkgtest' \
+  --exclude='./.venv' \
+  --exclude='./tests/.pytest_cache' \
+  --exclude='__pycache__' \
+  -cf - . | tar -xf - -C "$STAGEDIR"
+
+tar -czf "$TARBALL" -C /tmp "$PKGROOT"
+
+if [ ! -f "$TARBALL" ]; then
+  echo "ERROR: ソース tarball $TARBALL が生成されていません" >&2
+  exit 1
 fi
 
 echo "[entrypoint-rpm] TARBALL = $TARBALL"

@@ -17,6 +17,7 @@ bin_SCRIPTS = \
 	generate_host_vars_files.py \
 	generate_host_vars_structured.py \
 	generate_hostvars_matrix.py \
+	validate_hostvars_matrix.py \
 	generate_network_topology_design_sheet.py \
 	generate_terraform_tfvars.py
 
@@ -54,6 +55,8 @@ genansibleconfschemadir = $(datadir)/genAnsibleConf/schema
 genansibleconfschema_DATA = \
 	convert-rule-config.yaml \
 	field_metadata.yaml \
+	field_metadata.schema.yaml \
+	host_vars_structured.schema.yaml \
 	network_topology.schema.yaml \
 	type_schema.yaml
 
@@ -62,6 +65,7 @@ EXTRA_DIST = \
 	generate_host_vars_files.py \
 	generate_host_vars_structured.py \
 	generate_hostvars_matrix.py \
+	validate_hostvars_matrix.py \
 	generate_network_topology_design_sheet.py \
 	generate_terraform_tfvars.py \
 	convert-rule-config.yaml \
@@ -70,5 +74,4 @@ EXTRA_DIST = \
 	type_schema.yaml \
 	field_metadata.schema.yaml \
 	host_vars_structured.schema.yaml \
-	network_topology.yaml \
 	terraform.tfvars

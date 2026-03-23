@@ -4,11 +4,12 @@
 
 ansibleConfigGenerator is a toolkit that generates Ansible host variable files and related artifacts for [ansible-linux-setup](https://github.com/takeharukato/ansible-linux-setup) from functions of computing nodes and network topology definitions.
 
-The project provides 5 command-line tools:
+The project provides 6 command-line tools:
 
 - generate_host_vars_structured.py
 - generate_host_vars_files.py
 - generate_hostvars_matrix.py
+- validate_hostvars_matrix.py
 - generate_network_topology_design_sheet.py
 - generate_terraform_tfvars.py
 
@@ -37,6 +38,8 @@ The schema/config file lookup order is fixed to the following 5-step cascade:
 ├── autogen.sh
 ├── configure.ac
 ├── Makefile.am
+├── Readme.md
+├── ReadmeEN.md
 ├── requirements.txt
 ├── src/
 │   └── genAnsibleConf/
@@ -45,19 +48,86 @@ The schema/config file lookup order is fixed to the following 5-step cascade:
 │       ├── generate_hostvars_matrix.py
 │       ├── generate_network_topology_design_sheet.py
 │       ├── generate_terraform_tfvars.py
+│       ├── validate_hostvars_matrix.py
 │       ├── field_metadata.yaml
+│       ├── field_metadata.schema.yaml
 │       ├── network_topology.schema.yaml
+│       ├── host_vars_structured.schema.yaml
 │       ├── type_schema.yaml
 │       ├── convert-rule-config.yaml
 │       └── lib/
 ├── config/
+│   ├── sample-network_topology.yaml
 │   ├── genAnsibleConf.system-config.yaml
 │   └── genAnsibleConf.user-config.yaml
+├── docs/
+│   ├── SPECIFICATION.md
+│   ├── commands-specJP.md
+│   ├── manual/
+│   ├── sphinx/
+│   └── debug/
 ├── tests/
 ├── debian/
 ├── rpm/
 └── Dockerfiles/
 ```
+
+The contents of each directory are summarized below:
+
+| Directory | Main purpose | Main contents |
+|---|---|---|
+| `src/genAnsibleConf/` | Core scripts and schema definitions | host_vars generators, YAML/JSON Schema files, shared Python library |
+| `config/` | Sample and runtime config files | user config, system config, sample network topology |
+| `docs/` | Japanese specifications and user documentation | specification, command reference, manuals, Sphinx sources |
+| `tests/` | Automated tests | pytest-based tests and supporting test assets |
+| `debian/` | Debian package definition | control, rules, copyright, install manifest |
+| `rpm/` | RPM package definition | spec file |
+| `Dockerfiles/` | Containerized package build definitions | RPM/Deb Dockerfiles and entrypoint scripts |
+
+### Main files under src/genAnsibleConf/
+
+| File/Directory | Description |
+|---|---|
+| `generate_host_vars_structured.py` | Generates structured host_vars from network topology definitions. |
+| `generate_host_vars_files.py` | Generates per-node host_vars files from structured host_vars. |
+| `generate_hostvars_matrix.py` | Generates a CSV matrix view of node scalar settings. |
+| `validate_hostvars_matrix.py` | Validates matrix and structured data consistency. |
+| `generate_network_topology_design_sheet.py` | Generates CSV files for network design review. |
+| `generate_terraform_tfvars.py` | Generates terraform.tfvars from topology definitions. |
+| `field_metadata.yaml` | Defines scalar field metadata and descriptions for host_vars. |
+| `field_metadata.schema.yaml` | Schema definition for field_metadata.yaml. |
+| `network_topology.schema.yaml` | Schema definition for network topology input files. |
+| `host_vars_structured.schema.yaml` | Schema definition for structured host_vars output. |
+| `type_schema.yaml` | Shared schema for variable type mappings. |
+| `convert-rule-config.yaml` | Field and service conversion rules. |
+| `lib/` | Shared Python library modules used by generator scripts. |
+
+### Files under config/
+
+| File | Description |
+|---|---|
+| `sample-network_topology.yaml` | Comprehensive sample for network topology definitions. |
+| `genAnsibleConf.system-config.yaml` | Example of system-wide configuration file. |
+| `genAnsibleConf.user-config.yaml` | Example of per-user configuration file. |
+
+### Main contents under docs/
+
+| File/Directory | Description |
+|---|---|
+| `SPECIFICATION.md` | Overall behavior and data format specification. |
+| `commands-specJP.md` | Japanese command input/output reference. |
+| `manual/` | User guides, references, and troubleshooting documents. |
+| `sphinx/` | Sources for generating Sphinx HTML documentation. |
+| `debug/` | Debugging and development helper documents/settings. |
+
+### Files under Dockerfiles/
+
+| File | Description |
+|---|---|
+| `deb.ubuntu24.04.Dockerfile` | Ubuntu 24.04-based container for Debian package builds. |
+| `rpm.almalinux9.Dockerfile` | AlmaLinux 9-based container for RPM package builds. |
+| `entrypoint-deb.sh` | Entrypoint script for Debian package build container. |
+| `entrypoint-rpm.sh` | Entrypoint script for RPM package build container. |
 
 ## Installation
 
@@ -128,6 +198,7 @@ Sample files:
 
 - config/genAnsibleConf.user-config.yaml
 - config/genAnsibleConf.system-config.yaml
+- config/sample-network_topology.yaml
 
 ## Example Usage
 
@@ -143,7 +214,7 @@ Generate per-host host_vars files:
 generate_host_vars_files.py host_vars.gen -i host_vars_structured.yaml -m field_metadata.yaml
 ```
 
-Generate matrix CSV:
+Generate node parameter matrix CSV:
 
 ```shell
 generate_hostvars_matrix.py -H host_vars_structured.yaml -m field_metadata.yaml -o host_vars_scalars_matrix.csv
@@ -166,6 +237,8 @@ Force schema lookup from a specific directory:
 ```shell
 generate_hostvars_matrix.py --schema-dir /path/to/schema -H host_vars_structured.yaml
 ```
+
+For detailed usage instructions, see docs/manual/index.md.
 
 ## Tests
 
