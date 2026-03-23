@@ -1,0 +1,1465 @@
+#
+# ネットワークトポロジ定義ファイル
+#
+---
+version: 2
+#
+# ノード間共通定義
+#
+globals:
+  # 管理ネットワークは, 外部管理ネットワークと内部管理ネットワークの2種類を定義。
+  #
+  # 外部管理ネットワークは, 物理ホスト/仮想化基盤環境から外部に抜けるためのゲートウェイに
+  # 直接接続可能なホスト群が接続されることを想定している。
+  #
+  # 内部管理ネットワークは, 物理ホスト/仮想化基盤環境から外部に抜けるためのゲートウェイに
+  # 直接接続されないホスト群が接続されることを想定している。
+  # 内部管理ネットワークから外部管理ネットワークへの通信は, ルーター(ゲートウェイ)を通して
+  # 行われることを想定している。
+  # 内部管理ネットワークには, その内部管理ネットワークから外部管理ネットワークに抜けるための
+  # ゲートウェイが1つ以上接続されており, 当該のゲートウェイは外部管理ネットワークと
+  # 内部管理ネットワークの双方に接続されていることを想定している。
+  #
+  #
+  # 管理ネットワーク用NIC
+  # 形式: [外部管理NIC, 内部管理NIC1, 内部管理NIC2, ...]
+  # 管理ネットワーク用のNICを予約するために使用する。
+  # 本ツールの出力であるhost_varsを使用するansible playbook
+  # https://github.com/takeharukato/ansible-linux-setup
+  # の
+  # group_vars/all/all.yml
+  # で以下のIFが管理ネットワーク用のNICとして使用可能であることを想定している
+  # ことから, 以下のような形式で管理ネットワーク用NICを予約する。
+  reserved_nic_pairs:
+    - [enX0, enX1]
+    - [ens160, ens194]
+    - [eth0, eth1]
+
+  # generate_internal_network_list: dns-server 向け internal_network_list を生成するかどうか
+  generate_internal_network_list: false
+
+  #
+  # ネットワーク設定
+  #
+  # 書式: 以下の形式の辞書のリストを定義する
+  #  ネットワークキー名: ネットワーク定義の辞書
+  #
+  # ネットワーク定義の辞書のフィールド:
+  #
+  #   role (必須): ネットワークの役割を定義する文字列
+  #     - external_control_plane_network  外部管理ネットワーク
+  #     - private_control_plane_network   内部管理ネットワーク
+  #     - data_plane_network              データプレーン用ネットワーク
+  #     - bgp_transport_network           Border Gateway Protocol (BGP) ルーティング情報交換用ネットワーク
+  #
+  #   ipv4_cidr (オプション): ネットワークの IPv4 アドレス範囲 (CIDR 記号法, 例: "192.168.0.0/24")
+  #
+  #   ipv6_cidr (オプション): ネットワークの IPv6 アドレス範囲 (CIDR 記号法, 例: "fd00::/64")
+  #
+  #   gateway4 (オプション): IPv4 ゲートウェイアドレス
+  #     external_control_plane_network の場合, 外部ネットワークに抜けるためのゲートウェイを設定
+  #     private_control_plane_network の場合, 使用されない (gateway_node で指定)
+  #     その他のネットワークには設定しない
+  #
+  #   gateway6 (オプション): IPv6 ゲートウェイアドレス
+  #     gateway4 と同様のルールに従い設定
+  #
+  #   gateway_node (オプション): private_control_plane_network 用のゲートウェイノード名
+  #     内部管理ネットワークから外部管理ネットワークに抜けるためのルータノード名を指定
+  #     このノードのこのネットワークインターフェース上のアドレスがゲートウェイとして使用される
+  #
+  #   dns_search (オプション): DNS 検索ドメイン (カンマ区切り, 例: "example.com")
+  #
+  #   name_servers_ipv4 (オプション): IPv4 DNS サーバーアドレスのリスト
+  #
+  #   name_servers_ipv6 (オプション): IPv6 DNS サーバーアドレスのリスト
+  #
+  #   ignore_auto_ipv4_dns (オプション): IPv4 の自動 DNS 設定 (DHCP から取得したサーバー) を無視するかどうか (bool)
+  #     false の場合, DHCP から取得した IPv4 DNS サーバーも使用される
+  #     true の場合, name_servers_ipv4 で明示的に指定したサーバーのみ使用される
+  #
+  #   ignore_auto_ipv6_dns (オプション): IPv6 の自動 DNS 設定 (RA/DHCPv6 から取得したサーバー) を無視するかどうか (bool)
+  #     false の場合, RA/DHCPv6 から取得した IPv6 DNS サーバーも使用される
+  #     true の場合, name_servers_ipv6 で明示的に指定したサーバーのみ使用される
+  #
+  #   route_metric_ipv4 (オプション): IPv4 ルートメトリック (整数, 値が小さいほど優先度が高い)
+  #     このネットワークに対するルートの優先度を指定
+  #     複数のネットワークが重複する場合, メトリックで優先度を制御
+  #
+  #   route_metric_ipv6 (オプション): IPv6 ルートメトリック (整数, 値が小さいほど優先度が高い)
+  #     IPv4 ルートメトリックと同様の役割
+  #
+  #   datacenter (オプション): このネットワークが所属するデータセンタのキー名
+  #     data_plane_network でのみ使用
+  #     globals.datacenters で定義されたキー名を指定
+  #
+  #   cluster (オプション): このネットワークが所属するクラスタのキー名
+  #     data_plane_network でのみ使用
+  #     複数のクラスタを同じデータセンタ内で定義する場合に指定
+  #
+  networks:
+    mgmt_external:
+      role: external_control_plane_network
+      ipv4_cidr: "192.168.20.0/24"
+      ipv6_cidr: "fd69:6684:61a:1::/64"
+      gateway4: "192.168.20.1"
+      gateway6: "fd69:6684:61a:1::1"
+      dns_search: "example.org"
+      name_servers_ipv4:
+        - "192.168.20.11"
+        - "192.168.20.1"
+      name_servers_ipv6:
+        - "fd69:6684:61a:1::11"
+        - "2606:4700:4700::1111"
+      ignore_auto_ipv4_dns: true
+      ignore_auto_ipv6_dns: true
+    mgmt_internal:
+      role: private_control_plane_network
+      ipv4_cidr: "192.168.30.0/24"
+      ipv6_cidr: "fdad:ba50:248b:1::/64"
+      gateway4: "192.168.30.10"
+      gateway6: "fdad:ba50:248b:1::10"
+      gateway_node: "router"
+      dns_search: "example.org"
+      name_servers_ipv4:
+        - "192.168.20.11"
+        - "192.168.20.1"
+      name_servers_ipv6:
+        - "fd69:6684:61a:1::11"
+        - "2606:4700:4700::1111"
+      ignore_auto_ipv4_dns: true
+      ignore_auto_ipv6_dns: true
+    k8s_net1:
+      role: data_plane_network
+      datacenter: dc1
+      cluster: cluster1
+      ipv4_cidr: "192.168.40.0/24"
+      ipv6_cidr: "fd69:6684:61a:2::/64"
+      dns_search: "example.org"
+      name_servers_ipv4:
+        - "192.168.20.11"
+        - "192.168.20.1"
+      name_servers_ipv6:
+        - "fd69:6684:61a:1::11"
+        - "2606:4700:4700::1111"
+      ignore_auto_ipv4_dns: true
+      ignore_auto_ipv6_dns: true
+      route_metric_ipv4: 300
+      route_metric_ipv6: 300
+    k8s_net2:
+      role: data_plane_network
+      datacenter: dc2
+      cluster: cluster2
+      ipv4_cidr: "192.168.50.0/24"
+      ipv6_cidr: "fd69:6684:61a:3::/64"
+      dns_search: "example.org"
+      name_servers_ipv4:
+        - "192.168.20.11"
+        - "192.168.20.1"
+      name_servers_ipv6:
+        - "fd69:6684:61a:1::11"
+        - "2606:4700:4700::1111"
+      ignore_auto_ipv4_dns: true
+      ignore_auto_ipv6_dns: true
+      route_metric_ipv4: 300
+      route_metric_ipv6: 300
+    frr_exchange:
+      role: bgp_transport_network
+      ipv4_cidr: "192.168.255.0/24"
+      ipv6_cidr: "fd69:6684:61a:90::/64"
+      dns_search: "example.org"
+      name_servers_ipv4:
+        - "192.168.20.11"
+        - "192.168.20.1"
+      name_servers_ipv6:
+        - "fd69:6684:61a:1::11"
+        - "2606:4700:4700::1111"
+      ignore_auto_ipv4_dns: true
+      ignore_auto_ipv6_dns: true
+      route_metric_ipv4: 300
+      route_metric_ipv6: 300
+  #
+  # データセンタ定義
+  #
+  # 書式: 以下の形式の辞書のリストを定義する
+  #  データセンタキー名: データセンタ定義の辞書
+  #
+  # データセンタ定義の辞書のフィールド:
+  #
+  #   name: データセンタの名称
+  #   asn: データセンタのBorder Gateway Protocol (BGP) Autonomous System Number (ASN)
+  #   route_reflector: 他のデータセンタ間でeBGPで経路交換するルータリフレクタが動作するノード
+  #
+  datacenters:
+    external_gw:
+      name: "External Gateway"
+      asn: 65100
+      route_reflector: extgw
+    dc1:
+      name: "DataCenter 1"
+      asn: 65011
+      route_reflector: frr01
+    dc2:
+      name: "DataCenter 2"
+      asn: 65012
+      route_reflector: frr02
+  #
+  # ロール定義 (ロール名 => サービスリストの辞書)
+  #
+  # 書式: 以下の形式の辞書を定義する
+  #  ロール名: サービスリスト
+  #
+  # ノードに roles: でロール名を割り当てると, ロールに紐付くサービスが
+  # そのノードへ自動的に供給される。
+  # roles: の値はリスト形式で記載し, 複数ロールを同時に割り当て可能。
+  # サービスの導入要否はすべてこのロール定義から決定する。
+  #
+  # ロール定義の辞書のフィールド:
+  #
+  #   k8s_control_plane: Kubernetes (K8s) コントロールプレーンノード向けロール
+  #     コントロールプレーンノードに導入するサービスのリストを定義する
+  #     このロールを持つノードには Kubernetes コントロールプレーン関連サービスが供給される
+  #
+  #   k8s_worker: Kubernetes ワーカーノード向けロール
+  #     ワーカーノードに導入するサービスのリストを定義する
+  #     このロールを持つノードには Kubernetes ワーカー関連サービスが供給される
+  #
+  #   infra_server: インフラサービス群を導入するサーバー向けロール
+  #     DNS サーバー, NTP サーバー, NFS サーバー, LDAPサーバー, Redmine, GitLab などの
+  #     インフラサービスを導入するサービスのリストを定義する
+  #
+  #   rancher: Rancher (Kubernetes 管理基盤) を導入するノード向けロール
+  #     Rancher を導入するサービスのリストを定義する
+  #
+  #   docker: Docker CE (コンテナエンジン) を導入するノード向けロール
+  #     Docker CE を導入するサービスのリストを定義する
+  #
+  #   dev_linux: 開発用 Linux ノード向けロール
+  #     ホームバックアップ, Terraform などの開発用ツールを導入する
+  #     サービスのリストを定義する
+  #
+  #   route_reflector: BGP ルートリフレクタ (Free Range Routing (FRR) ルータ) ノード向けロール
+  #     FRR ルートリフレクタを導入するサービスのリストを定義する
+  #     データセンタ間の Border Gateway Protocol (BGP) 経路交換を担う
+  #
+  #   internal_router: 内部ネットワーク用ルータノード向けロール
+  #     内部管理ネットワーク向けルータ, Dynamic Host Configuration Protocol (DHCP) サーバー,
+  #     Router Advertisement Daemon (radvd) などを導入するサービスのリストを定義する
+  #     内部管理ネットワークから外部管理ネットワークへの通信を中継する
+  #
+  #   terraform_orchestration: Terraform 対象ノードを示すマーカーロール
+  #     Terraform の tfvars 生成時に, ノードの設定パラメタをterraform.tfvars に
+  #     出力する対象となるノードを決定する際に使用される。
+  #     generate_terraform_tfvars.pyは, 本ロールを持つノードについて,
+  #     ノード構築パラメタを terraform.tfvars に出力する。
+  #
+  roles:
+    k8s_control_plane:
+      - cilium
+      - multus
+      - whereabouts
+      - hubble_cli
+      - hubble_ui
+      - helm
+      - k8s_control_plane_base
+      - k8s_node_common
+      - mdns
+      - ntp_client
+      - nm_ddns
+      - proxy_client
+      - sudo
+      - user_skel
+    k8s_worker:
+      - k8s_worker_base
+      - k8s_node_common
+      - hubble_cli
+      - netgauge
+      - mdns
+      - ntp_client
+      - nm_ddns
+      - proxy_client
+      - sudo
+      - user_skel
+    infra_server:
+      - ntp-server
+      - dns-server
+      - nfs-server
+      - ldap
+      - redmine
+      - gitlab
+      - mdns
+      - ntp_client
+      - nm_ddns
+      - proxy_client
+      - sudo
+      - user_skel
+    rancher:
+      - rancher
+      - mdns
+      - ntp_client
+      - nm_ddns
+      - proxy_client
+      - sudo
+      - user_skel
+    docker:
+      - docker-ce
+      - mdns
+      - ntp_client
+      - nm_ddns
+      - proxy_client
+      - sudo
+      - user_skel
+    dev_linux:
+      - backup_home
+      - mdns
+      - ntp_client
+      - nm_ddns
+      - proxy_client
+      - sudo
+      - user_skel
+    route_reflector:
+      - frr_route_reflector
+      - mdns
+      - ntp_client
+      - nm_ddns
+      - proxy_client
+      - sudo
+      - user_skel
+    internal_router:
+      - internal_router
+      - kea-dhcp
+      - radvd
+      - mdns
+      - ntp_client
+      - nm_ddns
+      - proxy_client
+      - sudo
+      - user_skel
+    terraform_orchestration: []
+  #
+  # 全ノード共通サービス既定値
+  #
+  # ノードに供給されるサービスの既定値 (デフォルト設定) を定義する。
+  # ノード固有の設定は nodes: 配下の services: で上書きできる。
+  # ロール定義 (globals.roles) によってノードへ供給するサービスが決定され,
+  # 各サービスの config: フィールドの値がそのノードに適用される。
+  #
+  # 書式: 以下の形式の辞書を定義する
+  #  サービス名: サービス設定の辞書
+  #
+  # サービス設定の辞書のフィールド:
+  #
+  #   config (オプション): サービス固有の設定値の辞書
+  #     サービスごとに異なるキーと値を持つ。
+  #     省略した場合 (config:) は null が設定され, Ansible ロール側の既定値が使用される。
+  #     空辞書 ({}) の場合もサービスは有効だが, 設定値は Ansible ロール側の既定値が使用される。
+  #
+  # 各サービスの説明:
+  #
+  #   gitlab: GitLab (ソースコード管理・CI/CD 基盤) サービス設定
+  #     config.hostname: GitLab サーバーのホスト名 (string)
+  #     config.gitlab_enable_backup_script: バックアップスクリプトを有効にするかどうか (bool)
+  #     config.gitlab_backup_rotation: バックアップの世代数 (int)
+  #     config.gitlab_backup_nfs_server: バックアップ先 NFS サーバーのホスト名 (string)
+  #     config.gitlab_backup_nfs_dir: NFS サーバー上のエクスポートディレクトリ (string)
+  #     config.gitlab_backup_mount_point: NFS マウントポイント (string)
+  #     config.gitlab_backup_dir_on_nfs: NFS 上のバックアップ保存ディレクトリ (string)
+  #
+  #   ntp-server: NTP (Network Time Protocol) サーバー設定
+  #     config.external_ntp_servers_list: 参照する外部 NTP サーバーアドレスのリスト (list)
+  #     config.ntp_allow: NTP クライアントとして許可するネットワーク範囲 (CIDR 記法, string)
+  #
+  #   dns-server: DNS (Domain Name System) サーバー設定
+  #     config.dns_network_ipv6_prefix_filename: IPv6 逆引きゾーンファイル名に使用するプレフィックス文字列 (string)
+  #     config.dns_server: DNS サーバーの完全修飾ドメイン名 (FQDN, string)
+  #     config.dns_server_ipv4_address: DNS サーバーの IPv4 アドレス (string)
+  #     config.dns_server_ipv6_address: DNS サーバーの IPv6 アドレス (string)
+  #     config.dns_domain: 管理する DNS ドメイン名 (string)
+  #     config.dns_network: ネットワークアドレス (string)
+  #     config.dns_network_ipv4_prefix: IPv4 ネットワークプレフィックス (string, 例: "192.168.20")
+  #     config.dns_network_ipv4_prefix_len: IPv4 プレフィックス長 (string, 例: "24")
+  #     config.dns_network_ipv6_prefix: IPv6 ネットワークプレフィックス (string)
+  #     config.dns_network_ipv6_prefix_len: IPv6 プレフィックス長 (string, 例: "64")
+  #     config.dns_ipv4_reverse: IPv4 逆引きゾーン名 (string, 例: "20.168.192")
+  #     config.dns_ipv6_reverse: IPv6 逆引きゾーン名 (string)
+  #     config.dns_ddns_key_secret: Dynamic DNS (DDNS) 更新用の TSIG 鍵 (string)
+  #
+  #   nfs-server: NFS (Network File System) サーバー設定
+  #     config.nfs_export_directory: NFS でエクスポートするディレクトリのパス (string)
+  #     config.nfs_network: NFS クライアントとして許可するネットワーク範囲 (CIDR 記法, string)
+  #     config.nfs_options: NFS エクスポートオプション文字列 (string)
+  #
+  #   ldap: LDAP (Lightweight Directory Access Protocol) サーバー設定
+  #     config.ldap_organization: LDAP 組織名 (string)
+  #     config.ldap_domain: LDAP ドメイン名 (string)
+  #     config.ldap_admin_password: LDAP 管理者パスワード (string)
+  #     config.ldap_admin_port: LDAP 管理用ポート番号 (int)
+  #
+  #   rancher: Rancher (Kubernetes 管理基盤) サービス設定
+  #     config.rancher_host: Rancher サーバーのホスト名 (string)
+  #     config.rancher_cert_domain_name: TLS 証明書のドメイン名 (string)
+  #     config.rancher_cert_subject_country: TLS 証明書のサブジェクト国コード (string, 例: "JP")
+  #     config.rancher_cert_subject_state: TLS 証明書のサブジェクト都道府県名 (string)
+  #     config.rancher_cert_subject_locality: TLS 証明書のサブジェクト市区町村名 (string)
+  #     config.rancher_cert_subject_org: TLS 証明書のサブジェクト組織名 (string)
+  #
+  #   docker-ce: Docker CE (コンテナエンジン) サービス設定
+  #     config.docker_ce_users: Docker グループに追加するユーザー名のリスト (list)
+  #     config.docker_ce_enable_backup_script: バックアップスクリプトを有効にするかどうか (bool)
+  #     config.docker_ce_backup_rotation: バックアップの世代数 (int)
+  #     config.docker_ce_backup_nfs_server: バックアップ先 NFS サーバーのホスト名 (string)
+  #     config.docker_ce_backup_nfs_dir: NFS サーバー上のエクスポートディレクトリ (string)
+  #     config.docker_ce_backup_mount_point: NFS マウントポイント (string)
+  #     config.docker_ce_backup_dir_on_nfs: NFS 上のバックアップ保存ディレクトリ (string)
+  #
+  #   redmine: Redmine (プロジェクト管理・課題追跡ツール) サービス設定
+  #     config.redmine_enable_backup_script: バックアップスクリプトを有効にするかどうか (bool)
+  #     config.redmine_backup_rotation: バックアップの世代数 (int)
+  #     config.redmine_backup_nfs_server: バックアップ先 NFS サーバーのホスト名 (string)
+  #     config.redmine_backup_nfs_dir: NFS サーバー上のエクスポートディレクトリ (string)
+  #     config.redmine_backup_mount_point: NFS マウントポイント (string)
+  #     config.redmine_backup_dir_on_nfs: NFS 上のバックアップ保存ディレクトリ (string)
+  #
+  #   netgauge: Netgauge (ネットワーク帯域計測ツール) サービス設定
+  #     config.netgauge_version: Netgauge のバージョン (string)
+  #     config.netgauge_dir: Netgauge インストール先ディレクトリ (string)
+  #     config.netgauge_configure: configure スクリプトへ渡すオプション文字列 (string)
+  #
+  #   backup_home: ホームディレクトリバックアップサービス設定
+  #     config.user_settings_backup_home_script_enabled: バックアップスクリプトを有効にするかどうか (bool)
+  #     config.user_settings_backup_home_rotation: バックアップの世代数 (int)
+  #     config.user_settings_backup_home_nfs_server: バックアップ先 NFS サーバーのホスト名 (string)
+  #     config.user_settings_backup_home_nfs_dir: NFS サーバー上のエクスポートディレクトリ (string)
+  #     config.user_settings_backup_home_mount_point: NFS マウントポイント (string)
+  #     config.user_settings_backup_dir_on_nfs: NFS 上のバックアップ保存ディレクトリ (string)
+  #     config.user_settings_backup_users_list: バックアップ対象ユーザー名のリスト (list)
+  #
+  services:
+    gitlab:
+      config:
+        hostname: ""
+        gitlab_enable_backup_script: true
+        gitlab_backup_rotation: 7
+        gitlab_backup_nfs_server: "nas.example.org"
+        gitlab_backup_nfs_dir: "/share"
+        gitlab_backup_mount_point: "/mnt"
+        gitlab_backup_dir_on_nfs: "/Linux/Gitlab"
+    ntp-server:
+      config:
+        external_ntp_servers_list:
+          - "ntp.nict.jp"
+          - "jp.pool.ntp.org"
+        ntp_allow: "192.168.20.0/24"
+    dns-server:
+      config:
+        dns_network_ipv6_prefix_filename: "fd69-6684-61a-1"
+        dns_server: "mgmt-server.example.org"
+        dns_server_ipv4_address: "192.168.20.11"
+        dns_server_ipv6_address: "fd69:6684:61a:1::11"
+        dns_domain: "example.org"
+        dns_network: "192.168.20.0"
+        dns_network_ipv4_prefix: "192.168.20"
+        dns_network_ipv4_prefix_len: "24"
+        dns_network_ipv6_prefix: "fd69:6684:61a:1::"
+        dns_network_ipv6_prefix_len: "64"
+        dns_ipv4_reverse: "20.168.192"
+        dns_ipv6_reverse: "1.0.0.0.a.1.6.0.4.8.6.6.9.6.d.f"
+        dns_ddns_key_secret: "yGcSQsBcd2T//HQ7plrv9ipRMWBVk94VuSsirxo8fxk="
+    nfs-server:
+      config:
+        nfs_export_directory: "/home/nfsshare"
+        nfs_network: "192.168.20.0/24"
+        nfs_options: "rw,no_root_squash,sync,no_subtree_check,no_wdelay"
+    ldap:
+      config:
+        ldap_organization: "Example Organization"
+        ldap_domain: "example.org"
+        ldap_admin_password: "ldap"
+        ldap_admin_port: 10443
+    rancher:
+      config:
+        rancher_host: "rancher01"
+        rancher_cert_domain_name: "example.org"
+        rancher_cert_subject_country: "JP"
+        rancher_cert_subject_state: "Tokyo"
+        rancher_cert_subject_locality: "Chiyoda"
+        rancher_cert_subject_org: "Example Organization"
+    docker-ce:
+      config:
+        docker_ce_users:
+          - "user1"
+        docker_ce_enable_backup_script: true
+        docker_ce_backup_rotation: 5
+        docker_ce_backup_nfs_server: "nas.example.org"
+        docker_ce_backup_nfs_dir: "/share"
+        docker_ce_backup_mount_point: "/mnt"
+        docker_ce_backup_dir_on_nfs: "/Linux/containers"
+    redmine:
+      config:
+        redmine_enable_backup_script: true
+        redmine_backup_rotation: 7
+        redmine_backup_nfs_server: "nas.example.org"
+        redmine_backup_nfs_dir: "/share"
+        redmine_backup_mount_point: "/mnt"
+        redmine_backup_dir_on_nfs: "/Linux/Redmine"
+    netgauge:
+      config:
+        netgauge_version: "2.4.6"
+        netgauge_dir: "/opt/netgauge"
+        netgauge_configure: "--with-mpi=no --prefix=/opt/netgauge"
+    backup_home:
+      config:
+        user_settings_backup_home_script_enabled: true
+        user_settings_backup_home_rotation: 2
+        user_settings_backup_home_nfs_server: "nas.example.org"
+        user_settings_backup_home_nfs_dir: "/share"
+        user_settings_backup_home_mount_point: "/mnt"
+        user_settings_backup_dir_on_nfs: "/Linux/Devel"
+        user_settings_backup_users_list:
+          - "user1"
+    terraform: {}
+    internal_router:
+      config:
+        router_forwarding_enabled: false
+        router_nat_enabled: true
+    kea-dhcp: {}
+    radvd: {}
+    frr_route_reflector: {}
+    cilium:
+      config:
+        version: "1.16.0"
+        shared_ca_enabled: true
+        shared_ca_reuse_k8s_ca: true
+        shared_ca_auto_create: false
+        shared_ca_output_dir: "/etc/kubernetes/pki/cilium-shared-ca"
+        ca_cert_filename: "cilium-ca.crt"
+        ca_key_filename: "cilium-ca.key"
+        ca_cert_path: ""
+        ca_key_path: ""
+        ca_kubeconfig: "/etc/kubernetes/admin.conf"
+    multus:
+      config:
+        version: "v4.2.3"
+    whereabouts:
+      config:
+        version: "0.9.2"
+    hubble_cli: {}
+    hubble_ui: {}
+    helm: {}
+    k8s_control_plane_base:
+      config:
+        k8s_reserved_system_cpus_default: "0-1"
+    k8s_worker_base:
+      config:
+        k8s_worker_enable_nodeport: false
+        k8s_worker_nodeport_range: "30000-32767"
+    k8s_node_common:
+      config:
+        k8s_major_minor: "1.31"
+        enable_create_k8s_ca: true
+        k8s_shared_ca_source_host: "localhost"
+        k8s_common_ca: ""
+        k8s_shared_ca_output_dir: "/etc/kubernetes/pki/shared-ca"
+        k8s_shared_ca_replace_kube_ca: true
+        k8s_operator_github_key_list:
+          - github: "githubuser1"
+        k8s_operator_authorized_key_list: []
+    mdns:
+      config:
+        mdns_enabled: true
+        mdns_host_list:
+          - name: "vmlinux1"
+          - name: "vmlinux2"
+          - name: "vmlinux3"
+          - name: "vmlinux4"
+          - name: "vmlinux5"
+    ntp_client:
+      config:
+        ntp_servers_list:
+          - "192.168.20.11"
+          - "ntp.nict.jp"
+    nm_ddns:
+      config:
+        use_nm_ddns_update_scripts: true
+    user_skel:
+      config:
+        user_settings_create_bash_skel: true
+        user_settings_create_zsh_skel: true
+        user_settings_create_ssh_skel: true
+        user_settings_create_curl_skel: true
+        user_settings_create_wget_skel: true
+        user_settings_create_screen_skel: true
+        user_settings_create_tmux_skel: true
+        user_settings_create_aspell_skel: true
+        user_settings_create_git_skel: true
+        user_settings_create_gitignore_on_homedir_skel: true
+        user_settings_create_gdb_skel: true
+        user_settings_create_emacs_skel: true
+        create_user_emacs_package_list:
+          - "docker"
+          - "dockerfile-mode"
+          - "docker-compose-mode"
+          - "tramp-container"
+          - "counsel-tramp"
+          - "rust-mode"
+          - "csharp-mode"
+          - "auctex"
+          - "cmake-mode"
+          - "migemo"
+          - "plantuml-mode"
+          - "yaml-mode"
+        post_user_create_gitconfig_enabled: true
+        post_user_create_gitconfig_use_login_name: false
+    sudo:
+      config:
+        sudo_nopasswd_users:
+          - "user1"
+        sudo_nopasswd_groups_extra:
+          - "adm"
+          - "cdrom"
+          - "sudo"
+          - "dip"
+          - "plugdev"
+          - "lxd"
+          - "systemd-journal"
+        sudo_nopasswd_groups_autodetect: true
+        sudo_nopasswd_absent: false
+    proxy_client:
+      config:
+        no_proxy: ""
+        proxy_server: ""
+        proxy_port: ""
+        proxy_user: ""
+        proxy_password: ""
+    xcp_ng_environment:
+      config:
+        xoa_url: "ws://192.168.20.253"
+        xoa_username: "admin@admin.net"
+        xoa_insecure: true
+        xcpng_pool_name: "xcp-ng01"
+        xcpng_sr_name: "Local storage"
+        xcpng_template_ubuntu: "ubuntu-vm"
+        xcpng_template_rhel: "rhel-vm"
+        xcpng_vm_vcpus: 4
+        xcpng_vm_mem_mb: 4096
+        xcpng_vm_disk_gb: 25
+        network_key_map:
+          mgmt_external: "ext_mgmt"
+          mgmt_internal: "gpn_mgmt"
+          k8s_net1: "k8s_net01"
+          k8s_net2: "k8s_net02"
+          frr_exchange: "core_net"
+        network_names:
+          ext_mgmt: "Pool-wide network associated with eth0"
+          gpn_mgmt: "GlobalPrivateManagementNetwork"
+          k8s_net01: "K8sNetwork01"
+          k8s_net02: "K8sNetwork02"
+          core_net: "coreNetwork"
+        network_options: {}
+        vm_group_map:
+          route_reflector: "k8s"
+          k8s_control_plane: "k8s"
+          k8s_worker: "k8s"
+          infra_server: "infrastructure"
+          internal_router: "infrastructure"
+        vm_group_defaults:
+          infrastructure:
+            default_template_type: "ubuntu"
+            default_firmware: "uefi"
+            default_resource_profile: "infrastructure"
+          vmlinux:
+            default_resource_profile: "vmlinux"
+          devlinux:
+            default_resource_profile: "devlinux"
+          k8s: {}
+  #
+  # 全ホスト共通スカラー既定値
+  # クライアント/サーバー両方で使用されるスカラー値を定義する。
+  #
+  scalars:
+    common_timezone: "Asia/Tokyo"
+    common_selinux_state: "permissive"
+    common_disable_cron_mails: true
+    use_vmware: false
+    use_xcpng: true
+    force_reboot: false
+    enable_firewall: false
+    users_list:
+      - name: "user1"
+        group: "user1"
+        password: "{{ 'user1' | password_hash('sha512') }}"
+        update_password: on_create
+        shell: "/bin/zsh"
+        home: "/home/user1"
+        comment: "User One"
+        email: "user1@example.org"
+        github: "githubuser1"
+    users_authorized_keys: {}
+    auto_user_add_for_users_authorized_keys: false
+    dns_host_list:
+      - name: "router1"
+        ipv4_addr: "1"
+        ipv6_addr: "1"
+      - name: "mgmt-server"
+        ipv4_addr: "11"
+        ipv6_addr: "11"
+      - name: "nas"
+        ipv4_addr: "33"
+      - name: "xo-server"
+        ipv4_addr: "253"
+      - name: "xcpng01"
+        ipv4_addr: "254"
+    ssh_legacy_key_hosts:
+      - "router1"
+#
+# ノード定義
+#
+# 書式: 各ノードのノード名をキーとして, ノード定義の辞書を値とする形式の辞書を定義する
+#  ノード名:
+#   - ノード定義の辞書
+#
+# ノード定義の辞書のフィールド:
+#
+#   name (必須): ノードを一意に識別するキー名 (string)
+#     他のフィールド (gateway_node, control_plane 等) から参照される識別子として使用される
+#
+#   hostname_fqdn (必須): ノードの完全修飾ドメイン名 (Fully Qualified Domain Name, FQDN) (string)
+#
+#   roles (オプション): ノードに割り当てるロール名のリスト (list of string)
+#     globals.roles で定義されたロール名を指定する
+#     複数ロールを同時に指定可能
+#     指定したロールに紐付くサービスがそのノードへ自動的に供給される
+#     使用可能なロール名:
+#       - k8s_control_plane       : Kubernetes コントロールプレーンノード
+#       - k8s_worker              : Kubernetes ワーカーノード
+#       - infra_server            : インフラサービス群を導入するサーバー
+#       - rancher                 : Rancher を導入するノード
+#       - docker                  : Docker CE を導入するノード
+#       - dev_linux               : 開発用 Linux ノード
+#       - route_reflector         : BGP ルートリフレクタ (FRR ルータ) ノード
+#       - internal_router         : 内部ネットワーク用ルータノード
+#       - terraform_orchestration : Terraform 構築対象ノードを示すマーカー
+#
+#   datacenter (オプション): ノードが所属するデータセンタのキー名 (string)
+#     globals.datacenters で定義されたキー名を指定する
+#     route_reflector ロールを持つノードには設定が必要
+#
+#   cluster (オプション): ノードが所属する Kubernetes クラスタのキー名 (string)
+#     k8s_control_plane / k8s_worker ロールを持つノードにのみ使用
+#     globals.networks の cluster フィールドに対応するキー名を指定する
+#
+#   control_plane (オプション): ワーカーノードが所属するコントロールプレーンノードの name (string)
+#     k8s_worker ロールを持つノードにのみ指定する
+#
+#   interfaces (オプション): ネットワークインターフェースの定義のリスト
+#     書式: 以下のフィールドを持つ辞書のリスト
+#
+#     interfaces のフィールド:
+#       netif (必須): ネットワークインターフェース名 (string, 例: "enX0")
+#       network (必須): globals.networks で定義されたネットワークキー名 (string)
+#       mac (オプション): ネットワークインターフェースの MAC アドレス (string)
+#         指定することで Terraform / Ansible が特定 NIC に設定を適用する際に使用される
+#       static_ipv4_addr (オプション): 静的 IPv4 アドレス (string, 例: "192.168.20.10")
+#       static_ipv6_addr (オプション): 静的 IPv6 アドレス (string, 例: "fd00::10")
+#
+#   scalars (オプション): ノード固有のスカラー値の辞書
+#     globals.scalars の値をノードレベルで上書きできる
+#     ノード種別ごとに使用するスカラー値が異なる
+#
+#     FRR ルータノード向けスカラー値:
+#       frr_bgp_asn        : BGP Autonomous System Number (ASN) (int)
+#       frr_bgp_router_id  : BGP ルーター ID (IPv4 アドレス形式の string)
+#
+#     Kubernetes コントロールプレーンノード向けスカラー値:
+#       k8s_ctrlplane_host_fqdn          : コントロールプレーンノードの FQDN (string)
+#       k8s_ctrlplane_endpoint           : API サーバーエンドポイントアドレス (string)
+#       k8s_pod_ipv4_network_cidr        : Pod ネットワーク CIDR (IPv4, string)
+#       k8s_pod_ipv6_network_cidr        : Pod ネットワーク CIDR (IPv6, string)
+#       k8s_pod_ipv4_service_subnet      : Service ネットワーク CIDR (IPv4, string)
+#       k8s_pod_ipv6_service_subnet      : Service ネットワーク CIDR (IPv6, string)
+#       k8s_cilium_cm_cluster_name       : Cilium Cluster Mesh 用クラスタ名 (string)
+#       k8s_cilium_cm_cluster_id         : Cilium Cluster Mesh 用クラスタ識別子 (int)
+#       k8s_virtualcluster_enabled       : VirtualCluster 機能を有効にするかどうか (bool)
+#       k8s_vcinstances_enabled          : VirtualCluster インスタンス機能を有効にするかどうか (bool)
+#       vcinstances_etcd_storage_enabled : VirtualCluster の etcd ストレージを有効にするかどうか (bool)
+#       vcinstances_etcd_storage_size    : VirtualCluster の etcd ストレージサイズ (string, 例: "10Gi")
+#       vcinstances_etcd_storage_class   : VirtualCluster の etcd ストレージクラス名 (string)
+#
+#   services (オプション): ノード固有のサービス設定の辞書
+#     globals.services の既定値をノードレベルで上書きできる
+#     globals.services と同じキー名を使用する
+#     ノード固有のサービスとして vm_params を追加可能
+#
+#     vm_params: Terraform での VM 構築パラメタ (terraform_orchestration ロールを持つノード向け)
+#       config.template_type    : VM テンプレートタイプ (string, "ubuntu" または "rhel")
+#       config.firmware         : VM ファームウェアタイプ (string, "uefi" または "bios")
+#       config.resource_profile : リソースプロファイル名 (string)
+#         globals.services.xcp_ng_environment.config.vm_group_defaults で定義されたプロファイル名を指定
+#       config.vm_group         : VM グループ名 (string, オプション)
+#         globals.services.xcp_ng_environment.config.vm_group_map のフォールバックより優先される
+#
+#   k8s_bgp (オプション): BGP Control Plane 設定 (k8s_control_plane ロールを持つノードのみ)
+#     enabled              : BGP Control Plane 設定を有効にするかどうか (bool)
+#     node_name            : BGP 設定を適用するノードの name (string)
+#     local_asn            : ローカル BGP ASN (int)
+#     kubeconfig           : kubeconfig ファイルのパス (string)
+#     export_pod_cidr      : Pod CIDR を BGP で広告するかどうか (bool)
+#     advertise_services   : Service を BGP で広告するかどうか (bool)
+#     address_families     : 使用するアドレスファミリーのリスト (list, 例: [ipv4, ipv6])
+#     neighbors            : BGP ピアの定義のリスト
+#       - peer_address          : BGP ピアの IP アドレス (CIDR 形式, string)
+#         peer_asn              : BGP ピアの ASN (int)
+#         peer_port             : BGP ピアのポート番号 (int)
+#         hold_time_seconds     : BGP Hold Time (秒, int)
+#         connect_retry_seconds : BGP Connect Retry Time (秒, int)
+#
+#   vcinstances_clusterversions (オプション): VirtualCluster バージョン定義のリスト
+#     (k8s_control_plane ロールを持つノードかつ k8s_vcinstances_enabled: true の場合に使用)
+#     - name: ClusterVersion リソースの名称 (string)
+#
+#   vcinstances_virtualclusters (オプション): VirtualCluster インスタンス定義のリスト
+#     (k8s_control_plane ロールを持つノードかつ k8s_vcinstances_enabled: true の場合に使用)
+#     - name                  : VirtualCluster の名称 (string)
+#       namespace             : VirtualCluster を作成する Kubernetes Namespace (string)
+#       clusterVersionName    : 使用する ClusterVersion リソースの名称 (string)
+#       clusterDomain         : VirtualCluster のクラスタドメイン (string)
+#       kubeConfigSecretName  : VirtualCluster の kubeconfig を格納する Secret 名 (string)
+#
+nodes:
+  - name: extgw
+    hostname_fqdn: "extgw.local"
+    roles:
+      - route_reflector
+      - terraform_orchestration
+    datacenter: external_gw
+    interfaces:
+      - netif: enX0
+        network: mgmt_internal
+        mac: "00:50:56:00:b8:71"
+        static_ipv4_addr: "192.168.30.81"
+        static_ipv6_addr: "fdad:ba50:248b:1::81"
+      - netif: enX2
+        network: frr_exchange
+        mac: "00:50:56:00:b8:7b"
+        static_ipv4_addr: "192.168.255.81"
+        static_ipv6_addr: "fd69:6684:61a:90::81"
+    scalars:
+      frr_bgp_asn: 65100
+      frr_bgp_router_id: "192.168.255.81"
+    services:
+      vm_params:
+        config:
+          template_type: "ubuntu"
+          firmware: "uefi"
+          resource_profile: "extgw"
+  - name: frr01
+    hostname_fqdn: "frr01.local"
+    roles:
+      - route_reflector
+      - terraform_orchestration
+    datacenter: dc1
+    interfaces:
+      - netif: enX0
+        network: mgmt_internal
+        mac: "00:50:56:00:4a:71"
+        static_ipv4_addr: "192.168.30.49"
+        static_ipv6_addr: "fdad:ba50:248b:1::49"
+      - netif: enX1
+        network: k8s_net1
+        mac: "00:50:56:00:4a:7b"
+        static_ipv4_addr: "192.168.40.49"
+        static_ipv6_addr: "fd69:6684:61a:2::49"
+      - netif: enX2
+        network: frr_exchange
+        mac: "00:50:56:00:4a:dc"
+        static_ipv4_addr: "192.168.255.49"
+        static_ipv6_addr: "fd69:6684:61a:90::49"
+    scalars:
+      frr_bgp_asn: 65011
+      frr_bgp_router_id: "192.168.40.49"
+    services:
+      vm_params:
+        config:
+          template_type: "ubuntu"
+          firmware: "uefi"
+          resource_profile: "frr"
+  - name: frr02
+    hostname_fqdn: "frr02.local"
+    roles:
+      - route_reflector
+      - terraform_orchestration
+    datacenter: dc2
+    interfaces:
+      - netif: enX0
+        network: mgmt_internal
+        mac: "00:50:56:00:03:71"
+        static_ipv4_addr: "192.168.30.48"
+        static_ipv6_addr: "fdad:ba50:248b:1::48"
+      - netif: enX1
+        network: k8s_net2
+        mac: "00:50:56:00:03:7b"
+        static_ipv4_addr: "192.168.50.48"
+        static_ipv6_addr: "fd69:6684:61a:3::48"
+      - netif: enX2
+        network: frr_exchange
+        mac: "00:50:56:00:03:dc"
+        static_ipv4_addr: "192.168.255.48"
+        static_ipv6_addr: "fd69:6684:61a:90::48"
+    scalars:
+      frr_bgp_asn: 65012
+      frr_bgp_router_id: "192.168.50.48"
+    services:
+      vm_params:
+        config:
+          template_type: "ubuntu"
+          firmware: "uefi"
+          resource_profile: "frr"
+  - name: k8sctrlplane01
+    hostname_fqdn: "k8sctrlplane01.local"
+    roles:
+      - k8s_control_plane
+      - terraform_orchestration
+    datacenter: dc1
+    cluster: cluster1
+    interfaces:
+      - netif: enX0
+        network: mgmt_internal
+        mac: "00:50:56:00:36:71"
+        static_ipv4_addr: "192.168.30.41"
+        static_ipv6_addr: "fdad:ba50:248b:1::41"
+      - netif: enX1
+        network: k8s_net1
+        mac: "00:50:56:00:36:7b"
+        static_ipv4_addr: "192.168.40.41"
+        static_ipv6_addr: "fd69:6684:61a:2::41"
+    scalars:
+      k8s_ctrlplane_host_fqdn: k8sctrlplane01.local
+      k8s_ctrlplane_endpoint: "fdad:ba50:248b:1::41"
+      k8s_pod_ipv4_network_cidr: "10.244.0.0/16"
+      k8s_pod_ipv6_network_cidr: "fdb6:6e92:3cfb:0200::/56"
+      k8s_pod_ipv4_service_subnet: "10.254.0.0/16"
+      k8s_pod_ipv6_service_subnet: "fdb6:6e92:3cfb:feed::/112"
+      k8s_cilium_cm_cluster_name: cluster1
+      k8s_cilium_cm_cluster_id: 1
+      k8s_virtualcluster_enabled: true
+      k8s_vcinstances_enabled: true
+      vcinstances_etcd_storage_enabled: true
+      vcinstances_etcd_storage_size: 10Gi
+      vcinstances_etcd_storage_class: default-sc
+    services:
+      whereabouts:
+        config:
+          ipv4_range_start: "192.168.30.100"
+          ipv4_range_end: "192.168.30.254"
+          ipv6_range_start: "fd69:6684:61a:2::100"
+          ipv6_range_end: "fd69:6684:61a:2::ffff"
+      vm_params:
+        config:
+          template_type: "ubuntu"
+          firmware: "uefi"
+          resource_profile: "k8s_ctrlplane"
+    k8s_bgp:
+      enabled: false
+      node_name: "k8sctrlplane01"
+      local_asn: 65011
+      kubeconfig: "/etc/kubernetes/admin.conf"
+      export_pod_cidr: true
+      advertise_services: false
+      address_families:
+        - ipv4
+        - ipv6
+      neighbors:
+        - peer_address: "192.168.40.49/32"
+          peer_asn: 65011
+          peer_port: 179
+          hold_time_seconds: 90
+          connect_retry_seconds: 15
+    vcinstances_clusterversions:
+      - name: cv-k8s-1-31-tenant-alpha
+      - name: cv-k8s-1-31-tenant-beta
+    vcinstances_virtualclusters:
+      - name: tenant-alpha
+        namespace: vc-manager
+        clusterVersionName: cv-k8s-1-31-tenant-alpha
+        clusterDomain: tenant-alpha.vc.local
+        kubeConfigSecretName: tenant-alpha-kubeconfig
+      - name: tenant-beta
+        namespace: vc-manager
+        clusterVersionName: cv-k8s-1-31-tenant-beta
+        clusterDomain: tenant-beta.vc.local
+        kubeConfigSecretName: tenant-beta-kubeconfig
+  - name: k8sworker0101
+    hostname_fqdn: "k8sworker0101.local"
+    roles:
+      - k8s_worker
+      - terraform_orchestration
+    control_plane: k8sctrlplane01
+    interfaces:
+      - netif: enX0
+        network: mgmt_internal
+        mac: "00:50:56:00:7b:71"
+        static_ipv4_addr: "192.168.30.42"
+        static_ipv6_addr: "fdad:ba50:248b:1::42"
+      - netif: enX1
+        network: k8s_net1
+        mac: "00:50:56:00:7b:7b"
+        static_ipv4_addr: "192.168.40.42"
+        static_ipv6_addr: "fd69:6684:61a:2::42"
+    services:
+      vm_params:
+        config:
+          template_type: "ubuntu"
+          firmware: "uefi"
+          resource_profile: "k8s_worker"
+  - name: k8sworker0102
+    hostname_fqdn: "k8sworker0102.local"
+    roles:
+      - k8s_worker
+      - terraform_orchestration
+    control_plane: k8sctrlplane01
+    interfaces:
+      - netif: enX0
+        network: mgmt_internal
+        mac: "00:50:56:00:bf:71"
+        static_ipv4_addr: "192.168.30.43"
+        static_ipv6_addr: "fdad:ba50:248b:1::43"
+      - netif: enX1
+        network: k8s_net1
+        mac: "00:50:56:00:bf:7b"
+        static_ipv4_addr: "192.168.40.43"
+        static_ipv6_addr: "fd69:6684:61a:2::43"
+    services:
+      vm_params:
+        config:
+          template_type: "ubuntu"
+          firmware: "uefi"
+          resource_profile: "k8s_worker"
+  - name: k8sctrlplane02
+    hostname_fqdn: "k8sctrlplane02.local"
+    roles:
+      - k8s_control_plane
+      - terraform_orchestration
+    datacenter: dc2
+    cluster: cluster2
+    interfaces:
+      - netif: enX0
+        network: mgmt_internal
+        mac: "00:50:56:00:1f:71"
+        static_ipv4_addr: "192.168.30.51"
+        static_ipv6_addr: "fdad:ba50:248b:1::51"
+      - netif: enX1
+        network: k8s_net2
+        mac: "00:50:56:00:1f:7b"
+        static_ipv4_addr: "192.168.50.51"
+        static_ipv6_addr: "fd69:6684:61a:3::51"
+    scalars:
+      k8s_ctrlplane_host_fqdn: "k8sctrlplane02.local"
+      k8s_ctrlplane_endpoint: "fdad:ba50:248b:1::51"
+      k8s_pod_ipv4_network_cidr: "10.243.0.0/16"
+      k8s_pod_ipv6_network_cidr: "fdb6:6e92:3cfb:0100::/56"
+      k8s_pod_ipv4_service_subnet: "10.253.0.0/16"
+      k8s_pod_ipv6_service_subnet: "fdb6:6e92:3cfb:feec::/112"
+      k8s_cilium_cm_cluster_name: "cluster2"
+      k8s_cilium_cm_cluster_id: 2
+      k8s_virtualcluster_enabled: true
+      k8s_vcinstances_enabled: true
+      vcinstances_etcd_storage_enabled: true
+      vcinstances_etcd_storage_size: "10Gi"
+      vcinstances_etcd_storage_class: "default-sc"
+    services:
+      whereabouts:
+        config:
+          ipv4_range_start: "192.168.40.100"
+          ipv4_range_end: "192.168.40.254"
+          ipv6_range_start: "fd69:6684:61a:3::100"
+          ipv6_range_end: "fd69:6684:61a:3::ffff"
+      vm_params:
+        config:
+          template_type: "rhel"
+          firmware: "bios"
+          resource_profile: "k8s_ctrlplane"
+    k8s_bgp:
+      enabled: false
+      node_name: "k8sctrlplane02"
+      local_asn: 65012
+      kubeconfig: "/etc/kubernetes/admin.conf"
+      export_pod_cidr: true
+      advertise_services: false
+      address_families:
+        - ipv4
+        - ipv6
+      neighbors:
+        - peer_address: "192.168.50.48/32"
+          peer_asn: 65012
+          peer_port: 179
+          hold_time_seconds: 90
+          connect_retry_seconds: 15
+    vcinstances_clusterversions:
+      - name: "cv-k8s-1-31-tenant-alpha"
+      - name: "cv-k8s-1-31-tenant-beta"
+    vcinstances_virtualclusters:
+      - name: "tenant-alpha"
+        namespace: vc-manager
+        clusterVersionName: "cv-k8s-1-31-tenant-alpha"
+        clusterDomain: tenant-alpha.vc.local
+        kubeConfigSecretName: "tenant-alpha-kubeconfig"
+      - name: "tenant-beta"
+        namespace: "vc-manager"
+        clusterVersionName: "cv-k8s-1-31-tenant-beta"
+        clusterDomain: "tenant-beta.vc.local"
+        kubeConfigSecretName: "tenant-beta-kubeconfig"
+  - name: k8sworker0201
+    hostname_fqdn: "k8sworker0201.local"
+    roles:
+      - k8s_worker
+      - terraform_orchestration
+    control_plane: k8sctrlplane02
+    interfaces:
+      - netif: enX0
+        network: mgmt_internal
+        mac: "00:50:56:00:d3:71"
+        static_ipv4_addr: "192.168.30.52"
+        static_ipv6_addr: "fdad:ba50:248b:1::52"
+      - netif: enX1
+        network: k8s_net2
+        mac: "00:50:56:00:d3:7b"
+        static_ipv4_addr: "192.168.50.52"
+        static_ipv6_addr: "fd69:6684:61a:3::52"
+    services:
+      vm_params:
+        config:
+          template_type: "rhel"
+          firmware: "bios"
+          resource_profile: "k8s_worker"
+  - name: k8sworker0202
+    hostname_fqdn: "k8sworker0202.local"
+    roles:
+      - k8s_worker
+      - terraform_orchestration
+    control_plane: k8sctrlplane02
+    interfaces:
+      - netif: enX0
+        network: mgmt_internal
+        mac: "00:50:56:00:43:71"
+        static_ipv4_addr: "192.168.30.53"
+        static_ipv6_addr: "fdad:ba50:248b:1::53"
+      - netif: enX1
+        network: k8s_net2
+        mac: "00:50:56:00:43:7b"
+        static_ipv4_addr: "192.168.50.53"
+        static_ipv6_addr: "fd69:6684:61a:3::53"
+    services:
+      vm_params:
+        config:
+          template_type: "rhel"
+          firmware: "bios"
+          resource_profile: "k8s_worker"
+  - name: devserver
+    hostname_fqdn: "devserver.local"
+    roles:
+      - infra_server
+      - docker
+      - terraform_orchestration
+    interfaces:
+      - netif: enX0
+        network: mgmt_external
+        mac: "00:50:56:00:cd:71"
+        static_ipv4_addr: "192.168.20.12"
+        static_ipv6_addr: "fd69:6684:61a:1::12"
+      - netif: enX1
+        network: mgmt_internal
+        mac: "00:50:56:00:cd:7b"
+        static_ipv4_addr: "192.168.30.12"
+        static_ipv6_addr: "fdad:ba50:248b:1::12"
+    services:
+      gitlab:
+        config:
+          hostname: "devserver.example.org"
+      vm_params:
+        config:
+          template_type: "ubuntu"
+          firmware: "uefi"
+          resource_profile: "infrastructure"
+  - name: mgmt-server
+    hostname_fqdn: "mgmt-server.local"
+    roles:
+      - infra_server
+      - docker
+      - terraform_orchestration
+    interfaces:
+      - netif: enX0
+        network: mgmt_external
+        mac: "00:50:56:00:f3:71"
+        static_ipv4_addr: "192.168.20.11"
+        static_ipv6_addr: "fd69:6684:61a:1::11"
+      - netif: enX1
+        network: mgmt_internal
+        mac: "00:50:56:00:f3:7b"
+        static_ipv4_addr: "192.168.30.11"
+        static_ipv6_addr: "fdad:ba50:248b:1::11"
+    services:
+      gitlab:
+        config:
+          hostname: "mgmt-server.example.org"
+      vm_params:
+        config:
+          template_type: "ubuntu"
+          firmware: "uefi"
+          resource_profile: "infrastructure"
+  - name: rhel-server
+    hostname_fqdn: "rhel-server.local"
+    roles:
+      - infra_server
+      - docker
+      - terraform_orchestration
+    interfaces:
+      - netif: enX0
+        network: mgmt_external
+        mac: "00:50:56:00:eb:71"
+        static_ipv4_addr: "192.168.20.13"
+        static_ipv6_addr: "fd69:6684:61a:1::13"
+      - netif: enX1
+        network: mgmt_internal
+        mac: "00:50:56:00:eb:7b"
+        static_ipv4_addr: "192.168.30.13"
+        static_ipv6_addr: "fdad:ba50:248b:1::13"
+    services:
+      gitlab:
+        config:
+          hostname: "rhel-server.example.org"
+      vm_params:
+        config:
+          template_type: "rhel"
+          firmware: "bios"
+          resource_profile: "infrastructure"
+  - name: ubuntu-server
+    hostname_fqdn: "ubuntu-server.local"
+    roles:
+      - infra_server
+      - docker
+      - terraform_orchestration
+    interfaces:
+      - netif: enX0
+        network: mgmt_external
+        mac: "00:50:56:00:dd:71"
+        static_ipv4_addr: "192.168.20.14"
+        static_ipv6_addr: "fd69:6684:61a:1::14"
+      - netif: enX1
+        network: mgmt_internal
+        mac: "00:50:56:00:dd:7b"
+        static_ipv4_addr: "192.168.30.14"
+        static_ipv6_addr: "fdad:ba50:248b:1::14"
+    services:
+      gitlab:
+        config:
+          hostname: "ubuntu-server.example.org"
+      vm_params:
+        config:
+          template_type: "ubuntu"
+          firmware: "uefi"
+          resource_profile: "infrastructure"
+  - name: router
+    hostname_fqdn: "router.local"
+    roles:
+      - docker
+      - internal_router
+      - terraform_orchestration
+    interfaces:
+      - netif: enX0
+        network: mgmt_external
+        mac: "00:50:56:00:46:71"
+        static_ipv4_addr: "192.168.20.10"
+        static_ipv6_addr: "fd69:6684:61a:1::10"
+      - netif: enX1
+        network: mgmt_internal
+        mac: "00:50:56:00:46:7b"
+        static_ipv4_addr: "192.168.30.10"
+        static_ipv6_addr: "fdad:ba50:248b:1::10"
+    scalars:
+      build_docker_ce_backup_container_image: false
+    services:
+      vm_params:
+        config:
+          template_type: "ubuntu"
+          firmware: "uefi"
+          resource_profile: "infrastructure"
+  - name: rancher01
+    hostname_fqdn: "rancher01.local"
+    roles:
+      - rancher
+    interfaces:
+      - netif: enX0
+        network: mgmt_external
+        mac: "00:50:56:00:61:71"
+        static_ipv4_addr: "192.168.20.61"
+        static_ipv6_addr: "fd69:6684:61a:1::61"
+  - name: vmlinux1
+    hostname_fqdn: "vmlinux1.local"
+    roles:
+      - docker
+      - dev_linux
+      - terraform_orchestration
+    interfaces:
+      - netif: enX0
+        network: mgmt_external
+      - netif: enX1
+        network: mgmt_internal
+    services:
+      vm_params:
+        config:
+          vm_group: "vmlinux"
+          template_type: "ubuntu"
+          firmware: "uefi"
+          resource_profile: "vmlinux"
+  - name: vmlinux2
+    hostname_fqdn: "vmlinux2.local"
+    roles:
+      - docker
+      - dev_linux
+      - terraform_orchestration
+    interfaces:
+      - netif: enX0
+        network: mgmt_external
+      - netif: enX1
+        network: mgmt_internal
+    services:
+      vm_params:
+        config:
+          vm_group: "vmlinux"
+          template_type: "ubuntu"
+          firmware: "uefi"
+          resource_profile: "vmlinux"
+  - name: vmlinux3
+    hostname_fqdn: "vmlinux3.local"
+    roles:
+      - docker
+      - dev_linux
+      - terraform_orchestration
+    interfaces:
+      - netif: enX0
+        network: mgmt_external
+      - netif: enX1
+        network: mgmt_internal
+    services:
+      vm_params:
+        config:
+          vm_group: "vmlinux"
+          template_type: "ubuntu"
+          firmware: "uefi"
+          resource_profile: "vmlinux"
+  - name: vmlinux4
+    hostname_fqdn: "vmlinux4.local"
+    roles:
+      - docker
+      - dev_linux
+      - terraform_orchestration
+    interfaces:
+      - netif: enX0
+        network: mgmt_external
+      - netif: enX1
+        network: mgmt_internal
+    services:
+      vm_params:
+        config:
+          vm_group: "vmlinux"
+          template_type: "rhel"
+          firmware: "bios"
+          resource_profile: "vmlinux"
+  - name: vmlinux5
+    hostname_fqdn: "vmlinux5.local"
+    roles:
+      - docker
+      - dev_linux
+      - terraform_orchestration
+    interfaces:
+      - netif: enX0
+        network: mgmt_external
+      - netif: enX1
+        network: mgmt_internal
+    services:
+      vm_params:
+        config:
+          vm_group: "vmlinux"
+          template_type: "rhel"
+          firmware: "bios"
+          resource_profile: "vmlinux"
+  - name: devlinux1
+    hostname_fqdn: "devlinux1.local"
+    roles:
+      - docker
+      - dev_linux
+      - terraform_orchestration
+    interfaces:
+      - netif: enX0
+        network: mgmt_internal
+    services:
+      vm_params:
+        config:
+          vm_group: "devlinux"
+          template_type: "ubuntu"
+          firmware: "uefi"
+          resource_profile: "devlinux"
+  - name: devlinux2
+    hostname_fqdn: "devlinux2.local"
+    roles:
+      - docker
+      - dev_linux
+      - terraform_orchestration
+    interfaces:
+      - netif: enX0
+        network: mgmt_internal
+    services:
+      vm_params:
+        config:
+          vm_group: "devlinux"
+          template_type: "ubuntu"
+          firmware: "uefi"
+          resource_profile: "devlinux"
+  - name: devlinux3
+    hostname_fqdn: "devlinux3.local"
+    roles:
+      - docker
+      - dev_linux
+      - terraform_orchestration
+    interfaces:
+      - netif: enX0
+        network: mgmt_internal
+    services:
+      vm_params:
+        config:
+          vm_group: "devlinux"
+          template_type: "ubuntu"
+          firmware: "uefi"
+          resource_profile: "devlinux"
+  - name: devlinux4
+    hostname_fqdn: "devlinux4.local"
+    roles:
+      - docker
+      - dev_linux
+      - terraform_orchestration
+    interfaces:
+      - netif: enX0
+        network: mgmt_internal
+    services:
+      vm_params:
+        config:
+          vm_group: "devlinux"
+          template_type: "rhel"
+          firmware: "bios"
+          resource_profile: "devlinux"
+  - name: devlinux5
+    hostname_fqdn: "devlinux5.local"
+    roles:
+      - docker
+      - dev_linux
+      - terraform_orchestration
+    interfaces:
+      - netif: enX0
+        network: mgmt_internal
+    services:
+      vm_params:
+        config:
+          vm_group: "devlinux"
+          template_type: "rhel"
+          firmware: "bios"
+          resource_profile: "devlinux"

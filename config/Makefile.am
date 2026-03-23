@@ -18,5 +18,6 @@
 
 ## 配布アーカイブに含めるファイル（プレースホルダー）
 EXTRA_DIST = \
+	sample-network_topology.yaml \
 	genAnsibleConf.system-config.yaml \
 	genAnsibleConf.user-config.yaml
