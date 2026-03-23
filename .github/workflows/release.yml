@@ -31,10 +31,17 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Build package
+        shell: bash
         run: |
           rm -rf dist
           mkdir -p dist
-          make ${{ matrix.make_target }}
+          make \
+            -C Dockerfiles \
+            -f Makefile.am \
+            top_builddir="${GITHUB_WORKSPACE}" \
+            abs_top_builddir="${GITHUB_WORKSPACE}" \
+            abs_top_srcdir="${GITHUB_WORKSPACE}" \
+            ${{ matrix.make_target }}
 
       - name: List generated files
         run: |
