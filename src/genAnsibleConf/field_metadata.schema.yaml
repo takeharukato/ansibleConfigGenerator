@@ -1,7 +1,7 @@
 $schema: https://json-schema.org/draft/2020-12/schema
 $id: field_metadata.schema.yaml
 title: field_metadata schema
-description: "ホスト変数比較CSVで使用されるスカラー設定のメタデータスキーマ"
+description: "パラメタデザインシート, ノード設定パラメタデザインシートのパラメタ説明記述用YAMLファイルのスキーマ"
 type: object
 required:
   - version

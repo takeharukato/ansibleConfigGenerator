@@ -1,7 +1,7 @@
 $schema: https://json-schema.org/draft/2020-12/schema
 $id: host_vars_structured.schema.yaml
 title: host_vars_structured schema
-description: "scripts/hostvars-generator/host_vars_structured.yamlから生成されたスキーマ"
+description: "複数ノードのhost_vars設定ファイルを単一のファイル(host_vars_structured.yaml)に統合したYAMLファイルのスキーマ定義"
 type: object
 required:
 - hosts

@@ -69,7 +69,7 @@ EXTRA_DIST = \
 	generate_terraform_tfvars.py \
 	convert-rule-config.yaml \
 	field_metadata.yaml \
-	network_topology.schema.yaml
+	network_topology.schema.yaml \
 	field_metadata.schema.yaml \
 	host_vars_structured.schema.yaml \
 	terraform.tfvars
