@@ -152,8 +152,8 @@ nodes:
 追加後, 次のコマンドで ノード設定パラメタデザインシート に新しい行が出現し, 値が期待通りであることを確認します。
 
 ```shell
-generate_host_vars_structured.py -i network_topology.yaml -o host_vars_structured.yaml && \
-generate_hostvars_matrix.py -H host_vars_structured.yaml -m field_metadata.yaml \
+generate_host_vars_structured -i network_topology.yaml -o host_vars_structured.yaml && \
+generate_hostvars_matrix -H host_vars_structured.yaml -m field_metadata.yaml \
   -o host_vars_scalars_matrix.csv
 ```
 
@@ -682,7 +682,7 @@ network_role:
 | FRR 広報ネットワーク生成の追加/変更 | `lib/routing_frr.py` の `build_frr_networks` |
 | Kubernetes Border Gateway Protocol (以下 BGP と略す) 既定値生成の追加/変更 | `lib/k8s_normalize.py` の `build_default_k8s_bgp` |
 | ノード生成パイプラインへの組み込み | `lib/hostvars_node_pipeline.py` の `apply_node_routing_entries`, `apply_node_service_scalars` |
-| ルール読み込みと実行フローの入口確認 | `generate_host_vars_structured.py` の `generate_host_vars_structured` |
+| ルール読み込みと実行フローの入口確認 | `generate_host_vars_structured` の `generate_host_vars_structured` |
 
 ### 実装判断の実務ルール
 
@@ -697,8 +697,8 @@ network_role:
 変更後は必ず次のコマンドを実行して, 期待した変数が生成されることを確認してください。
 
 ```shell
-generate_host_vars_structured.py -i network_topology.yaml -o host_vars_structured.yaml && \
-generate_hostvars_matrix.py -H host_vars_structured.yaml -m field_metadata.yaml \
+generate_host_vars_structured -i network_topology.yaml -o host_vars_structured.yaml && \
+generate_hostvars_matrix -H host_vars_structured.yaml -m field_metadata.yaml \
   -o host_vars_scalars_matrix.csv
 ```
 

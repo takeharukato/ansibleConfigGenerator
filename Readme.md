@@ -6,12 +6,12 @@ ansibleConfigGenerator は、計算ノードの機能やネットワークトポ
 
 本プロジェクトは次の 6 つのコマンドラインツールを提供します。
 
-- generate_host_vars_structured.py
-- generate_host_vars_files.py
-- generate_hostvars_matrix.py
-- validate_hostvars_matrix.py
-- generate_network_topology_design_sheet.py
-- generate_terraform_tfvars.py
+- generate_host_vars_structured
+- generate_host_vars_files
+- generate_hostvars_matrix
+- validate_hostvars_matrix
+- generate_network_topology_design_sheet
+- generate_terraform_tfvars
 
 スキーマ/設定ファイルの探索順と `schema_search_paths` の詳細は, `docs/manual/toolchain-overview.md` の「スキーマと設定ファイルの探索順」を参照してください。
 
@@ -37,12 +37,12 @@ ansibleConfigGenerator は、計算ノードの機能やネットワークトポ
 ├── requirements.txt
 ├── src/
 │   └── genAnsibleConf/
-│       ├── generate_host_vars_structured.py
-│       ├── generate_host_vars_files.py
-│       ├── generate_hostvars_matrix.py
-│       ├── generate_network_topology_design_sheet.py
-│       ├── generate_terraform_tfvars.py
-│       ├── validate_hostvars_matrix.py
+│       ├── generate_host_vars_structured
+│       ├── generate_host_vars_files
+│       ├── generate_hostvars_matrix
+│       ├── generate_network_topology_design_sheet
+│       ├── generate_terraform_tfvars
+│       ├── validate_hostvars_matrix
 │       ├── field_metadata.yaml
 │       ├── field_metadata.schema.yaml
 │       ├── network_topology.schema.yaml
@@ -81,12 +81,12 @@ ansibleConfigGenerator は、計算ノードの機能やネットワークトポ
 
 | ファイル/ディレクトリ | 補足説明 |
 |---|---|
-| `generate_host_vars_structured.py` | ネットワークトポロジ定義から構造化 host_vars を生成します。 |
-| `generate_host_vars_files.py` | 構造化 host_vars からノードごとの host_vars ファイル群を生成します。 |
-| `generate_hostvars_matrix.py` | ノード設定を一覧化した CSV マトリクスを生成します。 |
-| `generate_network_topology_design_sheet.py` | ネットワークパラメタデザインシート向け パラメタデザインシート を生成します。 |
-| `generate_terraform_tfvars.py` | トポロジ定義から terraform.tfvars を生成します。 |
-| `validate_hostvars_matrix.py` | 生成されたマトリクスや構造データの検証を行います。 |
+| `generate_host_vars_structured` | ネットワークトポロジ定義から構造化 host_vars を生成します。 |
+| `generate_host_vars_files` | 構造化 host_vars からノードごとの host_vars ファイル群を生成します。 |
+| `generate_hostvars_matrix` | ノード設定を一覧化した CSV マトリクスを生成します。 |
+| `generate_network_topology_design_sheet` | ネットワークパラメタデザインシート向け パラメタデザインシート を生成します。 |
+| `generate_terraform_tfvars` | トポロジ定義から terraform.tfvars を生成します。 |
+| `validate_hostvars_matrix` | 生成されたマトリクスや構造データの検証を行います。 |
 | `field_metadata.yaml` | host_vars の各フィールド定義と説明を保持します。 |
 | `field_metadata.schema.yaml` | field_metadata.yaml のスキーマを定義します。 |
 | `network_topology.schema.yaml` | ネットワークトポロジ定義ファイルのスキーマを定義します。 |
@@ -158,37 +158,37 @@ make install
 network_topology.yaml から host_vars_structured.yaml を生成:
 
 ```shell
-generate_host_vars_structured.py -i network_topology.yaml -o host_vars_structured.yaml
+generate_host_vars_structured -i network_topology.yaml -o host_vars_structured.yaml
 ```
 
 host_vars ファイル群を生成:
 
 ```shell
-generate_host_vars_files.py host_vars.gen -i host_vars_structured.yaml -m field_metadata.yaml
+generate_host_vars_files host_vars.gen -i host_vars_structured.yaml -m field_metadata.yaml
 ```
 
 ノード設定パラメタデザインシートを生成:
 
 ```shell
-generate_hostvars_matrix.py -H host_vars_structured.yaml -m field_metadata.yaml -o host_vars_scalars_matrix.csv
+generate_hostvars_matrix -H host_vars_structured.yaml -m field_metadata.yaml -o host_vars_scalars_matrix.csv
 ```
 
 パラメタデザインシート CSV を生成:
 
 ```shell
-generate_network_topology_design_sheet.py -i network_topology.yaml -o .
+generate_network_topology_design_sheet -i network_topology.yaml -o .
 ```
 
 terraform.tfvars を生成:
 
 ```shell
-generate_terraform_tfvars.py -t network_topology.yaml -o terraform.tfvars
+generate_terraform_tfvars -t network_topology.yaml -o terraform.tfvars
 ```
 
 schema 探索先を明示する場合:
 
 ```shell
-generate_hostvars_matrix.py --schema-dir /path/to/schema -H host_vars_structured.yaml
+generate_hostvars_matrix --schema-dir /path/to/schema -H host_vars_structured.yaml
 ```
 
 使用法の詳細は, [ansibleConfigGenerator マニュアル](docs/manual/index.md)を参照してください。

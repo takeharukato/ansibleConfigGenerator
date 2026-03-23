@@ -26,14 +26,17 @@ import sys
 from pathlib import Path
 from typing import Any, cast
 
-from lib.cli_defaults import (
+if __package__ in (None, ""):
+    sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
+
+from genAnsibleConf.lib.cli_defaults import (
     DEFAULT_FIELD_METADATA,
     DEFAULT_NETWORK_TOPOLOGY,
     DEFAULT_NETWORK_TOPOLOGY_CSV,
     DEFAULT_NETWORK_TOPOLOGY_SCHEMA,
     resolve_schema_file,
 )
-from lib.yaml_io import load_yaml_mapping
+from genAnsibleConf.lib.yaml_io import load_yaml_mapping
 
 CSV_HEADER: list[str] = ["item", "parameter", "description", "value"]
 

@@ -1,6 +1,6 @@
 # フィールドメタデータリファレンスマニュアル (field_metadata.yaml)
 
-`field_metadata.yaml` はスカラー変数の名称,型,説明,値の制約を定義するファイルです。`generate_hostvars_matrix.py` が参照し, Comma-Separated Values (以下 CSV と略す) 形式のホスト変数比較シートの列ヘッダや値の検証条件を決定します。
+`field_metadata.yaml` はスカラー変数の名称,型,説明,値の制約を定義するファイルです。`generate_hostvars_matrix` が参照し, Comma-Separated Values (以下 CSV と略す) 形式のホスト変数比較シートの列ヘッダや値の検証条件を決定します。
 
 ## 目次
 
@@ -280,12 +280,12 @@ k8s_multus_enabled:
 
 ## ノード設定パラメタデザインシート 出力での利用
 
-`generate_hostvars_matrix.py` は `field_metadata.yaml` を読み込み, 次のようにして ノード設定パラメタデザインシート を生成します。
+`generate_hostvars_matrix` は `field_metadata.yaml` を読み込み, 次のようにして ノード設定パラメタデザインシート を生成します。
 
 1. `fields` の各エントリをノード設定パラメタデザインシート の行として出力する。
 2. `description` が ノード設定パラメタデザインシート の行ヘッダに表示される。
 3. `category` が ノード設定パラメタデザインシート の行グループに相当し, 同じカテゴリのフィールドがまとまって並ぶ。
-4. `allowed_range` または `allowed_values` は `validate_hostvars_matrix.py` による検証条件として使用される。
+4. `allowed_range` または `allowed_values` は `validate_hostvars_matrix` による検証条件として使用される。
 
 ---
 

@@ -14,17 +14,28 @@
 
 ## 実行スクリプト
 bin_SCRIPTS = \
-	generate_host_vars_files.py \
-	generate_host_vars_structured.py \
-	generate_hostvars_matrix.py \
-	validate_hostvars_matrix.py \
-	generate_network_topology_design_sheet.py \
-	generate_terraform_tfvars.py
+	generate_host_vars_files \
+	generate_host_vars_structured \
+	generate_hostvars_matrix \
+	validate_hostvars_matrix \
+	generate_network_topology_design_sheet \
+	generate_terraform_tfvars
 
 ## Python パッケージ本体
 pythondir = @pythondir@/genAnsibleConf
 python_PYTHON = \
 	__init__.py
+
+## Python CLI サブモジュール
+clipythondir = $(pythondir)/cli
+clipython_PYTHON = \
+	cli/__init__.py \
+	cli/generate_host_vars_files.py \
+	cli/generate_host_vars_structured.py \
+	cli/generate_hostvars_matrix.py \
+	cli/validate_hostvars_matrix.py \
+	cli/generate_network_topology_design_sheet.py \
+	cli/generate_terraform_tfvars.py
 
 ## Python サブモジュール
 libpythondir = $(pythondir)/lib
@@ -61,12 +72,19 @@ genansibleconfschema_DATA = \
 
 ## 配布に含めるが install しないファイル
 EXTRA_DIST = \
-	generate_host_vars_files.py \
-	generate_host_vars_structured.py \
-	generate_hostvars_matrix.py \
-	validate_hostvars_matrix.py \
-	generate_network_topology_design_sheet.py \
-	generate_terraform_tfvars.py \
+	generate_host_vars_files \
+	generate_host_vars_structured \
+	generate_hostvars_matrix \
+	validate_hostvars_matrix \
+	generate_network_topology_design_sheet \
+	generate_terraform_tfvars \
+	cli/__init__.py \
+	cli/generate_host_vars_files.py \
+	cli/generate_host_vars_structured.py \
+	cli/generate_hostvars_matrix.py \
+	cli/validate_hostvars_matrix.py \
+	cli/generate_network_topology_design_sheet.py \
+	cli/generate_terraform_tfvars.py \
 	convert-rule-config.yaml \
 	field_metadata.yaml \
 	network_topology.schema.yaml \

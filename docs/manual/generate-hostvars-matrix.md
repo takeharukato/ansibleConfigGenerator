@@ -1,7 +1,7 @@
-# generate_hostvars_matrix.py
+# generate_hostvars_matrix
 
-`generate_hostvars_matrix.py` は, `host_vars_structured.yaml` と `field_metadata.yaml` を入力として, ホスト横断のパラメタシート Comma-Separated Values (以下 CSV と略す) を生成するコマンドです。
-設定値確認, レビュー, 後段の `validate_hostvars_matrix.py` による構造検証で利用する一覧表を出力します。入力は YAML Ain't Markup Language (以下 YAML と略す) で記述され, 一部の値は JavaScript Object Notation (以下 JSON と略す) 形式で直列化されます。Network Interface Card (以下 NIC と略す) の展開行も含まれます。
+`generate_hostvars_matrix` は, `host_vars_structured.yaml` と `field_metadata.yaml` を入力として, ホスト横断のパラメタシート Comma-Separated Values (以下 CSV と略す) を生成するコマンドです。
+設定値確認, レビュー, 後段の `validate_hostvars_matrix` による構造検証で利用する一覧表を出力します。入力は YAML Ain't Markup Language (以下 YAML と略す) で記述され, 一部の値は JavaScript Object Notation (以下 JSON と略す) 形式で直列化されます。Network Interface Card (以下 NIC と略す) の展開行も含まれます。
 
 ## 目次
 
@@ -33,7 +33,7 @@
 ## SYNOPSIS
 
 ```plaintext
-generate_hostvars_matrix.py [-h] [-H HOST_VARS] [-m METADATA] [-o OUTPUT] [--schema-dir SCHEMA_DIR]
+generate_hostvars_matrix [-h] [-H HOST_VARS] [-m METADATA] [-o OUTPUT] [--schema-dir SCHEMA_DIR]
 ```
 
 ## 引数/オプション一覧
@@ -52,7 +52,7 @@ generate_hostvars_matrix.py [-h] [-H HOST_VARS] [-m METADATA] [-o OUTPUT] [--sch
 
 ### `--host-vars`
 
-`generate_host_vars_structured.py` の出力である `host_vars_structured.yaml` を指定します。ホスト一覧, スカラー値, `netif_list` 展開行の生成元として使用します。
+`generate_host_vars_structured` の出力である `host_vars_structured.yaml` を指定します。ホスト一覧, スカラー値, `netif_list` 展開行の生成元として使用します。
 
 ### `--metadata`
 
@@ -70,7 +70,7 @@ generate_hostvars_matrix.py [-h] [-H HOST_VARS] [-m METADATA] [-o OUTPUT] [--sch
 
 本コマンドは直接の設定ファイルとして `field_metadata.yaml` を参照し, 入力データとして `host_vars_structured.yaml` を使用します。
 
-- `host_vars_structured.yaml`: 前段の `generate_host_vars_structured.py` の生成物
+- `host_vars_structured.yaml`: 前段の `generate_host_vars_structured` の生成物
 - `field_metadata.yaml`: フィールドの型, 説明, 許容範囲の定義
 
 `field_metadata.yaml` は `--metadata` で個別指定できるほか, 規定値利用時は `--schema-dir` や `schema_search_paths` の探索結果が適用されます。
@@ -80,19 +80,19 @@ generate_hostvars_matrix.py [-h] [-H HOST_VARS] [-m METADATA] [-o OUTPUT] [--sch
 ### 標準出力へ出力する例
 
 ```shell
-generate_hostvars_matrix.py
+generate_hostvars_matrix
 ```
 
 ### ファイルへ出力する例
 
 ```shell
-generate_hostvars_matrix.py -o host_vars_scalars_matrix.csv
+generate_hostvars_matrix -o host_vars_scalars_matrix.csv
 ```
 
 ### 入力ファイルを明示する例
 
 ```shell
-generate_hostvars_matrix.py \
+generate_hostvars_matrix \
   -H custom_host_vars_structured.yaml \
   -m custom_field_metadata.yaml \
   -o out.csv
@@ -101,7 +101,7 @@ generate_hostvars_matrix.py \
 ### メタデータ探索先を明示する例
 
 ```shell
-generate_hostvars_matrix.py \
+generate_hostvars_matrix \
   --schema-dir /path/to/schema \
   -H host_vars_structured.yaml \
   -o host_vars_scalars_matrix.csv
@@ -127,7 +127,7 @@ generate_hostvars_matrix.py \
 
 #### `host_vars_structured.yaml`
 
-`generate_host_vars_structured.py` の生成物であり, 少なくとも `hosts` 配列を持ちます。
+`generate_host_vars_structured` の生成物であり, 少なくとも `hosts` 配列を持ちます。
 
 | フィールド名 | 型 | 説明 |
 |---|---|---|

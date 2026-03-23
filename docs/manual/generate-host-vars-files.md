@@ -1,6 +1,6 @@
-# generate_host_vars_files.py
+# generate_host_vars_files
 
-`generate_host_vars_files.py` は, YAML Ain't Markup Language (以下 YAML と略す) 形式の `host_vars_structured.yaml` を入力として, ホストごとの Ansible 用 host_vars ファイルを生成するコマンドです。
+`generate_host_vars_files` は, YAML Ain't Markup Language (以下 YAML と略す) 形式の `host_vars_structured.yaml` を入力として, ホストごとの Ansible 用 host_vars ファイルを生成するコマンドです。
 `field_metadata.yaml` の説明を参照し, スカラーフィールドの直前へコメントを挿入して出力します。
 
 ## 目次
@@ -38,7 +38,7 @@
 ## SYNOPSIS
 
 ```plaintext
-generate_host_vars_files.py [-h] [-i INPUT_STRUCTURED] [-m METADATA]
+generate_host_vars_files [-h] [-i INPUT_STRUCTURED] [-m METADATA]
                             [--schema-dir SCHEMA_DIR] [-w {true,false}]
                             [-v {true,false}] output_dir
 ```
@@ -70,7 +70,7 @@ generate_host_vars_files.py [-h] [-i INPUT_STRUCTURED] [-m METADATA]
 
 ### `--input-structured`
 
-入力となる `host_vars_structured.yaml` を指定します。通常は `generate_host_vars_structured.py` の出力をそのまま利用します。
+入力となる `host_vars_structured.yaml` を指定します。通常は `generate_host_vars_structured` の出力をそのまま利用します。
 
 ### `--metadata`
 
@@ -102,13 +102,13 @@ generate_host_vars_files.py [-h] [-i INPUT_STRUCTURED] [-m METADATA]
 ### 基本例
 
 ```shell
-generate_host_vars_files.py host_vars.gen
+generate_host_vars_files host_vars.gen
 ```
 
 ### 入力とメタデータを明示する例
 
 ```shell
-generate_host_vars_files.py host_vars.gen \
+generate_host_vars_files host_vars.gen \
   -i host_vars_structured.yaml \
   -m field_metadata.yaml
 ```
@@ -116,13 +116,13 @@ generate_host_vars_files.py host_vars.gen \
 ### 上書きを無効化する例
 
 ```shell
-generate_host_vars_files.py host_vars.gen -w false
+generate_host_vars_files host_vars.gen -w false
 ```
 
 ### ラウンドトリップ検証を有効化する例
 
 ```shell
-generate_host_vars_files.py host_vars.gen -v true
+generate_host_vars_files host_vars.gen -v true
 ```
 
 ## エラーメッセージと終了コード

@@ -6,12 +6,12 @@ ansibleConfigGenerator is a toolkit that generates Ansible host variable files a
 
 The project provides 6 command-line tools:
 
-- generate_host_vars_structured.py
-- generate_host_vars_files.py
-- generate_hostvars_matrix.py
-- validate_hostvars_matrix.py
-- generate_network_topology_design_sheet.py
-- generate_terraform_tfvars.py
+- generate_host_vars_structured
+- generate_host_vars_files
+- generate_hostvars_matrix
+- validate_hostvars_matrix
+- generate_network_topology_design_sheet
+- generate_terraform_tfvars
 
 For schema/config lookup order and `schema_search_paths` details, see `docs/manual/toolchain-overview.md` ("スキーマと設定ファイルの探索順" and "設定ファイル形式 (schema_search_paths)").
 
@@ -37,12 +37,12 @@ For schema/config lookup order and `schema_search_paths` details, see `docs/manu
 ├── requirements.txt
 ├── src/
 │   └── genAnsibleConf/
-│       ├── generate_host_vars_structured.py
-│       ├── generate_host_vars_files.py
-│       ├── generate_hostvars_matrix.py
-│       ├── generate_network_topology_design_sheet.py
-│       ├── generate_terraform_tfvars.py
-│       ├── validate_hostvars_matrix.py
+│       ├── generate_host_vars_structured
+│       ├── generate_host_vars_files
+│       ├── generate_hostvars_matrix
+│       ├── generate_network_topology_design_sheet
+│       ├── generate_terraform_tfvars
+│       ├── validate_hostvars_matrix
 │       ├── field_metadata.yaml
 │       ├── field_metadata.schema.yaml
 │       ├── network_topology.schema.yaml
@@ -81,12 +81,12 @@ The contents of each directory are summarized below:
 
 | File/Directory | Description |
 |---|---|
-| `generate_host_vars_structured.py` | Generates structured host_vars from network topology definitions. |
-| `generate_host_vars_files.py` | Generates per-node host_vars files from structured host_vars. |
-| `generate_hostvars_matrix.py` | Generates a CSV matrix view of node scalar settings. |
-| `validate_hostvars_matrix.py` | Validates matrix and structured data consistency. |
-| `generate_network_topology_design_sheet.py` | Generates CSV files for network design review. |
-| `generate_terraform_tfvars.py` | Generates terraform.tfvars from topology definitions. |
+| `generate_host_vars_structured` | Generates structured host_vars from network topology definitions. |
+| `generate_host_vars_files` | Generates per-node host_vars files from structured host_vars. |
+| `generate_hostvars_matrix` | Generates a CSV matrix view of node scalar settings. |
+| `validate_hostvars_matrix` | Validates matrix and structured data consistency. |
+| `generate_network_topology_design_sheet` | Generates CSV files for network design review. |
+| `generate_terraform_tfvars` | Generates terraform.tfvars from topology definitions. |
 | `field_metadata.yaml` | Defines scalar field metadata and descriptions for host_vars. |
 | `field_metadata.schema.yaml` | Schema definition for field_metadata.yaml. |
 | `network_topology.schema.yaml` | Schema definition for network topology input files. |
@@ -158,37 +158,37 @@ Packaging outputs are generated under dist/.
 Generate host_vars_structured.yaml from network_topology.yaml:
 
 ```shell
-generate_host_vars_structured.py -i network_topology.yaml -o host_vars_structured.yaml
+generate_host_vars_structured -i network_topology.yaml -o host_vars_structured.yaml
 ```
 
 Generate per-host host_vars files:
 
 ```shell
-generate_host_vars_files.py host_vars.gen -i host_vars_structured.yaml -m field_metadata.yaml
+generate_host_vars_files host_vars.gen -i host_vars_structured.yaml -m field_metadata.yaml
 ```
 
 Generate node parameter matrix CSV:
 
 ```shell
-generate_hostvars_matrix.py -H host_vars_structured.yaml -m field_metadata.yaml -o host_vars_scalars_matrix.csv
+generate_hostvars_matrix -H host_vars_structured.yaml -m field_metadata.yaml -o host_vars_scalars_matrix.csv
 ```
 
 Generate design sheet CSV files:
 
 ```shell
-generate_network_topology_design_sheet.py -i network_topology.yaml -o .
+generate_network_topology_design_sheet -i network_topology.yaml -o .
 ```
 
 Generate terraform.tfvars:
 
 ```shell
-generate_terraform_tfvars.py -t network_topology.yaml -o terraform.tfvars
+generate_terraform_tfvars -t network_topology.yaml -o terraform.tfvars
 ```
 
 Force schema lookup from a specific directory:
 
 ```shell
-generate_hostvars_matrix.py --schema-dir /path/to/schema -H host_vars_structured.yaml
+generate_hostvars_matrix --schema-dir /path/to/schema -H host_vars_structured.yaml
 ```
 
 For detailed usage instructions, see docs/manual/index.md.

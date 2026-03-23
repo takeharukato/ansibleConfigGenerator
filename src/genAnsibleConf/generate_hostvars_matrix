@@ -1,0 +1,39 @@
+#!/usr/bin/env python3
+# -*- mode: python; coding: utf-8; line-endings: unix -*-
+# SPDX-License-Identifier: BSD-2-Clause
+#
+# Copyright (c) 2025 TAKEHARU KATO
+# This file is distributed under the two-clause BSD license.
+# For the full text of the license, see the LICENSE file in the project root directory.
+# このファイルは2条項BSDライセンスの下で配布されています。
+# ライセンス全文はプロジェクト直下の LICENSE を参照してください。
+#
+# OpenAI's ChatGPT partially generated this code.
+# Author has modified some parts.
+# OpenAIのChatGPTがこのコードの一部を生成しました。
+# 著者が修正している部分があります。
+"""generate_hostvars_matrix の起動ラッパー。"""
+
+from __future__ import annotations
+
+import sys
+import site
+
+# configure の --prefix に対応した site-packages を動的に取得。
+# これにより --prefix=/usr や --prefix=/opt/... 等の場合も寯応可能。
+# site.getsitepackages() は dist-packages のみを返すシステムもあるため、
+# site-packages バージョンも登録する。
+
+for sitedir in site.getsitepackages():
+    if sitedir not in sys.path:
+        sys.path.insert(0, sitedir)
+    # dist-packages -> site-packages フォールバック
+    fallback_path: str = sitedir.replace('/dist-packages', '/site-packages')
+    if fallback_path != sitedir and fallback_path not in sys.path:
+        sys.path.insert(0, fallback_path)
+
+from genAnsibleConf.cli.generate_hostvars_matrix import main
+
+
+if __name__ == "__main__":
+    sys.exit(main())

@@ -20,13 +20,11 @@ from typing import Any, Callable, cast
 
 import pytest
 
-# generate_terraform_tfvars.py は `src/genAnsibleConf` 直下実行を前提に
-# `from lib...` import を行うため, テストでも同じ import 解決順を与える。
-PROTOTYPE_DIR: Path = Path(__file__).resolve().parents[2] / "src" / "genAnsibleConf"
-if str(PROTOTYPE_DIR) not in sys.path:
-    sys.path.insert(0, str(PROTOTYPE_DIR))
+SOURCE_DIR: Path = Path(__file__).resolve().parents[2] / "src"
+if str(SOURCE_DIR) not in sys.path:
+    sys.path.insert(0, str(SOURCE_DIR))
 
-import generate_terraform_tfvars as terraform_tfvars_module  # type: ignore[import-not-found]
+from genAnsibleConf.cli import generate_terraform_tfvars as terraform_tfvars_module
 terraform_tfvars_module_any: Any = terraform_tfvars_module
 
 BuildNetworkRolesType = Callable[[dict[str, Any], dict[str, str]], dict[str, list[str]]]

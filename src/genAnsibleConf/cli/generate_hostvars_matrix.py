@@ -33,12 +33,15 @@ import sys
 from pathlib import Path
 from typing import Any, Optional, cast
 
-from lib.cli_defaults import (
+if __package__ in (None, ""):
+    sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
+
+from genAnsibleConf.lib.cli_defaults import (
     DEFAULT_FIELD_METADATA,
     DEFAULT_HOST_VARS_STRUCTURED,
     resolve_schema_file,
 )
-from lib.yaml_io import load_yaml_file
+from genAnsibleConf.lib.yaml_io import load_yaml_file
 
 # netif_list と hostname, scalars はトップレベルルックアップから除外する
 _TOP_LEVEL_EXCLUDE: frozenset[str] = frozenset({"hostname", "netif_list", "scalars"})

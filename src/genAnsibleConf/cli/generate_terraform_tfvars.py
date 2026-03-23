@@ -35,16 +35,19 @@ import sys
 from pathlib import Path
 from typing import Any, cast
 
-from lib.cli_defaults import (
+if __package__ in (None, ""):
+    sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
+
+from genAnsibleConf.lib.cli_defaults import (
     DEFAULT_NETWORK_TOPOLOGY,
     DEFAULT_TERRAFORM_TFVARS,
 )
-from lib.node_topology_utils import (
+from genAnsibleConf.lib.node_topology_utils import (
     get_globals_networks,
     get_globals_services,
     node_has_role,
 )
-from lib.yaml_io import load_yaml_mapping
+from genAnsibleConf.lib.yaml_io import load_yaml_mapping
 
 # xcp_ng_environment.config の必須キー
 # xoa_password は環境変数 TF_VAR_xoa_password で指定するため対象外

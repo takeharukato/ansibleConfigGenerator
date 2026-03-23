@@ -23,14 +23,18 @@ host_vars_scalars_matrix.csvのフォーマット、一貫性、
 import csv
 import re
 import sys
+from pathlib import Path
 from typing import Any, cast
 
-from lib.cli_defaults import (
+if __package__ in (None, ""):
+    sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
+
+from genAnsibleConf.lib.cli_defaults import (
     DEFAULT_FIELD_METADATA,
     DEFAULT_HOST_VARS_MATRIX,
     DEFAULT_HOST_VARS_STRUCTURED,
 )
-from lib.yaml_io import load_yaml_file
+from genAnsibleConf.lib.yaml_io import load_yaml_file
 
 # netif_list[{IF名}].{フィールド名} 形式の展開行にマッチするパターン
 _NETIF_ROW_PATTERN: re.Pattern[str] = re.compile(r"netif_list\[[^\]]+\]\..+")

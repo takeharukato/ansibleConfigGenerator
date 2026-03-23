@@ -1,6 +1,6 @@
-# validate_hostvars_matrix.py
+# validate_hostvars_matrix
 
-`validate_hostvars_matrix.py` は, `generate_hostvars_matrix.py` が生成した Comma-Separated Values (以下 CSV と略す) の構造整合性を検証するコマンドです。
+`validate_hostvars_matrix` は, `generate_hostvars_matrix` が生成した Comma-Separated Values (以下 CSV と略す) の構造整合性を検証するコマンドです。
 本コマンドは形式検証に特化しており, YAML Ain't Markup Language (以下 YAML と略す) 入力と整合する構造のみを確認し, 値そのものの意味的妥当性やソース値との厳密比較は行いません。
 
 ## 目次
@@ -28,7 +28,7 @@
 ## SYNOPSIS
 
 ```plaintext
-validate_hostvars_matrix.py [-h] [-c CSV] [-m METADATA] [-H HOST_VARS]
+validate_hostvars_matrix [-h] [-c CSV] [-m METADATA] [-H HOST_VARS]
 ```
 
 ## 引数/オプション一覧
@@ -46,7 +46,7 @@ validate_hostvars_matrix.py [-h] [-c CSV] [-m METADATA] [-H HOST_VARS]
 
 ### `--csv`
 
-検証対象の ノード設定パラメタデザインシート を指定します。通常は `generate_hostvars_matrix.py` の出力を利用します。
+検証対象の ノード設定パラメタデザインシート を指定します。通常は `generate_hostvars_matrix` の出力を利用します。
 
 ### `--metadata`
 
@@ -64,7 +64,7 @@ validate_hostvars_matrix.py [-h] [-c CSV] [-m METADATA] [-H HOST_VARS]
 - `field_metadata.yaml`: フィールド定義
 - `host_vars_structured.yaml`: 元の構造化 host_vars
 
-`field_metadata.yaml` は, `generate_hostvars_matrix.py` の生成時に使用したバージョンと同じものを参照する必要があります。異なるバージョンのメタデータを使用すると, フィールド定義の不整合により以下が発生します。
+`field_metadata.yaml` は, `generate_hostvars_matrix` の生成時に使用したバージョンと同じものを参照する必要があります。異なるバージョンのメタデータを使用すると, フィールド定義の不整合により以下が発生します。
 
 - 期待されるフィールド集合が異なり, 列の過不足が検出される
 - フィールドの型や許容範囲の定義が異なるため, 検証ロジックが不適切な結果を返す
@@ -75,13 +75,13 @@ validate_hostvars_matrix.py [-h] [-c CSV] [-m METADATA] [-H HOST_VARS]
 ### 基本例
 
 ```shell
-validate_hostvars_matrix.py
+validate_hostvars_matrix
 ```
 
 ### 入力ファイルを明示する例
 
 ```shell
-validate_hostvars_matrix.py \
+validate_hostvars_matrix \
   -c custom_matrix.csv \
   -m custom_meta.yaml \
   -H custom_hostvars.yaml
@@ -90,8 +90,8 @@ validate_hostvars_matrix.py \
 ### パイプラインで利用する例
 
 ```shell
-generate_hostvars_matrix.py -o matrix.csv && \
-validate_hostvars_matrix.py -c matrix.csv
+generate_hostvars_matrix -o matrix.csv && \
+validate_hostvars_matrix -c matrix.csv
 ```
 
 ## エラーメッセージと終了コード

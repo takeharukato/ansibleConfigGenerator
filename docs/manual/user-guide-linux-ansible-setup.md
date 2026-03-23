@@ -39,14 +39,14 @@
 ```mermaid
 flowchart TD
   A["network_topology.yaml<br/>入力ファイル"]
-  B["ステップ 1<br/>generate_host_vars_structured.py"]
+  B["ステップ 1<br/>generate_host_vars_structured"]
   C["host_vars_structured.yaml<br/>中間生成物"]
-  D["ステップ 2<br/>generate_hostvars_matrix.py"]
+  D["ステップ 2<br/>generate_hostvars_matrix"]
   E["host_vars_scalars_matrix.csv<br/>ノード設定パラメタデザインシート"]
-  F["ステップ 3<br/>validate_hostvars_matrix.py<br/>整合性確認"]
-  G["ステップ 4<br/>generate_host_vars_files.py"]
+  F["ステップ 3<br/>validate_hostvars_matrix<br/>整合性確認"]
+  G["ステップ 4<br/>generate_host_vars_files"]
   H["host_vars/{hostname}.local<br/>最終成果物"]
-  I["ステップ 5<br/>generate_terraform_tfvars.py"]
+  I["ステップ 5<br/>generate_terraform_tfvars"]
   J["terraform.tfvars<br/>最終成果物"]
 
   A --> B
@@ -129,7 +129,7 @@ nodes:
 `network_topology.yaml` を検証し, すべてのホスト変数を一つのファイルに構造化します。スキーマ違反があればこのステップでエラーが出ます。
 
 ```shell
-generate_host_vars_structured.py \
+generate_host_vars_structured \
   -i network_topology.yaml \
   -o host_vars_structured.yaml
 ```
@@ -144,7 +144,7 @@ generate_host_vars_structured.py \
 すべてのノードのスカラー設定値を一覧表として出力します。スプレッドシートで開いてノード間の比較や設定値の確認に使います。
 
 ```shell
-generate_hostvars_matrix.py \
+generate_hostvars_matrix \
   -H host_vars_structured.yaml \
   -m field_metadata.yaml \
   -o host_vars_scalars_matrix.csv
@@ -172,7 +172,7 @@ generate_hostvars_matrix.py \
 生成した ノード設定パラメタデザインシート のフォーマットと, スキーマ定義との整合性を検証します。
 
 ```shell
-validate_hostvars_matrix.py \
+validate_hostvars_matrix \
   host_vars_scalars_matrix.csv \
   field_metadata.yaml \
   host_vars_structured.yaml
@@ -180,7 +180,7 @@ validate_hostvars_matrix.py \
 
 このコマンドが正常終了 (終了コード 0) すれば, ノード設定パラメタデザインシート の構造は問題ありません。
 
-**validate_hostvars_matrix.py が確認する内容**
+**validate_hostvars_matrix が確認する内容**
 
 - ノード設定パラメタデザインシート のヘッダー行の列数がノード数と一致していること
 - `netif_list` の展開行数が実ノードの Network Interface Card (以下 NIC と略す) 数と一致していること
@@ -191,7 +191,7 @@ validate_hostvars_matrix.py \
 `host_vars_structured.yaml` からホスト別の YAML Ain't Markup Language (以下 YAML と略す) ファイルを生成します。`-v` オプションでラウンドトリップ検証 (生成直後に再読み込みして値が変化しないことを確認) も実施できます。
 
 ```shell
-generate_host_vars_files.py \
+generate_host_vars_files \
   host_vars.gen \
   -i host_vars_structured.yaml \
   -m field_metadata.yaml \
@@ -216,7 +216,7 @@ generate_host_vars_files.py \
 XCP-ng 環境向けの `terraform.tfvars` を生成します。このステップは Ansible パスと独立しており, ステップ 1 の完了を待たずに実行できます。
 
 ```shell
-generate_terraform_tfvars.py \
+generate_terraform_tfvars \
   -t network_topology.yaml \
   -o terraform.tfvars
 ```
@@ -228,7 +228,7 @@ generate_terraform_tfvars.py \
 topology の構造を設計書として出力したい場合は, 次のコマンドを使います。Ansible パスとは独立して実行できます。
 
 ```shell
-generate_network_topology_design_sheet.py \
+generate_network_topology_design_sheet \
   -i network_topology.yaml \
   -o ./design_sheets/
 ```
@@ -242,7 +242,7 @@ generate_network_topology_design_sheet.py \
 ### 方法 1: コマンドラインオプションで指定する
 
 ```shell
-generate_host_vars_structured.py \
+generate_host_vars_structured \
   --schema-dir /path/to/my/schema \
   -i network_topology.yaml \
   -o host_vars_structured.yaml

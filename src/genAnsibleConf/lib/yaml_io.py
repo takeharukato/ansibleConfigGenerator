@@ -135,7 +135,7 @@ def yaml_value_to_string(
 ) -> str:
     """値を 1 行の YAML 表現へ変換する。
 
-    `generate_host_vars_files.py` の `format_scalar` と同等契約を提供する。
+    `generate_host_vars_files` の `format_scalar` と同等契約を提供する。
 
     Args:
         value (Any): 文字列化対象値である。

@@ -24,12 +24,13 @@ from typing import Any, Callable, cast
 import pytest
 
 REPO_ROOT: Path = Path(__file__).resolve().parents[2]
-PROTOTYPE_DIR: Path = REPO_ROOT / "src" / "genAnsibleConf"
+SOURCE_DIR: Path = REPO_ROOT / "src"
+PROTOTYPE_DIR: Path = SOURCE_DIR / "genAnsibleConf"
 SAMPLE_TOPOLOGY_PATH: Path = REPO_ROOT / "config" / "sample-network_topology.yaml"
-if str(PROTOTYPE_DIR) not in sys.path:
-    sys.path.insert(0, str(PROTOTYPE_DIR))
+if str(SOURCE_DIR) not in sys.path:
+    sys.path.insert(0, str(SOURCE_DIR))
 
-import generate_network_topology_design_sheet as sheet_module  # type: ignore[import-not-found]
+from genAnsibleConf.cli import generate_network_topology_design_sheet as sheet_module
 
 sheet_module_any: Any = sheet_module
 
@@ -54,7 +55,7 @@ def _expected_sheet_path(base_dir: Path, topology_path: Path, section: str) -> P
 
 def test_parse_args_defaults(monkeypatch: pytest.MonkeyPatch) -> None:
     """引数未指定時のデフォルト値を検証する。"""
-    monkeypatch.setattr(sys, "argv", ["generate_network_topology_design_sheet.py"])
+    monkeypatch.setattr(sys, "argv", ["generate_network_topology_design_sheet"])
 
     args_any: Any = parse_args_typed()
 

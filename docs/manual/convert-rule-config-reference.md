@@ -1,6 +1,6 @@
 # 変換ルール設定リファレンスマニュアル (convert-rule-config.yaml)
 
-`convert-rule-config.yaml` は `network_topology.yaml` の `services` セクションやネットワークロールに関する変換ルールを一元管理するファイルです。`generate_host_vars_structured.py` が参照し, サービス設定からスカラー変数への変換ポリシーとネットワークロールポリシーを決定します。
+`convert-rule-config.yaml` は `network_topology.yaml` の `services` セクションやネットワークロールに関する変換ルールを一元管理するファイルです。`generate_host_vars_structured` が参照し, サービス設定からスカラー変数への変換ポリシーとネットワークロールポリシーを決定します。
 
 ## 目次
 

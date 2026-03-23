@@ -250,7 +250,7 @@ globals:
   #   terraform_orchestration: Terraform 対象ノードを示すマーカーロール
   #     Terraform の tfvars 生成時に, ノードの設定パラメタをterraform.tfvars に
   #     出力する対象となるノードを決定する際に使用される。
-  #     generate_terraform_tfvars.pyは, 本ロールを持つノードについて,
+  #     generate_terraform_tfvarsは, 本ロールを持つノードについて,
   #     ノード構築パラメタを terraform.tfvars に出力する。
   #
   roles:

@@ -1,5 +1,5 @@
-usr/bin/generate_*.py
-usr/bin/validate_hostvars_matrix.py
+usr/bin/generate_*
+usr/bin/validate_hostvars_matrix
 usr/lib/python3*/site-packages/genAnsibleConf/**
 usr/share/locale/*/LC_MESSAGES/ansibleConfigGenerator.mo
 usr/share/genAnsibleConf/schema/*.yaml

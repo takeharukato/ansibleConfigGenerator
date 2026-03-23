@@ -1,6 +1,6 @@
-# generate_terraform_tfvars.py
+# generate_terraform_tfvars
 
-`generate_terraform_tfvars.py` は, YAML Ain't Markup Language (以下 YAML と略す) 形式の `network_topology.yaml` を入力として, Xen Cloud Platform next generation (以下 XCP-ng と略す) 向けの `terraform.tfvars` を生成するコマンドです。
+`generate_terraform_tfvars` は, YAML Ain't Markup Language (以下 YAML と略す) 形式の `network_topology.yaml` を入力として, Xen Cloud Platform next generation (以下 XCP-ng と略す) 向けの `terraform.tfvars` を生成するコマンドです。
 Ansible パスとは独立して動作し, `globals.roles.terraform_orchestration` を持つノードを対象に, Virtual Machine (以下 VM と略す) 定義とネットワーク定義を HashiCorp Configuration Language (以下 HCL と略す) 形式へ変換します。
 
 ## 目次
@@ -33,7 +33,7 @@ Ansible パスとは独立して動作し, `globals.roles.terraform_orchestratio
 ## SYNOPSIS
 
 ```plaintext
-generate_terraform_tfvars.py [-h] [-t TOPOLOGY] [-o OUTPUT] [-n] [-s]
+generate_terraform_tfvars [-h] [-t TOPOLOGY] [-o OUTPUT] [-n] [-s]
 ```
 
 ## 引数/オプション一覧
@@ -83,13 +83,13 @@ generate_terraform_tfvars.py [-h] [-t TOPOLOGY] [-o OUTPUT] [-n] [-s]
 ### 基本例
 
 ```shell
-generate_terraform_tfvars.py
+generate_terraform_tfvars
 ```
 
 ### 入力と出力を明示する例
 
 ```shell
-generate_terraform_tfvars.py \
+generate_terraform_tfvars \
   -t network_topology.yaml \
   -o terraform.tfvars
 ```
@@ -97,13 +97,13 @@ generate_terraform_tfvars.py \
 ### 生成内容だけ確認する例
 
 ```shell
-generate_terraform_tfvars.py -t network_topology.yaml -n
+generate_terraform_tfvars -t network_topology.yaml -n
 ```
 
 ### 警告をエラー扱いにする例
 
 ```shell
-generate_terraform_tfvars.py -t network_topology.yaml -o terraform.tfvars -s
+generate_terraform_tfvars -t network_topology.yaml -o terraform.tfvars -s
 ```
 
 ## エラーメッセージと終了コード

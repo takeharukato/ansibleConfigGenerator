@@ -40,7 +40,7 @@
 
 ## network_topology.schema.yaml
 
-`network_topology.yaml` の入力値を JavaScript Object Notation (以下 JSON と略す) Schema (Draft 2020-12) で検証します。`generate_host_vars_structured.py` 実行時に自動的に参照されます。
+`network_topology.yaml` の入力値を JavaScript Object Notation (以下 JSON と略す) Schema (Draft 2020-12) で検証します。`generate_host_vars_structured` 実行時に自動的に参照されます。
 
 ### トップレベル構造
 
@@ -122,7 +122,7 @@
 
 ## host_vars_structured.schema.yaml
 
-中間出力 YAML Ain't Markup Language (以下 YAML と略す) (`host_vars_structured.yaml`) の構造を JSON Schema (Draft 2020-12) で定義します。`generate_hostvars_matrix.py` および `generate_host_vars_files.py` の入力検証に使用されます。
+中間出力 YAML Ain't Markup Language (以下 YAML と略す) (`host_vars_structured.yaml`) の構造を JSON Schema (Draft 2020-12) で定義します。`generate_hostvars_matrix` および `generate_host_vars_files` の入力検証に使用されます。
 
 ### トップレベル構造
 
@@ -205,7 +205,7 @@
 
 ## field_metadata.schema.yaml
 
-`field_metadata.yaml` 自体の構造を JSON Schema (Draft 2020-12) で検証します。`generate_hostvars_matrix.py` の実行時に `field_metadata.yaml` の妥当性確認に使用されます。
+`field_metadata.yaml` 自体の構造を JSON Schema (Draft 2020-12) で検証します。`generate_hostvars_matrix` の実行時に `field_metadata.yaml` の妥当性確認に使用されます。
 
 ### トップレベル構造
 

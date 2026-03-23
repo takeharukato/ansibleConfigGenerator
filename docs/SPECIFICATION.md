@@ -17,68 +17,68 @@ flowchart TD
     F[(terraform.tfvars)]
     G[(設計レビュー向けCSV形式パラメタシート)]
 
-    A -->|1.設計レビュー向けCSV生成<br/>generate_network_topology_design_sheet.py| G
-     A -->|2: 中間形式作成<br/>generate_host_vars_structured.py| B
-    B -->|3: 各ホスト設定値のCSV形式パラメタシート生成<br/>generate_hostvars_matrix.py| C
-    C -->|4: 検証<br/>validate_hostvars_matrix.py| D
+    A -->|1.設計レビュー向けCSV生成<br/>generate_network_topology_design_sheet| G
+     A -->|2: 中間形式作成<br/>generate_host_vars_structured| B
+    B -->|3: 各ホスト設定値のCSV形式パラメタシート生成<br/>generate_hostvars_matrix| C
+    C -->|4: 検証<br/>validate_hostvars_matrix| D
     D -.->|5: 設定値のクロスチェック後に修正反映| A
-    D -->|6: 検証完了後, 最終成果物生成<br/>generate_host_vars_files.py| E
-    A -->|Terraform 対象ロール terraform_orchestration を持つノードに対して生成<br/>generate_terraform_tfvars.py| F
+    D -->|6: 検証完了後, 最終成果物生成<br/>generate_host_vars_files| E
+    A -->|Terraform 対象ロール terraform_orchestration を持つノードに対して生成<br/>generate_terraform_tfvars| F
     G --> D
 ```
 
-1. **設計レビュー向けCSV形式パラメタシートデザインシート生成**: `network_topology.yaml`, `field_metadata.yaml`, `network_topology.schema.yaml` から4つのパラメタデザインシートを生成する (generate_network_topology_design_sheet.py)。
-2. **中間形式作成**: `network_topology.yaml` から中間形式 `host_vars_structured.yaml` を生成する (generate_host_vars_structured.py)。
-3. **各ホスト設定値のCSV形式パラメタシート生成**: 中間形式からCSV形式のパラメタシートを生成する (generate_hostvars_matrix.py)。
-4. **検証**: CSV形式のパラメタシートの妥当性を検証する (validate_hostvars_matrix.py)。
+1. **設計レビュー向けCSV形式パラメタシートデザインシート生成**: `network_topology.yaml`, `field_metadata.yaml`, `network_topology.schema.yaml` から4つのパラメタデザインシートを生成する (generate_network_topology_design_sheet)。
+2. **中間形式作成**: `network_topology.yaml` から中間形式 `host_vars_structured.yaml` を生成する (generate_host_vars_structured)。
+3. **各ホスト設定値のCSV形式パラメタシート生成**: 中間形式からCSV形式のパラメタシートを生成する (generate_hostvars_matrix)。
+4. **検証**: CSV形式のパラメタシートの妥当性を検証する (validate_hostvars_matrix)。
 5. **設定値のクロスチェック後に修正反映**: 検証結果を元に設定値をクロスチェックし, 必要に応じて `network_topology.yaml` を修正する (サイクル)。
-6. **検証完了後, 最終成果物生成**: 検証完了後に, 中間形式からAnsible向けの個別ホスト変数ファイル (`host_vars/*.local`) を生成する (generate_host_vars_files.py)。
-7. **Terraform用設定ファイル生成**: Terraform 対象ロール terraform_orchestration を持つノードに対してTerraform用設定ファイル(`terraform.tfvars`)を生成する(generate_terraform_tfvars.py)。
+6. **検証完了後, 最終成果物生成**: 検証完了後に, 中間形式からAnsible向けの個別ホスト変数ファイル (`host_vars/*.local`) を生成する (generate_host_vars_files)。
+7. **Terraform用設定ファイル生成**: Terraform 対象ロール terraform_orchestration を持つノードに対してTerraform用設定ファイル(`terraform.tfvars`)を生成する(generate_terraform_tfvars)。
 
 ## ツール一覧と用途
 
-### 1. generate_host_vars_structured.py
+### 1. generate_host_vars_structured
 
 **目的**: `network_topology.yaml` を単一の構造化YAML (`host_vars_structured.yaml`) に変換する。
 
 **コマンド**:
 ```bash
-python3 src/prototype/generate_host_vars_structured.py \
+generate_host_vars_structured \
   src/prototype/network_topology.yaml \
   src/prototype/host_vars_structured.yaml
 ```
 
-### 2. generate_hostvars_matrix.py
+### 2. generate_hostvars_matrix
 
 **目的**: `host_vars_structured.yaml` と `field_metadata.yaml` から, CSV形式のパラメタシート (`host_vars_scalars_matrix.csv`) を生成する。`scalars` 優先 + トップレベル補完で値を取得し, `netif_list` は `netif_list[{IF名}].{sub_field}` 形式の展開行として出力してクロスチェックを支援する。
 
 **コマンド**:
 ```bash
-python3 src/prototype/generate_hostvars_matrix.py \
+generate_hostvars_matrix \
   -H host_vars_structured.yaml \
   -m field_metadata.yaml \
   -o host_vars_scalars_matrix.csv
 ```
 
-### 3. validate_hostvars_matrix.py
+### 3. validate_hostvars_matrix
 
 **目的**: CSV形式のパラメタシートのフォーマットと構造整合性を検証する。固定列ヘッダー, メタデータ行の欠落/余剰, `netif_list[*].*` 展開行の件数整合性, ホスト列の一致を確認する。
 
 **コマンド**:
 ```bash
-python3 src/prototype/validate_hostvars_matrix.py \
+validate_hostvars_matrix \
   -c host_vars_scalars_matrix.csv \
   -m field_metadata.yaml \
   -H host_vars_structured.yaml
 ```
 
-### 4. generate_host_vars_files.py
+### 4. generate_host_vars_files
 
 **目的**: `host_vars_structured.yaml` から, Ansible向けの個別ホスト変数ファイル (`host_vars/*.local`) を生成する。各項目の直前に `field_metadata.yaml` の説明コメントを挿入する。検証完了後に実行し, 最終成果物として出力する。
 
 **コマンド**:
 ```bash
-python3 src/prototype/generate_host_vars_files.py \
+generate_host_vars_files \
   <output_dir> \
   -i host_vars_structured.yaml \
   -m field_metadata.yaml \
@@ -86,7 +86,7 @@ python3 src/prototype/generate_host_vars_files.py \
   -v false
 ```
 
-### 5. generate_terraform_tfvars.py
+### 5. generate_terraform_tfvars
 
 **目的**: `network_topology.yaml` から, XCP-ng 仮想化環境向けの Terraform 変数ファイル (`terraform.tfvars`) を HCL 形式で生成する。上記, 1. から 4. の Ansible 向けツールチェインとは独立して動作する。
 
@@ -94,29 +94,29 @@ python3 src/prototype/generate_host_vars_files.py \
 カレントディレクトリに `network_topology.yaml` が存在する場合, デフォルト値を使用して以下のように実行する:
 
 ```bash
-python3 src/prototype/generate_terraform_tfvars.py
+generate_terraform_tfvars
 ```
 
 **ファイルを明示指定する場合**:
 ```bash
-python3 src/prototype/generate_terraform_tfvars.py \
+generate_terraform_tfvars \
   -t src/prototype/network_topology.yaml \
   -o terraform.tfvars
 ```
 
-### 6. generate_network_topology_design_sheet.py
+### 6. generate_network_topology_design_sheet
 
 **目的**: `network_topology.yaml`, `field_metadata.yaml`, `network_topology.schema.yaml` を読み込み, globals設定, role設定, service設定, ホスト別設定の4つの独立したCSVファイルを生成する。description は `field_metadata.yaml` を優先して参照し, 未定義の場合はスキーマから参照する。未定義の項目は警告を出力し, CSVの description 列は空欄で継続する。
 
 **デフォルト値を使用する場合**:
 カレントディレクトリに `network_topology.yaml` が存在する場合, デフォルト値を使用して以下のように実行する:
 ```bash
-python3 src/prototype/generate_network_topology_design_sheet.py
+generate_network_topology_design_sheet
 ```
 
 **ファイルを明示指定する場合**:
 ```bash
-python3 src/prototype/generate_network_topology_design_sheet.py \
+generate_network_topology_design_sheet \
   -i src/prototype/network_topology.yaml \
   -m src/prototype/network_topology.schema.yaml \
   -o network_topology
@@ -126,9 +126,9 @@ python3 src/prototype/generate_network_topology_design_sheet.py \
 
 ---
 
-## generate_host_vars_structured.py 詳細仕様
+## generate_host_vars_structured 詳細仕様
 
-以下は, ツール(1) `generate_host_vars_structured.py` の詳細仕様である。
+以下は, ツール(1) `generate_host_vars_structured` の詳細仕様である。
 
 ## 入力仕様
 
@@ -310,7 +310,7 @@ IPv4/IPv6とも同じ優先順位:
 
 ## 出力フォーマット設定
 
-`generate_host_vars_structured.py` のYAML出力設定:
+`generate_host_vars_structured` のYAML出力設定:
 
 - `allow_unicode=True`
 - `default_flow_style=False`
@@ -318,11 +318,11 @@ IPv4/IPv6とも同じ優先順位:
 
 ---
 
-## generate_terraform_tfvars.py 詳細仕様
+## generate_terraform_tfvars 詳細仕様
 
 ### 入力仕様
 
-`generate_host_vars_structured.py` と同じ `network_topology.yaml` を入力とする。
+`generate_host_vars_structured` と同じ `network_topology.yaml` を入力とする。
 Terraform 生成に必要な追加フィールドを以下に示す。
 
 #### globals.roles (Terraform 関連)
@@ -438,7 +438,7 @@ vm_groups = {
 
 ---
 
-## generate_network_topology_design_sheet.py 詳細仕様
+## generate_network_topology_design_sheet 詳細仕様
 
 ### 入力仕様
 

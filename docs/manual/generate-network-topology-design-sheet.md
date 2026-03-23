@@ -1,6 +1,6 @@
-# generate_network_topology_design_sheet.py
+# generate_network_topology_design_sheet
 
-`generate_network_topology_design_sheet.py` は, YAML Ain't Markup Language (以下 YAML と略す) 形式の `network_topology.yaml` からレビュー用のパラメタデザインシート Comma-Separated Values (以下 CSV と略す) を生成するコマンドです。
+`generate_network_topology_design_sheet` は, YAML Ain't Markup Language (以下 YAML と略す) 形式の `network_topology.yaml` からレビュー用のパラメタデザインシート Comma-Separated Values (以下 CSV と略す) を生成するコマンドです。
 `globals`, `roles`, `services`, `hosts` の 4 系統に分割した CSV を出力し, description の解決には `field_metadata.yaml` と `network_topology.schema.yaml` を利用します。
 
 ## 目次
@@ -32,7 +32,7 @@
 ## SYNOPSIS
 
 ```plaintext
-generate_network_topology_design_sheet.py [-h] [-i INPUT] [-o OUTPUT] [-m METADATA] [--schema-dir SCHEMA_DIR]
+generate_network_topology_design_sheet [-h] [-i INPUT] [-o OUTPUT] [-m METADATA] [--schema-dir SCHEMA_DIR]
 ```
 
 ## 引数/オプション一覧
@@ -85,13 +85,13 @@ description 解決順序は次のとおりです。
 ### 基本例
 
 ```shell
-generate_network_topology_design_sheet.py
+generate_network_topology_design_sheet
 ```
 
 ### 入力, スキーマ, 出力ヒントを明示する例
 
 ```shell
-generate_network_topology_design_sheet.py \
+generate_network_topology_design_sheet \
   -i network_topology.yaml \
   -m network_topology.schema.yaml \
   -o .
@@ -100,7 +100,7 @@ generate_network_topology_design_sheet.py \
 ### スキーマ探索先を明示する例
 
 ```shell
-generate_network_topology_design_sheet.py \
+generate_network_topology_design_sheet \
   -i network_topology.yaml \
   --schema-dir /path/to/schema \
   -o output/

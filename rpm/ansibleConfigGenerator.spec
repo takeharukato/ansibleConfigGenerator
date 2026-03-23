@@ -44,8 +44,8 @@ install -D -m 0644 config/genAnsibleConf.user-config.yaml \
 
 %files
 %license LICENSE
-%{_bindir}/generate_*.py
-%{_bindir}/validate_hostvars_matrix.py
+%{_bindir}/generate_*
+%{_bindir}/validate_hostvars_matrix
 %dir /usr/lib/python*/site-packages/genAnsibleConf
 /usr/lib/python*/site-packages/genAnsibleConf/*
 

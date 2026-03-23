@@ -20,17 +20,18 @@ from pathlib import Path
 from typing import Any, Callable, cast
 
 REPO_ROOT: Path = Path(__file__).resolve().parents[2]
-PROTOTYPE_DIR: Path = REPO_ROOT / "src" / "genAnsibleConf"
+SOURCE_DIR: Path = REPO_ROOT / "src"
+PROTOTYPE_DIR: Path = SOURCE_DIR / "genAnsibleConf"
 SAMPLE_TOPOLOGY_PATH: Path = REPO_ROOT / "config" / "sample-network_topology.yaml"
-if str(PROTOTYPE_DIR) not in sys.path:
-    sys.path.insert(0, str(PROTOTYPE_DIR))
+if str(SOURCE_DIR) not in sys.path:
+    sys.path.insert(0, str(SOURCE_DIR))
 
-import generate_host_vars_files as host_vars_files_module  # type: ignore[import-not-found]
-import generate_host_vars_structured as host_vars_structured_module  # type: ignore[import-not-found]
-import generate_hostvars_matrix as hostvars_matrix_module  # type: ignore[import-not-found]
-import generate_terraform_tfvars as terraform_tfvars_module  # type: ignore[import-not-found]
-import validate_hostvars_matrix as validate_matrix_module  # type: ignore[import-not-found]
-from src.genAnsibleConf.lib.yaml_io import load_yaml_mapping
+from genAnsibleConf.cli import generate_host_vars_files as host_vars_files_module
+from genAnsibleConf.cli import generate_host_vars_structured as host_vars_structured_module
+from genAnsibleConf.cli import generate_hostvars_matrix as hostvars_matrix_module
+from genAnsibleConf.cli import generate_terraform_tfvars as terraform_tfvars_module
+from genAnsibleConf.cli import validate_hostvars_matrix as validate_matrix_module
+from genAnsibleConf.lib.yaml_io import load_yaml_mapping
 
 GenerateHostVarsStructuredType = Callable[[dict[str, Any]], dict[str, Any]]
 RenderTfvarsType = Callable[[dict[str, Any], dict[str, dict[str, Any]], dict[str, list[str]]], str]

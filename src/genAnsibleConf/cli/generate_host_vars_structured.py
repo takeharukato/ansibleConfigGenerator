@@ -39,34 +39,37 @@ import sys
 from pathlib import Path
 from typing import Any
 
-from lib.cli_defaults import (
+if __package__ in (None, ""):
+    sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
+
+from genAnsibleConf.lib.cli_defaults import (
     DEFAULT_CONVERT_RULE_CONFIG,
     DEFAULT_HOST_VARS_STRUCTURED,
     DEFAULT_NETWORK_TOPOLOGY,
     resolve_schema_file,
 )
-from lib.hostvars_node_pipeline import (
+from genAnsibleConf.lib.hostvars_node_pipeline import (
     apply_node_network_interfaces,
     apply_node_routing_entries,
     apply_node_service_scalars,
     initialize_node_entry_and_scalars,
 )
-from lib.hostvars_runtime_context import (
+from genAnsibleConf.lib.hostvars_runtime_context import (
     prepare_cluster_runtime_context,
     prepare_service_runtime_context,
 )
-from lib.network_role_policy import (
+from genAnsibleConf.lib.network_role_policy import (
     load_network_role_policy_from_section,
     resolve_network_role_config,
 )
-from lib.global_params import (
+from genAnsibleConf.lib.global_params import (
     build_global_scalars,
     collect_dns_defaults,
     prepare_netif_reserved_pairs,
 )
-from lib.routing_frr import prepare_frr_runtime_flags
-from lib.service_rules import load_service_transform_rules_from_section
-from lib.yaml_io import load_yaml_mapping, write_yaml_file
+from genAnsibleConf.lib.routing_frr import prepare_frr_runtime_flags
+from genAnsibleConf.lib.service_rules import load_service_transform_rules_from_section
+from genAnsibleConf.lib.yaml_io import load_yaml_mapping, write_yaml_file
 
 
 def generate_host_vars_structured(
