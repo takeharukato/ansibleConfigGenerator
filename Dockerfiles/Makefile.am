@@ -40,7 +40,7 @@ rpm:
 	$(DOCKER) build --network=$(DOCKER_BUILD_NETWORK) -f $(RPM_DOCKERFILE) -t $(RPM_IMAGE) .
 	$(DOCKER) run --rm \
 	--network=$(DOCKER_RUN_NETWORK) \
-	-v "$(abs_top_srcdir)":/src \
+	-v "$(abs_top_srcdir)":/src:ro \
 	-v "$(abs_top_builddir)/dist":/dist \
 	  $(RPM_IMAGE)
 
@@ -52,7 +52,7 @@ deb:
 	$(DOCKER) build --network=$(DOCKER_BUILD_NETWORK) -f $(DEB_DOCKERFILE) -t $(DEB_IMAGE) .
 	$(DOCKER) run --rm \
 	--network=$(DOCKER_RUN_NETWORK) \
-	-v "$(abs_top_srcdir)":/src \
+	-v "$(abs_top_srcdir)":/src:ro \
 	-v "$(abs_top_builddir)/dist":/dist \
 	  $(DEB_IMAGE)
 
