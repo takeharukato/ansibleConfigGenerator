@@ -13,13 +13,7 @@ ansibleConfigGenerator は、計算ノードの機能やネットワークトポ
 - generate_network_topology_design_sheet.py
 - generate_terraform_tfvars.py
 
-スキーマ/設定ファイルの探索順は, 次の 5 段階で固定です。
-
-1. CLI オプション: --schema-dir
-2. ユーザー設定: ~/.genAnsibleConf.yaml
-3. システム設定: /etc/genAnsibleConf/config.yaml
-4. datadir: ${datadir}/genAnsibleConf/schema
-5. スクリプト配置ディレクトリ
+スキーマ/設定ファイルの探索順と `schema_search_paths` の詳細は, `docs/manual/toolchain-overview.md` の「スキーマと設定ファイルの探索順」を参照してください。
 
 ## 前提パッケージ
 
@@ -91,7 +85,7 @@ ansibleConfigGenerator は、計算ノードの機能やネットワークトポ
 | `generate_host_vars_structured.py` | ネットワークトポロジ定義から構造化 host_vars を生成します。 |
 | `generate_host_vars_files.py` | 構造化 host_vars からノードごとの host_vars ファイル群を生成します。 |
 | `generate_hostvars_matrix.py` | ノード設定を一覧化した CSV マトリクスを生成します。 |
-| `generate_network_topology_design_sheet.py` | ネットワーク設計シート向け CSV を生成します。 |
+| `generate_network_topology_design_sheet.py` | ネットワークパラメタデザインシート向け パラメタデザインシート を生成します。 |
 | `generate_terraform_tfvars.py` | トポロジ定義から terraform.tfvars を生成します。 |
 | `validate_hostvars_matrix.py` | 生成されたマトリクスや構造データの検証を行います。 |
 | `field_metadata.yaml` | host_vars の各フィールド定義と説明を保持します。 |
@@ -161,44 +155,6 @@ make install
 
 パッケージ成果物は dist/ に出力されます。
 
-## 設定ファイル
-
-設定ファイルは以下の順序で探索されます。
-
-1. ユーザー設定: `~/.genAnsibleConf.yaml`
-2. システム設定: `/etc/genAnsibleConf/config.yaml`
-
-両ファイルとも省略可能です。存在する場合, `schema_search_paths` セクションからスキーマファイルの場所を読み取ります。
-どちらのファイルも存在しない場合は, Overview に記載した 5 段階探索の残りのステップ (Datadir -> スクリプトディレクトリへのフォールバック) でスキーマファイルを探索します。
-
-設定ファイル形式は以下です。
-
-`schema_search_paths` の各キー:
-
-| キー名 | 設定する内容 | 設定例 |
-|---|---|---|
-| `field_metadata` | フィールドメタデータ YAML ファイルのパス | `~/.genAnsibleConf/field_metadata.yaml` |
-| `network_topology` | ネットワークトポロジー JSON Schema ファイルのパス | `~/.genAnsibleConf/network_topology.schema.yaml` |
-| `type_schema` | 型スキーマ YAML ファイルのパス | `~/.genAnsibleConf/type_schema.yaml` |
-| `convert_rule_config` | 変換ルール設定 YAML ファイルのパス | `~/.genAnsibleConf/convert-rule-config.yaml` |
-| `default_dir` | 各キーの個別パスが未設定の場合に使用するデフォルトディレクトリ | `~/.genAnsibleConf` |
-
-設定ファイルの例:
-
-```yaml
-schema_search_paths:
-  field_metadata: ~/.genAnsibleConf/field_metadata.yaml
-  network_topology: ~/.genAnsibleConf/network_topology.schema.yaml
-  type_schema: ~/.genAnsibleConf/type_schema.yaml
-  convert_rule_config: ~/.genAnsibleConf/convert-rule-config.yaml
-  default_dir: ~/.genAnsibleConf
-```
-
-設定サンプルは以下です。
-
-- config/genAnsibleConf.user-config.yaml
-- config/genAnsibleConf.system-config.yaml
-
 ## 使用例
 
 network_topology.yaml から host_vars_structured.yaml を生成:
@@ -213,13 +169,13 @@ host_vars ファイル群を生成:
 generate_host_vars_files.py host_vars.gen -i host_vars_structured.yaml -m field_metadata.yaml
 ```
 
-ノード設定 マトリクス CSV を生成:
+ノード設定パラメタデザインシートを生成:
 
 ```shell
 generate_hostvars_matrix.py -H host_vars_structured.yaml -m field_metadata.yaml -o host_vars_scalars_matrix.csv
 ```
 
-設計シート CSV を生成:
+パラメタデザインシート CSV を生成:
 
 ```shell
 generate_network_topology_design_sheet.py -i network_topology.yaml -o .

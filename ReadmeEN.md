@@ -13,13 +13,7 @@ The project provides 6 command-line tools:
 - generate_network_topology_design_sheet.py
 - generate_terraform_tfvars.py
 
-The schema/config file lookup order is fixed to the following 5-step cascade:
-
-1. CLI option: --schema-dir
-2. User config: ~/.genAnsibleConf.yaml
-3. System config: /etc/genAnsibleConf/config.yaml
-4. Datadir: ${datadir}/genAnsibleConf/schema
-5. Script directory fallback
+For schema/config lookup order and `schema_search_paths` details, see `docs/manual/toolchain-overview.md` ("スキーマと設定ファイルの探索順" and "設定ファイル形式 (schema_search_paths)").
 
 ## Prerequisite Packages
 
@@ -160,45 +154,6 @@ make install
 - make deb: build Debian package via Docker
 
 Packaging outputs are generated under dist/.
-
-## Configuration Files
-
-The tools search for configuration files in the following order:
-
-1. User config: `~/.genAnsibleConf.yaml`
-2. System config: `/etc/genAnsibleConf/config.yaml`
-
-Both files are optional. When found, the `schema_search_paths` section is read to locate schema files.
-If neither file exists, schema files are located via the remaining steps of the 5-step cascade described in the Overview (Datadir -> Script directory fallback).
-
-The configuration file format is:
-
-`schema_search_paths` keys:
-
-| Key | Description | Example |
-|---|---|---|
-| `field_metadata` | Path to the field metadata YAML file | `~/.genAnsibleConf/field_metadata.yaml` |
-| `network_topology` | Path to the network topology JSON Schema file | `~/.genAnsibleConf/network_topology.schema.yaml` |
-| `type_schema` | Path to the type schema YAML file | `~/.genAnsibleConf/type_schema.yaml` |
-| `convert_rule_config` | Path to the conversion rule config YAML file | `~/.genAnsibleConf/convert-rule-config.yaml` |
-| `default_dir` | Default directory used when a key-specific path is not set | `~/.genAnsibleConf` |
-
-Configuration file example:
-
-```yaml
-schema_search_paths:
-  field_metadata: ~/.genAnsibleConf/field_metadata.yaml
-  network_topology: ~/.genAnsibleConf/network_topology.schema.yaml
-  type_schema: ~/.genAnsibleConf/type_schema.yaml
-  convert_rule_config: ~/.genAnsibleConf/convert-rule-config.yaml
-  default_dir: ~/.genAnsibleConf
-```
-
-Sample files:
-
-- config/genAnsibleConf.user-config.yaml
-- config/genAnsibleConf.system-config.yaml
-- config/sample-network_topology.yaml
 
 ## Example Usage
 

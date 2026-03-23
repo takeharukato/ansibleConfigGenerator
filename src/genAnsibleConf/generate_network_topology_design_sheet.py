@@ -385,13 +385,13 @@ def build_metadata_description_index(metadata: dict[str, Any]) -> dict[str, str]
 
 
 def stringify_value(value: Any) -> str:
-    """値を CSV 用文字列へ変換する。
+    """値を パラメタデザインシート 用文字列へ変換する。
 
     Args:
         value (Any): 変換対象値。
 
     Returns:
-        str: CSV へ書き込む文字列表現。
+        str: パラメタデザインシート へ書き込む文字列表現。
 
     Examples:
         >>> stringify_value(True)
@@ -446,7 +446,7 @@ def build_globals_rows(topology: dict[str, Any], resolver: DescriptionResolver) 
         resolver (DescriptionResolver): description 解決器。
 
     Returns:
-        list[list[str]]: CSV 行一覧。
+        list[list[str]]: パラメタデザインシート 行一覧。
 
     Examples:
         >>> rows = build_globals_rows({"globals": {"scalars": {"tz": "Asia/Tokyo"}}}, DescriptionResolver({"properties": {}}))
@@ -516,7 +516,7 @@ def build_role_rows(topology: dict[str, Any], resolver: DescriptionResolver) -> 
         resolver (DescriptionResolver): description 解決器。
 
     Returns:
-        list[list[str]]: CSV 行一覧。
+        list[list[str]]: パラメタデザインシート 行一覧。
 
     Examples:
         >>> t = {"globals": {"roles": {"r1": ["svc1", "svc2"]}}}
@@ -551,7 +551,7 @@ def build_service_rows(topology: dict[str, Any], resolver: DescriptionResolver) 
         resolver (DescriptionResolver): description 解決器。
 
     Returns:
-        list[list[str]]: CSV 行一覧。
+        list[list[str]]: パラメタデザインシート 行一覧。
 
     Examples:
         >>> t = {"globals": {"services": {"svc": {"config": {}}}}}
@@ -763,13 +763,13 @@ def build_host_rows(
 
 
 def _write_section_csv(output_path: str, rows: list[list[str]]) -> None:
-    """セクションデータを CSV ファイルへ書き込む。
+    """セクションデータを パラメタデザインシート 用ファイルへ書き込む。
 
     グローバル, ロール, サービスセクション向け（行ベース形式）。
 
     Args:
         output_path (str): 出力ファイルパス。
-        rows (list[list[str]]): CSV 行一覧。
+        rows (list[list[str]]): パラメタデザインシート 行一覧。
 
     Returns:
         None: 戻り値はない。
@@ -797,7 +797,7 @@ def _write_section_csv_hosts(
     host_descriptions: dict[str, str],
     host_names: list[str],
 ) -> None:
-    """hosts セクション CSV をホスト別列形式で書き込む。
+    """hosts セクション をホスト別列形式で書き込む。
 
     Args:
         output_path (str): 出力ファイルパス。
@@ -928,7 +928,7 @@ def generate_design_sheet_csv(
     output_base: str | None = None,
     schema_dir: str | None = None,
 ) -> list[str]:
-    """CSV デザインシートを生成する。
+    """パラメタデザインシートを生成する。
 
     4 つの独立した CSV ファイルを生成する (ファイル名は入力ファイルのベース名から自動決定される):
     - {input_stem}-globals.csv

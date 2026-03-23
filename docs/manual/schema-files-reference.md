@@ -2,6 +2,35 @@
 
 本ツール群は 4 種類のスキーマファイルを使用します。各ファイルの役割,構造,主要なキーについて説明します。
 
+## 目次
+
+- [スキーマファイルリファレンスマニュアル](#スキーマファイルリファレンスマニュアル)
+  - [目次](#目次)
+  - [スキーマファイル一覧](#スキーマファイル一覧)
+  - [network\_topology.schema.yaml](#network_topologyschemayaml)
+    - [トップレベル構造](#トップレベル構造)
+    - [globals セクション](#globals-セクション)
+    - [globals.networks の各エントリ](#globalsnetworks-の各エントリ)
+    - [globals.datacenters の各エントリ](#globalsdatacenters-の各エントリ)
+    - [nodes の各エントリ](#nodes-の各エントリ)
+  - [host\_vars\_structured.schema.yaml](#host_vars_structuredschemayaml)
+    - [トップレベル構造](#トップレベル構造-1)
+    - [hosts の各エントリ (host オブジェクト)](#hosts-の各エントリ-host-オブジェクト)
+    - [netif\_list の各エントリ (netif オブジェクト)](#netif_list-の各エントリ-netif-オブジェクト)
+    - [frr\_ebgp\_neighbors 等の各エントリ (frr\_neighbor オブジェクト)](#frr_ebgp_neighbors-等の各エントリ-frr_neighbor-オブジェクト)
+    - [k8s\_bgp オブジェクト](#k8s_bgp-オブジェクト)
+  - [field\_metadata.schema.yaml](#field_metadataschemayaml)
+    - [トップレベル構造](#トップレベル構造-2)
+    - [fields の各エントリ (field\_entry オブジェクト)](#fields-の各エントリ-field_entry-オブジェクト)
+    - [allowed\_range の種別](#allowed_range-の種別)
+  - [type\_schema.yaml](#type_schemayaml)
+    - [構造](#構造)
+    - [変数の型指定](#変数の型指定)
+    - [ドット記法によるサブフィールド定義](#ドット記法によるサブフィールド定義)
+    - [主要なエントリ一覧 (抜粋)](#主要なエントリ一覧-抜粋)
+  - [関連資料](#関連資料)
+
+
 ## スキーマファイル一覧
 
 | ファイル名 | 用途 |
@@ -17,7 +46,7 @@
 
 ## network_topology.schema.yaml
 
-`network_topology.yaml` の入力値を JSON Schema (Draft 2020-12) で検証します。`generate_host_vars_structured.py` 実行時に自動的に参照されます。
+`network_topology.yaml` の入力値を JavaScript Object Notation (以下 JSON と略す) Schema (Draft 2020-12) で検証します。`generate_host_vars_structured.py` 実行時に自動的に参照されます。
 
 ### トップレベル構造
 
@@ -38,9 +67,9 @@
 | `scalars` | 任意 | object | 全ノード共通のスカラー変数の既定値 |
 | `proxy` | 任意 | object | プロキシ設定の既定値 |
 | `kubernetes` | 任意 | object | Kubernetes グローバル設定 |
-| `auto_meshed_ebgp_transport_enabled` | 任意 | boolean | データセンタ間 eBGP トランスポートを自動メッシュ生成するか |
-| `generate_internal_network_list` | 任意 | boolean | DNS サーバ向け内部ネットワーク一覧を生成するか |
-| `reserved_nic_pairs` | 任意 | array | 管理ネットワーク NIC 予約ペア定義 |
+| `auto_meshed_ebgp_transport_enabled` | 任意 | boolean | データセンタ間 eBGP トランスポートを自動メッシュ生成する設定であることを示す |
+| `generate_internal_network_list` | 任意 | boolean | DNS サーバ向け内部ネットワーク一覧を生成する設定であることを示す |
+| `reserved_nic_pairs` | 任意 | array | 管理ネットワーク Network Interface Card (以下 NIC と略す) 予約ペア定義 |
 
 ### globals.networks の各エントリ
 
@@ -70,7 +99,7 @@
 | `external_control_plane_network` | 外部管理ネットワーク |
 | `private_control_plane_network` | 内部管理ネットワーク |
 | `data_plane_network` | データプレーンネットワーク |
-| `bgp_transport_network` | BGP トランスポートネットワーク |
+| `bgp_transport_network` | Border Gateway Protocol (以下 BGP と略す) トランスポートネットワーク |
 
 ### globals.datacenters の各エントリ
 
@@ -99,7 +128,7 @@
 
 ## host_vars_structured.schema.yaml
 
-中間出力 YAML (`host_vars_structured.yaml`) の構造を JSON Schema (Draft 2020-12) で定義します。`generate_hostvars_matrix.py` および `generate_host_vars_files.py` の入力検証に使用されます。
+中間出力 YAML Ain't Markup Language (以下 YAML と略す) (`host_vars_structured.yaml`) の構造を JSON Schema (Draft 2020-12) で定義します。`generate_hostvars_matrix.py` および `generate_host_vars_files.py` の入力検証に使用されます。
 
 ### トップレベル構造
 
@@ -115,7 +144,7 @@
 | `scalars` | 必須 | object | スカラー変数の辞書 |
 | `netif_list` | 必須 | array | ネットワークインターフェース (NIC) 情報のリスト |
 | `k8s_bgp` | 任意 | object | Kubernetes BGP コントロールプレーン設定 |
-| `k8s_worker_frr` | 任意 | object | Kubernetes ワーカー FRR 設定 |
+| `k8s_worker_frr` | 任意 | object | Kubernetes ワーカー Free Range Routing (以下 FRR と略す) 設定 |
 | `frr_ebgp_neighbors` | 任意 | array | FRR eBGP ネイバーリスト (IPv4) |
 | `frr_ebgp_neighbors_v6` | 任意 | array | FRR eBGP ネイバーリスト (IPv6) |
 | `frr_ibgp_neighbors` | 任意 | array | FRR iBGP ネイバーリスト (IPv4) |
@@ -163,8 +192,8 @@
 | `node_name` | 必須 | string | ノード名 |
 | `local_asn` | 必須 | integer | ローカル AS 番号 |
 | `kubeconfig` | 必須 | string | kubeconfig ファイルパス |
-| `export_pod_cidr` | 必須 | boolean | Pod CIDR を広報するか |
-| `advertise_services` | 必須 | boolean | Service を広報するか |
+| `export_pod_cidr` | 必須 | boolean | Pod CIDR を広報する設定であることを示す |
+| `advertise_services` | 必須 | boolean | Service を広報する設定であることを示す |
 | `address_families` | 必須 | array of string | アドレスファミリーリスト |
 | `neighbors` | 必須 | array | BGP ネイバー定義の配列 |
 
@@ -197,8 +226,8 @@
 | キー | 必須 | 型 | 説明 |
 |---|---|---|---|
 | `type` | 必須 | string | 変数の型。許容値は下表参照 |
-| `description` | 必須 | string | CSV とコメントに出力する説明文 |
-| `category` | 必須 | string | CSV での分類グループ。許容値は下表参照 |
+| `description` | 必須 | string | Comma-Separated Values (以下 CSV と略す) とコメントに出力する説明文 |
+| `category` | 必須 | string | ノード設定パラメタデザインシート での分類グループ。許容値は下表参照 |
 | `allowed_range` | 任意 | object | 値の制約。`allowed_values` と同時使用不可 |
 | `allowed_values` | 任意 | array | 許容する値の列挙リスト |
 | `examples` | 任意 | array | 値の例 |
@@ -355,8 +384,8 @@ schema:
 | `k8s_worker_frr` | `dict` | Kubernetes ワーカー FRR 設定 |
 | `frr_bgp_asn` | `int` | FRR BGP AS 番号 |
 | `k8s_nic` | `str` | Kubernetes 用 NIC 名 |
-| `mgmt_nic` | `str` | 管理用 NIC 名 |
-| `gpm_mgmt_nic` | `str` | GPM 管理用 NIC 名 |
+| `mgmt_nic` | `str` | 外部管理ネットワーク用 NIC 名 |
+| `gpm_mgmt_nic` | `str` | 内部管理ネットワーク用 NIC 名 |
 
 ---
 

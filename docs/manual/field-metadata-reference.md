@@ -1,6 +1,32 @@
 # フィールドメタデータリファレンスマニュアル (field_metadata.yaml)
 
-`field_metadata.yaml` はスカラー変数の名称,型,説明,値の制約を定義するファイルです。`generate_hostvars_matrix.py` が参照し, CSV 形式のホスト変数比較シートの列ヘッダや値の検証条件を決定します。
+`field_metadata.yaml` はスカラー変数の名称,型,説明,値の制約を定義するファイルです。`generate_hostvars_matrix.py` が参照し, Comma-Separated Values (以下 CSV と略す) 形式のホスト変数比較シートの列ヘッダや値の検証条件を決定します。
+
+## 目次
+
+- [フィールドメタデータリファレンスマニュアル (field\_metadata.yaml)](#フィールドメタデータリファレンスマニュアル-field_metadatayaml)
+  - [目次](#目次)
+  - [ファイルの構成](#ファイルの構成)
+  - [field\_entry (フィールド定義)](#field_entry-フィールド定義)
+    - [キー一覧](#キー一覧)
+    - [type の許容値](#type-の許容値)
+    - [category の許容値](#category-の許容値)
+  - [allowed\_range の種別](#allowed_range-の種別)
+    - [numeric (数値範囲)](#numeric-数値範囲)
+    - [enum (列挙)](#enum-列挙)
+    - [pattern (正規表現)](#pattern-正規表現)
+    - [semantic (意味的制約)](#semantic-意味的制約)
+  - [allowed\_values の使い方](#allowed_values-の使い方)
+  - [登録済みフィールドの一覧 (主要抜粋)](#登録済みフィールドの一覧-主要抜粋)
+    - [network\_interface カテゴリ](#network_interface-カテゴリ)
+    - [routing\_bgp カテゴリ](#routing_bgp-カテゴリ)
+    - [infrastructure カテゴリ (主要)](#infrastructure-カテゴリ-主要)
+    - [k8s\_features カテゴリ (主要)](#k8s_features-カテゴリ-主要)
+    - [k8s\_network カテゴリ](#k8s_network-カテゴリ)
+    - [k8s\_control\_plane カテゴリ](#k8s_control_plane-カテゴリ)
+  - [ノード設定パラメタデザインシート 出力での利用](#ノード設定パラメタデザインシート-出力での利用)
+  - [関連資料](#関連資料)
+
 
 ## ファイルの構成
 
@@ -28,8 +54,8 @@ fields:
 | キー | 必須 | 型 | 説明 |
 |---|---|---|---|
 | `type` | 必須 | string | 変数の型 |
-| `description` | 必須 | string | CSV ヘッダに表示する説明文 |
-| `category` | 必須 | string | CSV での分類グループ |
+| `description` | 必須 | string | ノード設定パラメタデザインシート / パラメタデザインシート ヘッダに表示する説明文 |
+| `category` | 必須 | string | ノード設定パラメタデザインシート での分類グループ |
 | `allowed_range` | 任意 | object | 値の制約 (後述 4 種類から 1 つ選択) |
 | `allowed_values` | 任意 | array of string | 許容する値の列挙リスト |
 | `examples` | 任意 | array | 値の例 |
@@ -48,14 +74,14 @@ fields:
 | `cidr` | CIDR 表記アドレス | ネットワークアドレス |
 | `ip` | IP アドレス | ゲートウェイ, サーバアドレス |
 | `hostname` | ホスト名または FQDN | サービスホスト名 |
-| `interface` | NIC 名 | `eth0`, `ens3` などのデバイス名 |
+| `interface` | Network Interface Card (以下 NIC と略す) 名 | `eth0`, `ens3` などのデバイス名 |
 
 ### category の許容値
 
 | 値 | 意味 |
 |---|---|
 | `network_interface` | ネットワークインターフェース関連 |
-| `routing_bgp` | BGP ルーティング関連 |
+| `routing_bgp` | Border Gateway Protocol (以下 BGP と略す) ルーティング関連 |
 | `k8s_network` | Kubernetes ネットワーク関連 |
 | `k8s_control_plane` | Kubernetes コントロールプレーン関連 |
 | `k8s_features` | Kubernetes 追加機能関連 |
@@ -79,7 +105,7 @@ fields:
 ```yaml
 frr_bgp_asn:
   type: integer
-  description: FRR BGP 自律システム番号
+  description: Free Range Routing (以下 FRR と略す) BGP 自律システム番号
   category: routing_bgp
   allowed_range:
     kind: numeric
@@ -200,9 +226,9 @@ k8s_multus_enabled:
 
 | フィールド名 | 型 | 説明 | 制約種別 |
 |---|---|---|---|
-| `external_net_nic` | `interface` | 外部ネットワーク NIC | semantic (ifname) |
-| `gpm_mgmt_nic` | `interface` | GPM 管理用 NIC | semantic (ifname) |
-| `mgmt_nic` | `interface` (type_schema より) | 外部管理用 NIC | なし |
+| `external_net_nic` | `interface` | Kubernetesなどのサービスを外部公開するためのネットワーク用 NIC | semantic (ifname) |
+| `gpm_mgmt_nic` | `interface` | 内部管理ネットワーク用 NIC | semantic (ifname) |
+| `mgmt_nic` | `interface` (type_schema より) | 外部管理ネットワーク用 NIC | なし |
 | `k8s_nic` | `interface` (type_schema より) | Kubernetes 用 NIC | なし |
 
 ### routing_bgp カテゴリ
@@ -228,7 +254,7 @@ k8s_multus_enabled:
 | `k8s_multus_version` | `string` | Multus バージョン | なし |
 | `k8s_whereabouts_enabled` | `boolean` | Whereabouts 有効化フラグ | allowed_values |
 | `k8s_whereabouts_version` | `string` | Whereabouts バージョン | なし |
-| `k8s_hubble_cli_enabled` | `boolean` | Hubble CLI 有効化フラグ | allowed_values |
+| `k8s_hubble_cli_enabled` | `boolean` | Hubble Command Line Interface (以下 CLI と略す) 有効化フラグ | allowed_values |
 | `k8s_hubble_ui_enabled` | `boolean` | Hubble UI 有効化フラグ | allowed_values |
 | `hubble_ui_enabled` | `boolean` | Hubble UI 有効化フラグ (旧称) | allowed_values |
 | `k8s_cilium_version` | `string` | Cilium バージョン | なし |
@@ -255,16 +281,14 @@ k8s_multus_enabled:
 
 ---
 
-## CSV 出力での利用
+## ノード設定パラメタデザインシート 出力での利用
 
-`generate_hostvars_matrix.py` は `field_metadata.yaml` を読み込み, 次のようにして CSV を生成します。
+`generate_hostvars_matrix.py` は `field_metadata.yaml` を読み込み, 次のようにして ノード設定パラメタデザインシート を生成します。
 
-1. `fields` の各エントリをCSV の行として出力する。
-2. `description` が CSV の行ヘッダに表示される。
-3. `category` が CSV の行グループに相当し, 同じカテゴリのフィールドがまとまって並ぶ。
+1. `fields` の各エントリをノード設定パラメタデザインシート の行として出力する。
+2. `description` が ノード設定パラメタデザインシート の行ヘッダに表示される。
+3. `category` が ノード設定パラメタデザインシート の行グループに相当し, 同じカテゴリのフィールドがまとまって並ぶ。
 4. `allowed_range` または `allowed_values` は `validate_hostvars_matrix.py` による検証条件として使用される。
-
-CSV とスキーマの関係については [ユーザ向けワークフロー](user-guide-linux-ansible-setup.md) の「CSV 確認の観点」も参照してください。
 
 ---
 

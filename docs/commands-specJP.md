@@ -13,7 +13,6 @@
   - [generate\_host\_vars\_structured](#generate_host_vars_structured)
     - [概要](#概要-1)
     - [SYNOPSIS](#synopsis)
-    - [引数](#引数)
     - [オプション](#オプション)
     - [入力ファイル形式: network\_topology.yaml](#入力ファイル形式-network_topologyyaml)
       - [トップレベル構造 (表1)](#トップレベル構造-表1)
@@ -30,6 +29,8 @@
       - [nodes 要素 (各ノード) の構造 (表8)](#nodes-要素-各ノード-の構造-表8)
       - [interface 要素の構造 (表9)](#interface-要素の構造-表9)
       - [scalars 要素の構造 (表10)](#scalars-要素の構造-表10)
+      - [services 要素の構造 (表11)](#services-要素の構造-表11)
+      - [vm\_params.config の構造 (表11-A)](#vm_paramsconfig-の構造-表11-a)
     - [入力ファイルスキーマ: network\_topology.schema.yaml](#入力ファイルスキーマ-network_topologyschemayaml)
       - [スキーマメタ情報 (表S1)](#スキーマメタ情報-表s1)
       - [スキーマプロパティ定義 (表S2)](#スキーマプロパティ定義-表s2)
@@ -55,8 +56,10 @@
       - [field 要素の構造 (表M2)](#field-要素の構造-表m2)
     - [出力ファイル形式: CSV](#出力ファイル形式-csv)
       - [CSV 構造](#csv-構造)
+      - [値の直列化規則](#値の直列化規則)
       - [CSV 例](#csv-例)
     - [処理フロー](#処理フロー-1)
+    - [netif 展開行の命名規則](#netif-展開行の命名規則)
     - [エラーメッセージと終了コード](#エラーメッセージと終了コード-1)
     - [使用例](#使用例-1)
     - [制限と注意事項](#制限と注意事項-1)
@@ -90,7 +93,6 @@
   - [generate\_terraform\_tfvars](#generate_terraform_tfvars)
     - [概要](#概要-5)
     - [SYNOPSIS](#synopsis-4)
-    - [引数](#引数-1)
     - [オプション](#オプション-3)
     - [入力ファイル形式 (generate\_terraform\_tfvars 固有)](#入力ファイル形式-generate_terraform_tfvars-固有)
       - [globals.roles の Terraform 関連設定](#globalsroles-の-terraform-関連設定)
@@ -100,7 +102,7 @@
       - [トップレベル変数 (表TV1)](#トップレベル変数-表tv1)
       - [vm\_groups の構造](#vm_groups-の構造)
     - [処理フロー](#処理フロー-4)
-    - [エラーメッセージと終了コード](#エラーメッセージと終了コード-4)
+    - [エラーメッセージと終了コード](#エラーメッセージと終了コード-3)
     - [使用例](#使用例-4)
     - [制限と注意事項](#制限と注意事項-4)
   - [generate\_network\_topology\_design\_sheet](#generate_network_topology_design_sheet)
@@ -108,11 +110,11 @@
     - [SYNOPSIS](#synopsis-5)
     - [オプション](#オプション-4)
     - [入力ファイル形式](#入力ファイル形式-2)
-    - [出力ファイル形式: network\_topology.csv](#出力ファイル形式-network_topologycsv)
-      - [共通列](#共通列)
-      - [セクション構成](#セクション構成)
+    - [出力ファイル形式](#出力ファイル形式-1)
+      - [globals / roles / services の列](#globals--roles--services-の列)
+      - [hosts の列](#hosts-の列)
     - [処理フロー](#処理フロー-5)
-    - [エラーメッセージと終了コード](#エラーメッセージと終了コード-5)
+    - [エラーメッセージと終了コード](#エラーメッセージと終了コード-4)
     - [使用例](#使用例-5)
     - [制限と注意事項](#制限と注意事項-5)
   - [ワークフロー例](#ワークフロー例)
@@ -142,7 +144,7 @@
 | バージョン | 更新内容 |
 |-----------|--------|
 | 1.3 | `generate_network_topology_design_sheet.py` の出力形式を変更。ファイル名区切り文字をアンダースコアからハイフンに変更。description 解決順序を `field_metadata.yaml` 優先に変更。`hosts` ファイルをホスト別列形式に変更。 |
-| 1.2 | `generate_network_topology_design_sheet.py` を追加。CSVデザインシート (`network_topology.csv`) の仕様を追記。 |
+| 1.2 | `generate_network_topology_design_sheet.py` を追加。パラメタデザインシート (`network_topology.csv`) の仕様を追記。 |
 | 1.1 | `generate_terraform_tfvars.py` を追加。globals に `xcp_ng_environment` サービス定義, nodes に `services.vm_params` を追加。 |
 | 1.0 | 初版 |
 
@@ -196,7 +198,7 @@
 
 本ツール群は, ネットワークトポロジ情報から, Ansible向けのホスト変数ファイル群と, 設定値クロスチェック用のCSV形式のパラメタシートを生成する。
 また, XCP-ng (Xen Cloud Platform next generation) 仮想化環境向け Terraform (インフラストラクチャ自動構成ツール) の変数ファイルを生成する独立したツールも提供する。
-さらに, `network_topology.yaml` と `field_metadata.yaml`, スキーマから, レビュー向けの4つのCSVデザインシートを生成する独立ツールも提供する。
+さらに, `network_topology.yaml` と `field_metadata.yaml`, スキーマから, レビュー向けの4つのパラメタデザインシートを生成する独立ツールも提供する。
 
 ## ツールチェインの構成と想定ワークフロー
 
@@ -209,7 +211,7 @@
 3. **generate_host_vars_files.py**: 構造化ファイル (host_vars_structured.yaml) とフィールド定義 (field_metadata.yaml) を読み込んで, ホストごとに個別の設定ファイル (YAML) を生成します。
 4. **validate_hostvars_matrix.py**: CSV形式の一覧表, フィールド定義 (field_metadata.yaml), 構造化ファイル (host_vars_structured.yaml) を読み込んで, データの整合性を検証します。
 5. **generate_terraform_tfvars.py**: ネットワーク構成定義ファイル (network_topology.yaml) を読み込んで, XCP-ng (Xen Cloud Platform next generation) 仕想化環境向けの Terraform (IaC ツール) 変数ファイル (terraform.tfvars) を生成します。ツール(1)～(4) の Ansible 向けツールチェインとは独立して動作します。
-6. **generate_network_topology_design_sheet.py**: ネットワーク構成定義ファイル (network_topology.yaml), フィールドメタデータ (field_metadata.yaml), スキーマ (network_topology.schema.yaml) を読み込んで, globals, roles, services, hosts の4つのCSVデザインシートを生成します。Ansible 向けツールチェインとは独立して動作します。
+6. **generate_network_topology_design_sheet.py**: ネットワーク構成定義ファイル (network_topology.yaml), フィールドメタデータ (field_metadata.yaml), スキーマ (network_topology.schema.yaml) を読み込んで, globals, roles, services, hosts の4つのパラメタデザインシートを生成します。Ansible 向けツールチェインとは独立して動作します。
 
 ### 想定ワークフロー
 
@@ -221,7 +223,7 @@ flowchart TD
     D{検証結果確認}
     E[(Ansible用 最終成果物 host_vars/*.localなど)]
     F[(terraform.tfvars)]
-    G[(トポロジーデザインシート (4 CSV))]
+    G[("トポロジーデザインシート群 (CSV)")]
 
     A -->|1: 中間形式作成<br/>generate_host_vars_structured.py| B
     B -->|2: CSV形式のパラメタシート生成<br/>generate_hostvars_matrix.py| C
@@ -238,7 +240,7 @@ flowchart TD
 4. **設定値のクロスチェック後に修正反映**: 検証結果を元に設定値をクロスチェックし, 必要に応じて `network_topology.yaml` を修正する (サイクル)。
 5. **検証完了後, 最終成果物生成**: 検証完了後に, 中間形式からAnsible向けの個別ホスト変数ファイル (`host_vars/*.local`) を生成する (generate_host_vars_files.py)。
 6. **Terraform 変数ファイル生成** (独立実行): `network_topology.yaml` から直接 XCP-ng 向け `terraform.tfvars` を生成する (generate_terraform_tfvars.py)。ステップ (1)〜(5) の Ansible パスとは独立して実行できる。
-7. **トポロジーデザインシート生成** (独立実行): `network_topology.yaml`, `field_metadata.yaml`, `network_topology.schema.yaml` から, レビュー用の4つのCSVデザインシートを生成する (generate_network_topology_design_sheet.py)。ステップ (1)〜(5) の Ansible パスとは独立して実行できる。
+7. **トポロジーデザインシート生成** (独立実行): `network_topology.yaml`, `field_metadata.yaml`, `network_topology.schema.yaml` から, レビュー用の4つのパラメタデザインシートを生成する (generate_network_topology_design_sheet.py)。ステップ (1)〜(5) の Ansible パスとは独立して実行できる。
 
 
 ### 共通仕様
@@ -262,21 +264,17 @@ network_topology.yaml からホスト変数の構造化ファイル (host_vars_s
 ### SYNOPSIS
 
 ```plaintext
-generate_host_vars_structured.py [-h] input output
+generate_host_vars_structured.py [-h] [-i INPUT] [-o OUTPUT] [--schema-dir SCHEMA_DIR]
 ```
-
-### 引数
-
-| 引数 | 必須/オプション | 型 | 説明 | 例 |
-|------|----------------|----|----|-----|
-| input | 必須 | ファイルパス | 入力となるネットワークトポロジーYAMLファイル | network_topology.yaml |
-| output | 必須 | ファイルパス | 出力先のホスト変数構造化YAMLファイル | host_vars_structured.yaml |
 
 ### オプション
 
-| オプション | 説明 |
-|-----------|------|
-| `-h`, `--help` | ヘルプメッセージを表示して終了 |
+| オプション | 必須/オプション | 型 | 既定値 | 説明 |
+|-----------|----------------|----|--------|------|
+| `-h`, `--help` | オプション | - | - | ヘルプメッセージを表示して終了 |
+| `-i`, `--input` | オプション | ファイルパス | `network_topology.yaml` | 入力となるネットワークトポロジーYAMLファイル |
+| `-o`, `--output` | オプション | ファイルパス | `host_vars_structured.yaml` | 出力先のホスト変数構造化YAMLファイル |
+| `--schema-dir` | オプション | ディレクトリパス | `None` | スキーマ/設定YAML探索先ディレクトリを最優先で指定 |
 
 ### 入力ファイル形式: network_topology.yaml
 
@@ -633,7 +631,7 @@ BGPネイバー情報の構造。`frr_ebgp_neighbors`, `frr_ebgp_neighbors_v6`, 
 
 ```bash
 # 基本的な使用例
-python3 generate_host_vars_structured.py network_topology.yaml host_vars_structured.yaml
+python3 generate_host_vars_structured.py -i network_topology.yaml -o host_vars_structured.yaml
 
 # 出力例:
 # Generated: host_vars_structured.yaml
@@ -1238,7 +1236,7 @@ python3 src/prototype/generate_terraform_tfvars.py \
 
 ### 概要
 
-`network_topology.yaml`, `field_metadata.yaml`, `network_topology.schema.yaml` を読み込み, globals, roles, services, hosts の4つの独立したCSVデザインシートファイルを生成する。
+`network_topology.yaml`, `field_metadata.yaml`, `network_topology.schema.yaml` を読み込み, globals, roles, services, hosts の4つの独立したパラメタデザインシートファイルを生成する。
 description は `field_metadata.yaml` の `design_sheet_descriptions` を優先して参照し, 未定義項目はスキーマの `description` にフォールバックする。どちらにも定義がない項目は description を空欄で出力しつつ警告を標準エラーへ出力する。
 
 ### SYNOPSIS
@@ -1328,7 +1326,7 @@ python3 src/prototype/generate_network_topology_design_sheet.py \
 
 ### 制限と注意事項
 
-- 出力CSVはレビュー用途の設計シートであり, 既存の `generate_hostvars_matrix.py` が出力するクロスチェックCSVとは目的が異なる
+- 出力CSVはレビュー用途のパラメタデザインシートであり, 既存の `generate_hostvars_matrix.py` が出力するクロスチェックCSVとは目的が異なる
 - `field_metadata.yaml` の `design_sheet_descriptions` に定義がない項目はスキーマの description を参照する
 - どちらにも定義がない項目は description 列が空欄になる
 - warning は標準エラー出力へ出るため, CIで扱う場合は標準エラーの取り扱い方針を明確化すること
@@ -1343,8 +1341,8 @@ python3 src/prototype/generate_network_topology_design_sheet.py \
 
 | ステップ | コマンド | 入力 | 出力 |
 |---------|---------|------|------|
-| 1. トポロジー → 構造化 | generate_host_vars_structured.py | network_topology.yaml | host_vars_structured.yaml |
-| 2. 構造化 → CSV | generate_hostvars_matrix.py | host_vars_structured.yaml, field_metadata.yaml | CSV |
+| 1. トポロジー -> 構造化 | generate_host_vars_structured.py | network_topology.yaml | host_vars_structured.yaml |
+| 2. 構造化 -> CSV | generate_hostvars_matrix.py | host_vars_structured.yaml, field_metadata.yaml | CSV |
 | 3. CSV 検証 | validate_hostvars_matrix.py | CSV, metadata, host_vars_structured | 検証結果 |
 | 4. ホスト別ファイル生成 | generate_host_vars_files.py | host_vars_structured.yaml, field_metadata.yaml | ホスト別 YAML ファイル群 |
 
@@ -1365,8 +1363,8 @@ python3 src/prototype/generate_network_topology_design_sheet.py \
 ```bash
 # ステップ1: 構造化ファイル生成
 python3 generate_host_vars_structured.py \
-  network_topology.yaml \
-  host_vars_structured.yaml
+  -i network_topology.yaml \
+  -o host_vars_structured.yaml
 
 # ステップ2: パラメタシート生成
 python3 generate_hostvars_matrix.py \
@@ -1393,7 +1391,7 @@ python3 generate_network_topology_design_sheet.py
 すべてのステップを一度に実行 (エラー時は即座に停止)する場合の例を以下に示す:
 
 ```bash
-python3 generate_host_vars_structured.py network_topology.yaml host_vars_structured.yaml && \
+python3 generate_host_vars_structured.py -i network_topology.yaml -o host_vars_structured.yaml && \
 python3 generate_hostvars_matrix.py -o host_vars_scalars_matrix.csv && \
 python3 validate_hostvars_matrix.py -c host_vars_scalars_matrix.csv && \
 python3 generate_host_vars_files.py /path/to/host_vars -v true && \
@@ -1458,8 +1456,8 @@ src/prototype/
 
 | ドキュメント | 説明 |
 |------------|------|
-| README.md | プロジェクト概要 |
-| SPECIFICATION.md | 設計メモ |
+| [README.md](../Readme.md) | プロジェクト概要 |
+| [SPECIFICATION.md](SPECIFICATION.md) | 設計メモ |
 
 ---
 

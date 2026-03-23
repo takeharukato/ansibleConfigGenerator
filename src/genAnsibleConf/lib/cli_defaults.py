@@ -18,8 +18,8 @@ Attributes:
     DEFAULT_HOST_VARS_STRUCTURED (str): host_vars_structured 出力 YAML の既定ファイル名である。
     DEFAULT_FIELD_METADATA (str): フィールドメタデータ YAML の既定ファイル名である。
     DEFAULT_TERRAFORM_TFVARS (str): Terraform 変数ファイルの既定ファイル名である。
-    DEFAULT_HOST_VARS_MATRIX (str): host_vars スカラー行列表現 CSV の既定ファイル名である。
-    DEFAULT_NETWORK_TOPOLOGY_CSV (str): トポロジーデザインシート CSV の既定ファイル名である。
+    DEFAULT_HOST_VARS_MATRIX (str): host_vars ノード設定パラメタデザインシート CSV の既定ファイル名である。
+    DEFAULT_NETWORK_TOPOLOGY_CSV (str): パラメタデザインシート CSV の既定ファイル名である。
 """
 
 from __future__ import annotations

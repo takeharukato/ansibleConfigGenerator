@@ -1,5 +1,60 @@
 # ロール作成者向けガイド: 変数・サービス・ロールの追加
 
+本ガイドでは, [ansible-linux-setup](https://github.com/takeharukato/ansible-linux-setup) 向けの Ansible ロールを作成した際に,
+作成したロールの各種設定値を出力する機能を追加する作業を実施するための手順やガイドラインを提示します。
+
+## 目次
+
+- [ロール作成者向けガイド: 変数・サービス・ロールの追加](#ロール作成者向けガイド-変数サービスロールの追加)
+  - [目次](#目次)
+  - [対象読者と前提知識](#対象読者と前提知識)
+  - [本ツールで扱う変数モデル](#本ツールで扱う変数モデル)
+  - [変更時に見るべき主要ファイル](#変更時に見るべき主要ファイル)
+  - [スカラー変数を追加する作業](#スカラー変数を追加する作業)
+    - [作業フロー](#作業フロー)
+    - [手順 1: field\_metadata.yaml に追記する](#手順-1-field_metadatayaml-に追記する)
+    - [手順 2: type\_schema.yaml に追記する](#手順-2-type_schemayaml-に追記する)
+    - [手順 3: network\_topology.yaml に値を記述する](#手順-3-network_topologyyaml-に値を記述する)
+    - [確認](#確認)
+  - [リスト変数を追加する作業](#リスト変数を追加する作業)
+    - [作業フロー](#作業フロー-1)
+    - [手順 1: host\_vars\_structured.schema.yaml に追記する](#手順-1-host_vars_structuredschemayaml-に追記する)
+    - [手順 2: type\_schema.yaml に追記する](#手順-2-type_schemayaml-に追記する-1)
+    - [手順 3: 生成ロジックを追加する](#手順-3-生成ロジックを追加する)
+  - [辞書型ノード設定変数を追加する作業](#辞書型ノード設定変数を追加する作業)
+    - [作業フロー](#作業フロー-2)
+    - [手順 1: host\_vars\_structured.schema.yaml に追記する](#手順-1-host_vars_structuredschemayaml-に追記する-1)
+    - [手順 2: type\_schema.yaml に追記する](#手順-2-type_schemayaml-に追記する-2)
+  - [service 定義変数を追加する作業](#service-定義変数を追加する作業)
+    - [service 定義の仕組み](#service-定義の仕組み)
+    - [手順 1: convert-rule-config.yaml に変換ルールを追加する](#手順-1-convert-rule-configyaml-に変換ルールを追加する)
+    - [手順 2: field\_metadata.yaml に追記する](#手順-2-field_metadatayaml-に追記する)
+    - [手順 3: type\_schema.yaml に追記する](#手順-3-type_schemayaml-に追記する)
+    - [手順 4: network\_topology.yaml にサービス設定を記述する](#手順-4-network_topologyyaml-にサービス設定を記述する)
+  - [node role を追加する作業](#node-role-を追加する作業)
+    - [ノードロールの仕組み](#ノードロールの仕組み)
+    - [ノードへのロール追加](#ノードへのロール追加)
+    - [ネットワークロールポリシーを変更する作業](#ネットワークロールポリシーを変更する作業)
+  - [補足: Python 実装追加要否判断基準](#補足-python-実装追加要否判断基準)
+    - [Python 追加が不要なケース](#python-追加が不要なケース)
+      - [ケース1: サービス設定の単純なキー変換の例](#ケース1-サービス設定の単純なキー変換の例)
+      - [ケース2: サービス有効フラグの出力の例](#ケース2-サービス有効フラグの出力の例)
+      - [ケース3: config 値の通過制御の例](#ケース3-config-値の通過制御の例)
+      - [ケース4: サービス無効時に削除するキーの定義の例](#ケース4-サービス無効時に削除するキーの定義の例)
+      - [ケース5: network\_role ポリシー値の差し替え例](#ケース5-network_role-ポリシー値の差し替え例)
+    - [Python 追加が必要なケース](#python-追加が必要なケース)
+      - [ケース1: ノード横断/ネットワーク横断の計算](#ケース1-ノード横断ネットワーク横断の計算)
+      - [ケース2: NIC 優先選定と検証](#ケース2-nic-優先選定と検証)
+      - [ケース3: 辞書型/リスト型の既定値自動生成](#ケース3-辞書型リスト型の既定値自動生成)
+      - [ケース4: サービス設定の自動注入](#ケース4-サービス設定の自動注入)
+      - [ケース5: 生成パイプラインへの新規ステップ追加](#ケース5-生成パイプラインへの新規ステップ追加)
+    - [Python 追加が必要な場合に参照する既存コード](#python-追加が必要な場合に参照する既存コード)
+    - [実装判断の実務ルール](#実装判断の実務ルール)
+  - [変更後に確認する生成物](#変更後に確認する生成物)
+  - [関連テストで確認するポイント](#関連テストで確認するポイント)
+  - [関連資料](#関連資料)
+
+
 ## 対象読者と前提知識
 
 このガイドは, [ansible-linux-setup](https://github.com/takeharukato/ansible-linux-setup) 向けの Ansible ロールを開発する方を対象としています。
@@ -7,7 +62,7 @@
 次のことを前提とします。
 
 - Ansible のホスト変数とロールの基本的な考え方を理解していること
-- YAML の基本的な書き方を理解していること
+- YAML Ain't Markup Language (以下 YAML と略す) の基本的な書き方を理解していること
 - Python のデータ型 (dict, list, str, int, bool) を把握していること
 
 ## 本ツールで扱う変数モデル
@@ -28,7 +83,7 @@
 |---|---|---|
 | `field_metadata.yaml` | スカラーの名称, 型, 制約を定義する | スカラー変数を追加するとき |
 | `type_schema.yaml` | すべての出力変数の Python 型を定義する | スカラー, リスト, 辞書を追加するとき |
-| `host_vars_structured.schema.yaml` | 中間出力の JSON Schema を定義する | リスト, 辞書を追加するとき |
+| `host_vars_structured.schema.yaml` | 中間出力の JavaScript Object Notation (以下 JSON と略す) Schema を定義する | リスト, 辞書を追加するとき |
 | `convert-rule-config.yaml` | サービス設定からスカラーへの変換ルールを定義する | サービス定義変数を追加するとき |
 | `network_topology.yaml` | ノードの設定値を定義する | 実際の設定値を書くとき |
 | 生成ロジック (`lib/` 配下) | スカラー/リスト/辞書の生成処理を実装する | 自動導出が必要なリスト/辞書変数を追加するとき |
@@ -51,8 +106,8 @@
 | キー | 内容 | 例 |
 |---|---|---|
 | `type` | 値の型。`string`, `integer`, `boolean`, `hostname`, `interface`, `cidr`, `ip`, `number` のいずれか | `string` |
-| `description` | CSV と YAML コメントに出力する説明文 | `"GitLab サーバのホスト名"` |
-| `category` | CSV での分類グループ。行の並び順に影響する | `infrastructure` |
+| `description` | Comma-Separated Values (以下 CSV と略す) と YAML コメントに出力する説明文 | `"GitLab サーバのホスト名"` |
+| `category` | ノード設定パラメタデザインシート/パラメタデザインシート での分類グループ。行の並び順に影響する | `infrastructure` |
 | `allowed_range` | 値の制約。種別は `numeric`, `enum`, `pattern`, `semantic` | `{kind: semantic, name: fqdn}` |
 | `allowed_values` | 許容する値の列挙リスト (`allowed_range` の代わりに使用) | `["true", "false"]` |
 
@@ -103,7 +158,7 @@ nodes:
 
 ### 確認
 
-追加後, 次のコマンドで CSV に新しい行が出現し, 値が期待通りであることを確認します。
+追加後, 次のコマンドで ノード設定パラメタデザインシート に新しい行が出現し, 値が期待通りであることを確認します。
 
 ```shell
 generate_host_vars_structured.py -i network_topology.yaml -o host_vars_structured.yaml && \
@@ -249,8 +304,8 @@ Ansible ロールで新しいサービスのスカラーを参照したい場合
 | キー | 意味 | 指定例 |
 |---|---|---|
 | `enabled_flag` | サービス有効ノードに常に `true` で出力するスカラー名 | `my_service_enabled` |
-| `key_map` | `config.{入力キー}` をどのスカラー名に変換するかのマッピング | `hostname: my_service_hostname` |
-| `passthrough_all_config` | `key_map` で変換済み以外の `config` キーをそのまま出力するか | `true` / `false` |
+| `key_map` | `config.{入力キー}` をどのスカラー名に変換するためのマッピング | `hostname: my_service_hostname` |
+| `passthrough_all_config` | `key_map` で変換済み以外の `config` キーをそのまま出力する | `true` / `false` |
 | `config_keys` | `passthrough_all_config: false` の場合に出力を許可するキーの列挙 | `[setting1, setting2]` |
 | `disabled_service_cleanup_keys` | サービスが無効なノードで削除するスカラーキーの列挙 | `[my_service_enabled, my_service_hostname]` |
 
@@ -313,7 +368,7 @@ schema:
 
 ### 手順 4: network_topology.yaml にサービス設定を記述する
 
-`globals.services` にサービス既定値を, `globals.roles` にどのロールがこのサービスを持つかを定義します。
+`globals.services` にサービス既定値を, `globals.roles` にロールとサービスの関係を定義します。
 
 ```yaml
 globals:
@@ -336,7 +391,7 @@ nodes:
 
 `globals.roles` はロール名とサービス一覧のマッピングです。ノードに `roles: [my_role]` を指定すると, そのロールに紐づくサービスが有効になります。
 
-`convert-rule-config.yaml` の `network_role` セクションは, ネットワークロール (ネットワークセグメントの役割) に基づいて NIC 変数や FRR 設定を導出するポリシーを定義します。
+`convert-rule-config.yaml` の `network_role` セクションは, ネットワークロール (ネットワークセグメントの役割) に基づいて NIC 変数や Free Range Routing (以下 FRR と略す) 設定を導出するポリシーを定義します。
 
 ### ノードへのロール追加
 
@@ -386,7 +441,7 @@ network_role:
 
 ## 補足: Python 実装追加要否判断基準
 
-この節では, どの変更が `convert-rule-config.yaml` だけで対応できるか, どの変更で Python 実装が必要になるかを整理します。
+この節では, `convert-rule-config.yaml` だけで対応可能な拡張と, Python 実装が必要な拡張とを区別するための判断方針を示します。
 
 ### Python 追加が不要なケース
 
@@ -608,7 +663,7 @@ network_role:
 
 記述方針:
 
-1. 入力不足時の既定値をどの情報から導出するかを定義する。
+1. 入力不足時の既定値を導出する情報を定義する。
 2. ネスト構造の最終スキーマに合わせて出力を組み立てる。
 3. `type_schema.yaml` と `host_vars_structured.schema.yaml` の整合を確認する。
 
@@ -628,7 +683,7 @@ network_role:
 
 記述方針:
 
-1. ノード単位処理のどの段で新処理を実行するか決める。
+1. ノード単位処理の新処理を実行ステップを決定する。
 2. 既存ステップの入出力 (`host_entry`, `scalars`) を壊さない形で接続する。
 3. 既存の pass-through 項目と競合しないことを確認する。
 
@@ -644,7 +699,7 @@ network_role:
 | サービス自動設定の注入 | `lib/service_processing.py` の `apply_auto_service_configs` |
 | NIC 変数導出の追加/変更 | `lib/netif_builder.py` の `derive_nic_variables` |
 | FRR 広報ネットワーク生成の追加/変更 | `lib/routing_frr.py` の `build_frr_networks` |
-| Kubernetes BGP 既定値生成の追加/変更 | `lib/k8s_normalize.py` の `build_default_k8s_bgp` |
+| Kubernetes Border Gateway Protocol (以下 BGP と略す) 既定値生成の追加/変更 | `lib/k8s_normalize.py` の `build_default_k8s_bgp` |
 | ノード生成パイプラインへの組み込み | `lib/hostvars_node_pipeline.py` の `apply_node_routing_entries`, `apply_node_service_scalars` |
 | ルール読み込みと実行フローの入口確認 | `generate_host_vars_structured.py` の `generate_host_vars_structured` |
 
@@ -652,7 +707,7 @@ network_role:
 
 迷う場合は, 次の順で判断すると実装方針を誤りにくくなります。
 
-1. 変更内容が `service_settings` の写像規則だけで表現できるかを確認する。
+1. 変更内容が `service_settings` の写像規則だけで表現可能であることを確認する。
 2. 単一ノード内の静的変換で完結するなら, まず `convert-rule-config.yaml` で対応する。
 3. ノード横断計算, 自動補完, 構造生成が必要なら, Python 関数を追加する。
 4. Python を追加した場合は, `type_schema.yaml` と関連テストを必ず更新する。

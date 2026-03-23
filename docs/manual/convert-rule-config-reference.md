@@ -2,6 +2,28 @@
 
 `convert-rule-config.yaml` は `network_topology.yaml` の `services` セクションやネットワークロールに関する変換ルールを一元管理するファイルです。`generate_host_vars_structured.py` が参照し, サービス設定からスカラー変数への変換ポリシーとネットワークロールポリシーを決定します。
 
+## 目次
+
+- [変換ルール設定リファレンスマニュアル (convert-rule-config.yaml)](#変換ルール設定リファレンスマニュアル-convert-rule-configyaml)
+  - [目次](#目次)
+  - [ファイルの構成](#ファイルの構成)
+  - [service\_settings セクション](#service_settings-セクション)
+    - [service\_settings.services](#service_settingsservices)
+      - [ルール辞書のキー](#ルール辞書のキー)
+      - [サービスエントリの例](#サービスエントリの例)
+    - [既定のサービス定義一覧](#既定のサービス定義一覧)
+  - [network\_role セクション](#network_role-セクション)
+    - [ポリシーキー一覧](#ポリシーキー一覧)
+    - [各ポリシーの詳細](#各ポリシーの詳細)
+      - [role\_priority](#role_priority)
+      - [management\_roles](#management_roles)
+      - [data\_plane\_roles](#data_plane_roles)
+      - [frr\_advertise\_roles](#frr_advertise_roles)
+      - [internal\_network\_list\_roles](#internal_network_list_roles)
+      - [internal\_mgmt\_role / external\_mgmt\_role](#internal_mgmt_role--external_mgmt_role)
+  - [関連資料](#関連資料)
+
+
 ## ファイルの構成
 
 | トップレベルキー | 役割 |
@@ -99,7 +121,7 @@ service_settings:
 
 ## network_role セクション
 
-ネットワークセグメントのロール (`globals.networks.{name}.role`) に基づいて, NIC 変数や BGP ルーティング設定の導出ポリシーを定義します。
+ネットワークセグメントのロール (`globals.networks.{name}.role`) に基づいて, Network Interface Card (以下 NIC と略す) 変数や Border Gateway Protocol (以下 BGP と略す) ルーティング設定の導出ポリシーを定義します。
 
 `network_topology.yaml` で定義したネットワークロールが変数生成のどの処理に影響するかは, 以下のポリシーキーで制御します。
 
@@ -110,7 +132,7 @@ service_settings:
 | `role_priority` | object | DNS ドメイン導出時の優先度マッピング (ロール名 -> 整数, 小さいほど優先) |
 | `management_roles` | array of string | 管理系ネットワークとして扱うロールの集合 |
 | `data_plane_roles` | array of string | `k8s_nic` 候補として選ぶロールの集合 |
-| `frr_advertise_roles` | array of string | FRR 広報対象ネットワークを選ぶロールの集合 |
+| `frr_advertise_roles` | array of string | Free Range Routing (以下 FRR と略す) 広報対象ネットワークを選ぶロールの集合 |
 | `internal_network_list_roles` | array of string | `internal_network_list` に含めるロールの集合 |
 | `internal_mgmt_role` | string | 内部管理ネットワークとして扱う単一ロール名 |
 | `external_mgmt_role` | string | 外部管理ネットワークとして扱う単一ロール名 |

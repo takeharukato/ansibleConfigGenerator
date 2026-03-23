@@ -3,7 +3,7 @@
 ## 概要
 
 本ツール群は, ネットワークトポロジ情報から, Ansible向けのホスト変数ファイル群と, 設定値クロスチェック用のCSV形式のパラメタシートを生成する。
-加えて, `network_topology.yaml` と `field_metadata.yaml`, スキーマ情報から, 設計レビュー用の4つのCSVデザインシートを生成する。
+加えて, `network_topology.yaml` と `field_metadata.yaml`, スキーマ情報から, 設計レビュー用の4つのパラメタデザインシートを生成する。
 
 ## 想定ワークフロー
 
@@ -27,7 +27,7 @@ flowchart TD
     G --> D
 ```
 
-1. **設計レビュー向けCSV形式パラメタシートデザインシート生成**: `network_topology.yaml`, `field_metadata.yaml`, `network_topology.schema.yaml` から4つのCSVデザインシートを生成する (generate_network_topology_design_sheet.py)。
+1. **設計レビュー向けCSV形式パラメタシートデザインシート生成**: `network_topology.yaml`, `field_metadata.yaml`, `network_topology.schema.yaml` から4つのパラメタデザインシートを生成する (generate_network_topology_design_sheet.py)。
 2. **中間形式作成**: `network_topology.yaml` から中間形式 `host_vars_structured.yaml` を生成する (generate_host_vars_structured.py)。
 3. **各ホスト設定値のCSV形式パラメタシート生成**: 中間形式からCSV形式のパラメタシートを生成する (generate_hostvars_matrix.py)。
 4. **検証**: CSV形式のパラメタシートの妥当性を検証する (validate_hostvars_matrix.py)。
