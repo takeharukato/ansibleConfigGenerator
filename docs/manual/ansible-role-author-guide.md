@@ -437,7 +437,7 @@ network_role:
     - my_storage_network   # 必要なら追加
 ```
 
-各ポリシーの詳細は [変換ルール設定参照](convert-rule-config-reference.md) の `network_role` セクションを参照してください。
+各ポリシーの詳細は [変換ルール設定リファレンスマニュアル](convert-rule-config-reference.md) の `network_role` セクションを参照してください。
 
 ## 補足: Python 実装追加要否判断基準
 
@@ -743,7 +743,7 @@ make check
 ## 関連資料
 
 - [ツールチェイン概要](toolchain-overview.md)
-- [スキーマファイル参照](schema-files-reference.md)
-- [変換ルール設定参照](convert-rule-config-reference.md)
-- [フィールドメタデータ参照](field-metadata-reference.md)
+- [スキーマファイルリファレンスマニュアル](schema-files-reference.md)
+- [変換ルール設定リファレンスマニュアル](convert-rule-config-reference.md)
+- [フィールドメタデータリファレンスマニュアル](field-metadata-reference.md)
 - [トラブルシューティング](troubleshooting.md)

@@ -295,5 +295,5 @@ k8s_multus_enabled:
 ## 関連資料
 
 - [ロール作成者向けガイド](ansible-role-author-guide.md): フィールドを追加する手順
-- [スキーマファイル参照](schema-files-reference.md): `field_metadata.schema.yaml` の構造詳細
-- [変換ルール設定参照](convert-rule-config-reference.md): サービス設定からスカラーへの変換ルール
+- [スキーマファイルリファレンスマニュアル](schema-files-reference.md): `field_metadata.schema.yaml` の構造詳細
+- [変換ルール設定リファレンスマニュアル](convert-rule-config-reference.md): サービス設定からスカラーへの変換ルール

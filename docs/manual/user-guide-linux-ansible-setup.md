@@ -120,7 +120,7 @@ nodes:
         ipv4_address: 192.168.0.10
 ```
 
-詳細な書き方は [スキーマファイル参照](schema-files-reference.md) の `network_topology.schema.yaml` の節を参照してください。
+詳細な書き方は [スキーマファイルリファレンスマニュアル](schema-files-reference.md) の `network_topology.schema.yaml` の節を参照してください。
 
 ## 標準ワークフロー
 
@@ -300,6 +300,6 @@ schema_search_paths:
 
 - [ツールチェイン概要](toolchain-overview.md)
 - [トラブルシューティング](troubleshooting.md)
-- [フィールドメタデータ参照](field-metadata-reference.md)
-- [変換ルール設定参照](convert-rule-config-reference.md)
-- [スキーマファイル参照](schema-files-reference.md)
+- [フィールドメタデータリファレンスマニュアル](field-metadata-reference.md)
+- [変換ルール設定リファレンスマニュアル](convert-rule-config-reference.md)
+- [スキーマファイルリファレンスマニュアル](schema-files-reference.md)

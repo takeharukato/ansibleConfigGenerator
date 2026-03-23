@@ -392,6 +392,6 @@ schema:
 ## 関連資料
 
 - [ロール作成者向けガイド](ansible-role-author-guide.md)
-- [変換ルール設定参照](convert-rule-config-reference.md)
-- [フィールドメタデータ参照](field-metadata-reference.md)
+- [変換ルール設定リファレンスマニュアル](convert-rule-config-reference.md)
+- [フィールドメタデータリファレンスマニュアル](field-metadata-reference.md)
 - [ツールチェイン概要](toolchain-overview.md)

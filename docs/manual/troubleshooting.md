@@ -212,7 +212,7 @@ cat /tmp/hvs.yaml
 
 ### 対処
 
-`generate_host_vars_structured.py` を実行して出力された `host_vars_structured.yaml` の `netif_list` を確認します。インターフェースの割り当てが正しければ, NIC 選定ポリシーの `convert-rule-config.yaml` を見直してください。詳細は [変換ルール設定参照](convert-rule-config-reference.md) の `network_role` セクションを参照してください。
+`generate_host_vars_structured.py` を実行して出力された `host_vars_structured.yaml` の `netif_list` を確認します。インターフェースの割り当てが正しければ, NIC 選定ポリシーの `convert-rule-config.yaml` を見直してください。詳細は [変換ルール設定リファレンスマニュアル](convert-rule-config-reference.md) の `network_role` セクションを参照してください。
 
 ---
 
@@ -220,6 +220,6 @@ cat /tmp/hvs.yaml
 
 - [ユーザ向けワークフロー](user-guide-linux-ansible-setup.md)
 - [ツールチェイン概要](toolchain-overview.md)
-- [スキーマファイル参照](schema-files-reference.md)
-- [変換ルール設定参照](convert-rule-config-reference.md)
-- [フィールドメタデータ参照](field-metadata-reference.md)
+- [スキーマファイルリファレンスマニュアル](schema-files-reference.md)
+- [変換ルール設定リファレンスマニュアル](convert-rule-config-reference.md)
+- [フィールドメタデータリファレンスマニュアル](field-metadata-reference.md)

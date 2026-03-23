@@ -212,5 +212,5 @@ network_role:
 ## 関連資料
 
 - [ロール作成者向けガイド](ansible-role-author-guide.md): サービス定義変数とノードロールの追加手順
-- [スキーマファイル参照](schema-files-reference.md): 入力スキーマの詳細
-- [フィールドメタデータ参照](field-metadata-reference.md): スカラー変数の型と制約定義
+- [スキーマファイルリファレンスマニュアル](schema-files-reference.md): 入力スキーマの詳細
+- [フィールドメタデータリファレンスマニュアル](field-metadata-reference.md): スカラー変数の型と制約定義
