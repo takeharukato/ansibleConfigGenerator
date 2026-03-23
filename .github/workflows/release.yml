@@ -1,0 +1,59 @@
+name: Build Release Packages
+
+on:
+  workflow_dispatch:
+  release:
+    types:
+      - published
+
+permissions:
+  contents: read
+
+jobs:
+  build-packages:
+    name: Build ${{ matrix.package_type }} package
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - package_type: deb
+            make_target: deb
+            artifact_name: deb-packages
+            artifact_pattern: '*.deb'
+          - package_type: rpm
+            make_target: rpm
+            artifact_name: rpm-packages
+            artifact_pattern: '*.rpm'
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Build package
+        run: |
+          rm -rf dist
+          mkdir -p dist
+          make ${{ matrix.make_target }}
+
+      - name: List generated files
+        run: |
+          ls -la dist
+          find dist -maxdepth 1 -type f | sort
+
+      - name: Verify package output exists
+        shell: bash
+        run: |
+          shopt -s nullglob
+          files=(dist/${{ matrix.artifact_pattern }})
+          if [ "${#files[@]}" -eq 0 ]; then
+            echo "No package artifacts found for pattern: dist/${{ matrix.artifact_pattern }}" >&2
+            exit 1
+          fi
+
+      - name: Upload package artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.artifact_name }}
+          path: dist/${{ matrix.artifact_pattern }}
+          if-no-files-found: error
