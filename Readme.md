@@ -237,7 +237,7 @@ schema 探索先を明示する場合:
 generate_hostvars_matrix.py --schema-dir /path/to/schema -H host_vars_structured.yaml
 ```
 
-使用法の詳細は, docs/manual/index.mdを参照してください。
+使用法の詳細は, [ansibleConfigGenerator マニュアル](docs/manual/index.md)を参照してください。
 
 ## テスト
 
