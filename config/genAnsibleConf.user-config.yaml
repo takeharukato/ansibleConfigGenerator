@@ -4,7 +4,6 @@ schema_search_paths:
   # Optional per-file absolute paths or directory paths.
   # field_metadata: ~/genAnsibleConf/schema/field_metadata.yaml
   # network_topology: ~/genAnsibleConf/schema/network_topology.schema.yaml
-  # type_schema: ~/genAnsibleConf/schema/type_schema.yaml
   # convert_rule_config: ~/genAnsibleConf/schema/convert-rule-config.yaml
 
   # Optional shared directory for unresolved file keys.

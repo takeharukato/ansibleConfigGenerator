@@ -39,7 +39,6 @@ DEFAULT_TERRAFORM_TFVARS: str = "terraform.tfvars"
 DEFAULT_HOST_VARS_MATRIX: str = "host_vars_scalars_matrix.csv"
 DEFAULT_NETWORK_TOPOLOGY_CSV: str = "network_topology.csv"
 
-DEFAULT_TYPE_SCHEMA: str = "type_schema.yaml"
 DEFAULT_CONVERT_RULE_CONFIG: str = "convert-rule-config.yaml"
 
 DEFAULT_USER_CONFIG_PATH: str = "~/.genAnsibleConf.yaml"
@@ -51,7 +50,6 @@ GENANSIBLECONF_SCHEMADIR: str = "@GENANSIBLECONF_SCHEMADIR@"
 SCHEMA_CONFIG_KEY_MAP: dict[str, str] = {
     DEFAULT_FIELD_METADATA: "field_metadata",
     DEFAULT_NETWORK_TOPOLOGY_SCHEMA: "network_topology",
-    DEFAULT_TYPE_SCHEMA: "type_schema",
     DEFAULT_CONVERT_RULE_CONFIG: "convert_rule_config",
 }
 

@@ -23,11 +23,6 @@
     - [トップレベル構造](#トップレベル構造-2)
     - [fields の各エントリ (field\_entry オブジェクト)](#fields-の各エントリ-field_entry-オブジェクト)
     - [allowed\_range の種別](#allowed_range-の種別)
-  - [type\_schema.yaml](#type_schemayaml)
-    - [構造](#構造)
-    - [変数の型指定](#変数の型指定)
-    - [ドット記法によるサブフィールド定義](#ドット記法によるサブフィールド定義)
-    - [主要なエントリ一覧 (抜粋)](#主要なエントリ一覧-抜粋)
   - [関連資料](#関連資料)
 
 
@@ -38,7 +33,6 @@
 | `network_topology.schema.yaml` | `network_topology.yaml` の入力値を検証する |
 | `host_vars_structured.schema.yaml` | 中間出力 `host_vars_structured.yaml` の構造を定義する |
 | `field_metadata.schema.yaml` | `field_metadata.yaml` 自体の構造を検証する |
-| `type_schema.yaml` | すべての出力変数の Python 型を定義する |
 
 上記ファイルの配置場所は `toolchain-overview.md` の「スキーマ探索ルール」を参照してください。
 
@@ -332,62 +326,6 @@ allowed_range:
 
 ---
 
-## type_schema.yaml
-
-すべての出力変数の Python 型を定義します。`generate_host_vars_files.py` が host_vars ファイルへ値を書き込む際の型変換に使用されます。
-
-### 構造
-
-| キー | 型 | 説明 |
-|---|---|---|
-| `schema` | object | 変数名から Python 型へのマッピング |
-
-### 変数の型指定
-
-`schema` の各エントリは `変数名: Python型` の形式で記述します。
-
-| Python 型 | 意味 |
-|---|---|
-| `str` | 文字列 |
-| `int` | 整数 |
-| `bool` | 真偽値 |
-| `list` | リスト |
-| `dict` | 辞書 |
-
-### ドット記法によるサブフィールド定義
-
-リスト型変数と辞書型変数のサブフィールドは `変数名.フィールド名` のドット記法で登録します。ネストが深い場合は `.` でつないで記述します。
-
-```yaml
-schema:
-  frr_ebgp_neighbors: list
-  frr_ebgp_neighbors.addr: str
-  frr_ebgp_neighbors.asn: int
-  frr_ebgp_neighbors.desc: str
-  k8s_bgp: dict
-  k8s_bgp.enabled: bool
-  k8s_bgp.neighbors: list
-  k8s_bgp.neighbors.peer_address: str
-  k8s_bgp.neighbors.peer_asn: int
-```
-
-### 主要なエントリ一覧 (抜粋)
-
-| 変数名 | 型 | 説明 |
-|---|---|---|
-| `netif_list` | `list` | NIC 情報リスト |
-| `frr_ebgp_neighbors` | `list` | FRR eBGP ネイバーリスト (IPv4) |
-| `frr_ibgp_neighbors` | `list` | FRR iBGP ネイバーリスト (IPv4) |
-| `frr_networks_v4` | `list` | FRR 広報対象ネットワーク (IPv4) |
-| `frr_networks_v6` | `list` | FRR 広報対象ネットワーク (IPv6) |
-| `k8s_bgp` | `dict` | Kubernetes BGP 設定 |
-| `k8s_worker_frr` | `dict` | Kubernetes ワーカー FRR 設定 |
-| `frr_bgp_asn` | `int` | FRR BGP AS 番号 |
-| `k8s_nic` | `str` | Kubernetes 用 NIC 名 |
-| `mgmt_nic` | `str` | 外部管理ネットワーク用 NIC 名 |
-| `gpm_mgmt_nic` | `str` | 内部管理ネットワーク用 NIC 名 |
-
----
 
 ## 関連資料
 

@@ -57,8 +57,7 @@ genansibleconfschema_DATA = \
 	field_metadata.yaml \
 	field_metadata.schema.yaml \
 	host_vars_structured.schema.yaml \
-	network_topology.schema.yaml \
-	type_schema.yaml
+	network_topology.schema.yaml
 
 ## 配布に含めるが install しないファイル
 EXTRA_DIST = \
@@ -70,8 +69,7 @@ EXTRA_DIST = \
 	generate_terraform_tfvars.py \
 	convert-rule-config.yaml \
 	field_metadata.yaml \
-	network_topology.schema.yaml \
-	type_schema.yaml \
+	network_topology.schema.yaml
 	field_metadata.schema.yaml \
 	host_vars_structured.schema.yaml \
 	terraform.tfvars

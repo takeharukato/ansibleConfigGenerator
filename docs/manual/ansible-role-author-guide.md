@@ -13,23 +13,19 @@
   - [スカラー変数を追加する作業](#スカラー変数を追加する作業)
     - [作業フロー](#作業フロー)
     - [手順 1: field\_metadata.yaml に追記する](#手順-1-field_metadatayaml-に追記する)
-    - [手順 2: type\_schema.yaml に追記する](#手順-2-type_schemayaml-に追記する)
     - [手順 3: network\_topology.yaml に値を記述する](#手順-3-network_topologyyaml-に値を記述する)
     - [確認](#確認)
   - [リスト変数を追加する作業](#リスト変数を追加する作業)
     - [作業フロー](#作業フロー-1)
     - [手順 1: host\_vars\_structured.schema.yaml に追記する](#手順-1-host_vars_structuredschemayaml-に追記する)
-    - [手順 2: type\_schema.yaml に追記する](#手順-2-type_schemayaml-に追記する-1)
     - [手順 3: 生成ロジックを追加する](#手順-3-生成ロジックを追加する)
   - [辞書型ノード設定変数を追加する作業](#辞書型ノード設定変数を追加する作業)
     - [作業フロー](#作業フロー-2)
     - [手順 1: host\_vars\_structured.schema.yaml に追記する](#手順-1-host_vars_structuredschemayaml-に追記する-1)
-    - [手順 2: type\_schema.yaml に追記する](#手順-2-type_schemayaml-に追記する-2)
   - [service 定義変数を追加する作業](#service-定義変数を追加する作業)
     - [service 定義の仕組み](#service-定義の仕組み)
     - [手順 1: convert-rule-config.yaml に変換ルールを追加する](#手順-1-convert-rule-configyaml-に変換ルールを追加する)
     - [手順 2: field\_metadata.yaml に追記する](#手順-2-field_metadatayaml-に追記する)
-    - [手順 3: type\_schema.yaml に追記する](#手順-3-type_schemayaml-に追記する)
     - [手順 4: network\_topology.yaml にサービス設定を記述する](#手順-4-network_topologyyaml-にサービス設定を記述する)
   - [node role を追加する作業](#node-role-を追加する作業)
     - [ノードロールの仕組み](#ノードロールの仕組み)
@@ -75,14 +71,12 @@
 | リスト変数 | 辞書の配列 | `frr_ebgp_neighbors: [{addr: ..., asn: ...}]` |
 | 辞書型変数 | ネストした辞書構造 | `k8s_bgp: {enabled: true, local_asn: 65001, ...}` |
 
-スカラー変数は `field_metadata.yaml` で定義します。リストと辞書型変数は `host_vars_structured.schema.yaml` と `type_schema.yaml` で定義します。
 
 ## 変更時に見るべき主要ファイル
 
 | ファイル | 役割 | 変更する場面 |
 |---|---|---|
 | `field_metadata.yaml` | スカラーの名称, 型, 制約を定義する | スカラー変数を追加するとき |
-| `type_schema.yaml` | すべての出力変数の Python 型を定義する | スカラー, リスト, 辞書を追加するとき |
 | `host_vars_structured.schema.yaml` | 中間出力の JavaScript Object Notation (以下 JSON と略す) Schema を定義する | リスト, 辞書を追加するとき |
 | `convert-rule-config.yaml` | サービス設定からスカラーへの変換ルールを定義する | サービス定義変数を追加するとき |
 | `network_topology.yaml` | ノードの設定値を定義する | 実際の設定値を書くとき |
@@ -95,7 +89,6 @@
 スカラー変数の追加は次の 4 ファイルへの変更で完結します。
 
 1. `field_metadata.yaml`: 変数の名称, 型, 制約を登録する
-2. `type_schema.yaml`: 変数の Python 型を登録する
 3. `network_topology.yaml`: 設定値を記述する
 4. Ansible ロール/テンプレート: `{{ 変数名 }}` で参照する
 
@@ -123,7 +116,6 @@ fields:
       name: fqdn
 ```
 
-### 手順 2: type_schema.yaml に追記する
 
 `schema` セクションに変数名と Python 型のペアを追加します。
 
@@ -134,7 +126,6 @@ fields:
 | `変数名: bool` | 真偽値型 |
 
 ```yaml
-# type_schema.yaml への追記例
 schema:
   my_service_hostname: str
 ```
@@ -173,7 +164,6 @@ generate_hostvars_matrix.py -H host_vars_structured.yaml -m field_metadata.yaml 
 リスト変数の追加は次の 3 ファイルへの変更が基本です。
 
 1. `host_vars_structured.schema.yaml`: 中間出力の JSON Schema に配列定義を追加する
-2. `type_schema.yaml`: 配列とその要素フィールドの Python 型を登録する
 3. 生成ロジック (`lib/` 配下): 配列を組み立てる Python 関数を追加/拡張する
 
 ### 手順 1: host_vars_structured.schema.yaml に追記する
@@ -212,12 +202,10 @@ $defs:
           $ref: '#/$defs/my_list_item'
 ```
 
-### 手順 2: type_schema.yaml に追記する
 
 リスト本体と, 各要素のフィールドをドット記法で登録します。
 
 ```yaml
-# type_schema.yaml への追記例
 schema:
   my_service_list: list
   my_service_list.addr: str
@@ -240,7 +228,6 @@ schema:
 辞書型変数の追加はリスト変数と同様ですが, JSON Schema の定義がネスト構造になります。
 
 1. `host_vars_structured.schema.yaml`: 辞書型の JSON Schema を追加する
-2. `type_schema.yaml`: 辞書本体と全ネストフィールドの Python 型を登録する
 3. 生成ロジック (`lib/` 配下): 辞書を組み立てる Python 関数を追加する
 
 ### 手順 1: host_vars_structured.schema.yaml に追記する
@@ -271,12 +258,10 @@ $defs:
         $ref: '#/$defs/my_service_config'
 ```
 
-### 手順 2: type_schema.yaml に追記する
 
 ドット記法でネストした全フィールドを登録します。
 
 ```yaml
-# type_schema.yaml への追記例
 schema:
   my_service_config: dict
   my_service_config.enabled: bool
@@ -294,7 +279,6 @@ Ansible ロールで新しいサービスのスカラーを参照したい場合
 
 1. `convert-rule-config.yaml`: `service_settings.services` に変換ルールを追加する
 2. `field_metadata.yaml`: 生成されるスカラーの定義を追加する
-3. `type_schema.yaml`: 生成されるスカラーの Python 型を追加する
 4. `network_topology.yaml`: サービスの設定値を記述する
 
 ### 手順 1: convert-rule-config.yaml に変換ルールを追加する
@@ -356,10 +340,8 @@ fields:
       max: 65535
 ```
 
-### 手順 3: type_schema.yaml に追記する
 
 ```yaml
-# type_schema.yaml への追記例
 schema:
   my_service_enabled: bool
   my_service_hostname: str
@@ -665,7 +647,6 @@ network_role:
 
 1. 入力不足時の既定値を導出する情報を定義する。
 2. ネスト構造の最終スキーマに合わせて出力を組み立てる。
-3. `type_schema.yaml` と `host_vars_structured.schema.yaml` の整合を確認する。
 
 参照実装: `lib/k8s_normalize.py` の `build_default_k8s_bgp`。
 
@@ -710,7 +691,6 @@ network_role:
 1. 変更内容が `service_settings` の写像規則だけで表現可能であることを確認する。
 2. 単一ノード内の静的変換で完結するなら, まず `convert-rule-config.yaml` で対応する。
 3. ノード横断計算, 自動補完, 構造生成が必要なら, Python 関数を追加する。
-4. Python を追加した場合は, `type_schema.yaml` と関連テストを必ず更新する。
 
 ## 変更後に確認する生成物
 

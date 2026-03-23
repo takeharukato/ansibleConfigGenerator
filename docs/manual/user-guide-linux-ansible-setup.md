@@ -256,7 +256,6 @@ generate_host_vars_structured.py \
 |---|---|---|
 | `field_metadata` | `field_metadata.yaml` のパス | `~/.genAnsibleConf/field_metadata.yaml` |
 | `network_topology` | `network_topology.schema.yaml` のパス | `~/.genAnsibleConf/network_topology.schema.yaml` |
-| `type_schema` | `type_schema.yaml` のパス | `~/.genAnsibleConf/type_schema.yaml` |
 | `convert_rule_config` | `convert-rule-config.yaml` のパス | `~/.genAnsibleConf/convert-rule-config.yaml` |
 | `default_dir` | 上記キーが未設定の場合に使うディレクトリ | `~/.genAnsibleConf/` |
 
@@ -264,7 +263,6 @@ generate_host_vars_structured.py \
 schema_search_paths:
   field_metadata: ~/.genAnsibleConf/field_metadata.yaml
   network_topology: ~/.genAnsibleConf/network_topology.schema.yaml
-  type_schema: ~/.genAnsibleConf/type_schema.yaml
   convert_rule_config: ~/.genAnsibleConf/convert-rule-config.yaml
   default_dir: ~/.genAnsibleConf
 ```

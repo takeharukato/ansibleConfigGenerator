@@ -47,7 +47,6 @@ For schema/config lookup order and `schema_search_paths` details, see `docs/manu
 │       ├── field_metadata.schema.yaml
 │       ├── network_topology.schema.yaml
 │       ├── host_vars_structured.schema.yaml
-│       ├── type_schema.yaml
 │       ├── convert-rule-config.yaml
 │       └── lib/
 ├── config/
@@ -92,7 +91,6 @@ The contents of each directory are summarized below:
 | `field_metadata.schema.yaml` | Schema definition for field_metadata.yaml. |
 | `network_topology.schema.yaml` | Schema definition for network topology input files. |
 | `host_vars_structured.schema.yaml` | Schema definition for structured host_vars output. |
-| `type_schema.yaml` | Shared schema for variable type mappings. |
 | `convert-rule-config.yaml` | Field and service conversion rules. |
 | `lib/` | Shared Python library modules used by generator scripts. |
 

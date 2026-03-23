@@ -216,7 +216,6 @@ k8s_multus_enabled:
     - "false"
 ```
 
-> `allowed_values` の各要素は文字列として記述します。Python 型への変換は `type_schema.yaml` が担います。
 
 ---
 
@@ -228,8 +227,6 @@ k8s_multus_enabled:
 |---|---|---|---|
 | `external_net_nic` | `interface` | Kubernetesなどのサービスを外部公開するためのネットワーク用 NIC | semantic (ifname) |
 | `gpm_mgmt_nic` | `interface` | 内部管理ネットワーク用 NIC | semantic (ifname) |
-| `mgmt_nic` | `interface` (type_schema より) | 外部管理ネットワーク用 NIC | なし |
-| `k8s_nic` | `interface` (type_schema より) | Kubernetes 用 NIC | なし |
 
 ### routing_bgp カテゴリ
 

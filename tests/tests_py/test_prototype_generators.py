@@ -19,7 +19,9 @@ import csv
 from pathlib import Path
 from typing import Any, Callable, cast
 
-PROTOTYPE_DIR: Path = Path(__file__).resolve().parents[2] / "src" / "genAnsibleConf"
+REPO_ROOT: Path = Path(__file__).resolve().parents[2]
+PROTOTYPE_DIR: Path = REPO_ROOT / "src" / "genAnsibleConf"
+SAMPLE_TOPOLOGY_PATH: Path = REPO_ROOT / "config" / "sample-network_topology.yaml"
 if str(PROTOTYPE_DIR) not in sys.path:
     sys.path.insert(0, str(PROTOTYPE_DIR))
 
@@ -71,6 +73,8 @@ validate_csv: ValidateCsvType = cast(
 
 def _prototype_file(name: str) -> Path:
     """prototype 配下ファイルの絶対パスを返す。"""
+    if name == "network_topology.yaml":
+        return SAMPLE_TOPOLOGY_PATH
     return PROTOTYPE_DIR / name
 
 

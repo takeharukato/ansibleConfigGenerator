@@ -162,7 +162,6 @@ cat /tmp/hvs.yaml
 
 1. `allowed_range` の制約違反: `field_metadata.yaml` の `allowed_range` で定義した範囲を外れた値が設定されています。
 2. `allowed_values` の制約違反: 許容値リスト外の文字列が設定されています。
-3. 型不一致: `type_schema.yaml` の Python 型と実際の値の型が一致していません。
 
 ### 対処
 

@@ -5,7 +5,6 @@ schema_search_paths:
   # If a value is a directory, the resolver appends each default filename.
   # field_metadata: /opt/genAnsibleConf/schema/field_metadata.yaml
   # network_topology: /opt/genAnsibleConf/schema/network_topology.schema.yaml
-  # type_schema: /opt/genAnsibleConf/schema/type_schema.yaml
   # convert_rule_config: /opt/genAnsibleConf/schema/convert-rule-config.yaml
 
   # Optional shared directory for unresolved file keys.

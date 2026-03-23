@@ -23,7 +23,9 @@ from typing import Any, Callable, cast
 
 import pytest
 
-PROTOTYPE_DIR: Path = Path(__file__).resolve().parents[2] / "src" / "genAnsibleConf"
+REPO_ROOT: Path = Path(__file__).resolve().parents[2]
+PROTOTYPE_DIR: Path = REPO_ROOT / "src" / "genAnsibleConf"
+SAMPLE_TOPOLOGY_PATH: Path = REPO_ROOT / "config" / "sample-network_topology.yaml"
 if str(PROTOTYPE_DIR) not in sys.path:
     sys.path.insert(0, str(PROTOTYPE_DIR))
 
@@ -40,7 +42,14 @@ generate_csv_typed: GenerateCsvType = cast(GenerateCsvType, sheet_module_any.gen
 
 def _prototype_file(name: str) -> Path:
     """prototype 配下ファイルの絶対パスを返す。"""
+    if name == "network_topology.yaml":
+        return SAMPLE_TOPOLOGY_PATH
     return PROTOTYPE_DIR / name
+
+
+def _expected_sheet_path(base_dir: Path, topology_path: Path, section: str) -> Path:
+    """入力トポロジーの stem から期待される出力 CSV パスを返す。"""
+    return base_dir / f"{topology_path.stem}-{section}.csv"
 
 
 def test_parse_args_defaults(monkeypatch: pytest.MonkeyPatch) -> None:
@@ -57,33 +66,35 @@ def test_parse_args_defaults(monkeypatch: pytest.MonkeyPatch) -> None:
 def test_generate_csv_has_all_sections(tmp_path: Path) -> None:
     """CSV出力として4つのセクション別ファイルが生成される。"""
     output_base: str = str(tmp_path / "design_sheet")
+    topology_path: Path = _prototype_file("network_topology.yaml")
 
     missing_paths: list[str]
     missing_paths = generate_csv_typed(
-        str(_prototype_file("network_topology.yaml")),
+        str(topology_path),
         str(_prototype_file("network_topology.schema.yaml")),
         output_base,
     )
 
-    assert (tmp_path / "network_topology-globals.csv").exists()
-    assert (tmp_path / "network_topology-roles.csv").exists()
-    assert (tmp_path / "network_topology-services.csv").exists()
-    assert (tmp_path / "network_topology-hosts.csv").exists()
+    assert _expected_sheet_path(tmp_path, topology_path, "globals").exists()
+    assert _expected_sheet_path(tmp_path, topology_path, "roles").exists()
+    assert _expected_sheet_path(tmp_path, topology_path, "services").exists()
+    assert _expected_sheet_path(tmp_path, topology_path, "hosts").exists()
     assert isinstance(missing_paths, list)
 
 
 def test_services_section_outputs_empty_config_row(tmp_path: Path) -> None:
     """config空オブジェクトのサービス行を出力する。"""
     output_base: str = str(tmp_path / "design_sheet")
+    topology_path: Path = _prototype_file("network_topology.yaml")
 
     missing_paths: list[str]
     missing_paths = generate_csv_typed(
-        str(_prototype_file("network_topology.yaml")),
+        str(topology_path),
         str(_prototype_file("network_topology.schema.yaml")),
         output_base,
     )
 
-    services_csv = tmp_path / "network_topology-services.csv"
+    services_csv = _expected_sheet_path(tmp_path, topology_path, "services")
     assert services_csv.exists()
 
     csv_text = services_csv.read_text(encoding="utf-8")
@@ -98,14 +109,15 @@ def test_services_section_outputs_empty_config_row(tmp_path: Path) -> None:
 def test_services_section_uses_individual_description_from_field_metadata(tmp_path: Path) -> None:
     """servicesセクションで個別descriptionを出力する。"""
     output_base: str = str(tmp_path / "design_sheet")
+    topology_path: Path = _prototype_file("network_topology.yaml")
 
     _ = generate_csv_typed(
-        str(_prototype_file("network_topology.yaml")),
+        str(topology_path),
         str(_prototype_file("network_topology.schema.yaml")),
         output_base,
     )
 
-    services_csv = tmp_path / "network_topology-services.csv"
+    services_csv = _expected_sheet_path(tmp_path, topology_path, "services")
     assert services_csv.exists()
 
     rows: list[list[str]] = list(csv.reader(io.StringIO(services_csv.read_text(encoding="utf-8"))))
@@ -129,14 +141,15 @@ def test_services_section_uses_individual_description_from_field_metadata(tmp_pa
 def test_globals_scalars_uses_individual_description_from_field_metadata(tmp_path: Path) -> None:
     """globals.scalars は field_metadata の個別descriptionを出力する。"""
     output_base: str = str(tmp_path / "design_sheet")
+    topology_path: Path = _prototype_file("network_topology.yaml")
 
     _ = generate_csv_typed(
-        str(_prototype_file("network_topology.yaml")),
+        str(topology_path),
         str(_prototype_file("network_topology.schema.yaml")),
         output_base,
     )
 
-    globals_csv = tmp_path / "network_topology-globals.csv"
+    globals_csv = _expected_sheet_path(tmp_path, topology_path, "globals")
     assert globals_csv.exists()
 
     rows: list[list[str]] = list(csv.reader(io.StringIO(globals_csv.read_text(encoding="utf-8"))))
@@ -153,14 +166,15 @@ def test_globals_scalars_uses_individual_description_from_field_metadata(tmp_pat
 def test_roles_section_uses_individual_description_from_field_metadata(tmp_path: Path) -> None:
     """rolesセクションで role ごとの個別descriptionを出力する。"""
     output_base: str = str(tmp_path / "design_sheet")
+    topology_path: Path = _prototype_file("network_topology.yaml")
 
     _ = generate_csv_typed(
-        str(_prototype_file("network_topology.yaml")),
+        str(topology_path),
         str(_prototype_file("network_topology.schema.yaml")),
         output_base,
     )
 
-    roles_csv = tmp_path / "network_topology-roles.csv"
+    roles_csv = _expected_sheet_path(tmp_path, topology_path, "roles")
     assert roles_csv.exists()
 
     rows: list[list[str]] = list(csv.reader(io.StringIO(roles_csv.read_text(encoding="utf-8"))))
@@ -242,14 +256,15 @@ properties:
 def test_hosts_section_uses_joined_parameter_name(tmp_path: Path) -> None:
     """hostsセクションは row_kind.parameter を parameter 列として出力する。"""
     output_base: str = str(tmp_path / "design_sheet")
+    topology_path: Path = _prototype_file("network_topology.yaml")
 
     _ = generate_csv_typed(
-        str(_prototype_file("network_topology.yaml")),
+        str(topology_path),
         str(_prototype_file("network_topology.schema.yaml")),
         output_base,
     )
 
-    hosts_csv = tmp_path / "network_topology-hosts.csv"
+    hosts_csv = _expected_sheet_path(tmp_path, topology_path, "hosts")
     assert hosts_csv.exists()
 
     csv_text = hosts_csv.read_text(encoding="utf-8")
@@ -265,83 +280,84 @@ def test_hosts_section_uses_joined_parameter_name(tmp_path: Path) -> None:
 
 
 def test_hosts_section_uses_individual_description_from_field_metadata(tmp_path: Path) -> None:
-        """hostsセクションは field_metadata の個別descriptionを優先して出力する。"""
-        output_base: str = str(tmp_path / "design_sheet")
+    """hostsセクションは field_metadata の個別descriptionを優先して出力する。"""
+    output_base: str = str(tmp_path / "design_sheet")
+    topology_path: Path = _prototype_file("network_topology.yaml")
 
-        _ = generate_csv_typed(
-                str(_prototype_file("network_topology.yaml")),
-                str(_prototype_file("network_topology.schema.yaml")),
-                output_base,
-        )
+    _ = generate_csv_typed(
+        str(topology_path),
+        str(_prototype_file("network_topology.schema.yaml")),
+        output_base,
+    )
 
-        hosts_csv: Path = tmp_path / "network_topology-hosts.csv"
-        rows: list[list[str]] = list(csv.reader(io.StringIO(hosts_csv.read_text(encoding="utf-8"))))
-        data_rows: list[list[str]] = [row for row in rows[1:] if len(row) >= 2]
+    hosts_csv: Path = _expected_sheet_path(tmp_path, topology_path, "hosts")
+    rows: list[list[str]] = list(csv.reader(io.StringIO(hosts_csv.read_text(encoding="utf-8"))))
+    data_rows: list[list[str]] = [row for row in rows[1:] if len(row) >= 2]
 
-        scalar_row: list[str] | None = next(
-                (row for row in data_rows if row[0] == "host_scalar.scalars.frr_bgp_asn"),
-                None,
-        )
-        assert scalar_row is not None
-        assert scalar_row[1] == "FRR BGP 自律システム番号"
+    scalar_row: list[str] | None = next(
+        (row for row in data_rows if row[0] == "host_scalar.scalars.frr_bgp_asn"),
+        None,
+    )
+    assert scalar_row is not None
+    assert scalar_row[1] == "FRR BGP 自律システム番号"
 
-        service_row: list[str] | None = next(
-                (row for row in data_rows if row[0] == "host_service.services.gitlab.config.hostname"),
-                None,
-        )
-        assert service_row is not None
-        assert service_row[1] == "GitLabサービスの公開ホスト名"
+    service_row: list[str] | None = next(
+        (row for row in data_rows if row[0] == "host_service.services.gitlab.config.hostname"),
+        None,
+    )
+    assert service_row is not None
+    assert service_row[1] == "GitLabサービスの公開ホスト名"
 
 
 def test_hosts_section_falls_back_to_parent_description_when_metadata_missing(tmp_path: Path) -> None:
-        """metadata未定義キーは親descriptionへフォールバックする。"""
-        topology_path: Path = tmp_path / "topo.yaml"
-        output_base: str = str(tmp_path / "design_sheet")
+    """metadata未定義キーは親descriptionへフォールバックする。"""
+    topology_path: Path = tmp_path / "topo.yaml"
+    output_base: str = str(tmp_path / "design_sheet")
 
-        topology_path.write_text(
-                "version: 2\n"
-                "globals:\n"
-                "  networks: {}\n"
-                "  datacenters: {}\n"
-                "  services: {}\n"
-                "nodes:\n"
-                "  - name: n1\n"
-                "    hostname_fqdn: n1.local\n"
-                "    roles: [base]\n"
-                "    interfaces:\n"
-                "      - netif: eth0\n"
-                "    scalars:\n"
-                "      unknown_scalar_key: custom\n"
-                "    services:\n"
-                "      unknown_service:\n"
-                "        config:\n"
-                "          unknown_config_key: value\n",
-                encoding="utf-8",
-        )
+    topology_path.write_text(
+        "version: 2\n"
+        "globals:\n"
+        "  networks: {}\n"
+        "  datacenters: {}\n"
+        "  services: {}\n"
+        "nodes:\n"
+        "  - name: n1\n"
+        "    hostname_fqdn: n1.local\n"
+        "    roles: [base]\n"
+        "    interfaces:\n"
+        "      - netif: eth0\n"
+        "    scalars:\n"
+        "      unknown_scalar_key: custom\n"
+        "    services:\n"
+        "      unknown_service:\n"
+        "        config:\n"
+        "          unknown_config_key: value\n",
+        encoding="utf-8",
+    )
 
-        _ = generate_csv_typed(
-                str(topology_path),
-                str(_prototype_file("network_topology.schema.yaml")),
-                output_base,
-        )
+    _ = generate_csv_typed(
+        str(topology_path),
+        str(_prototype_file("network_topology.schema.yaml")),
+        output_base,
+    )
 
-        hosts_csv: Path = tmp_path / "topo-hosts.csv"
-        rows: list[list[str]] = list(csv.reader(io.StringIO(hosts_csv.read_text(encoding="utf-8"))))
-        data_rows: list[list[str]] = [row for row in rows[1:] if len(row) >= 2]
+    hosts_csv: Path = tmp_path / "topo-hosts.csv"
+    rows: list[list[str]] = list(csv.reader(io.StringIO(hosts_csv.read_text(encoding="utf-8"))))
+    data_rows: list[list[str]] = [row for row in rows[1:] if len(row) >= 2]
 
-        fallback_scalar_row: list[str] | None = next(
-                (row for row in data_rows if row[0] == "host_scalar.scalars.unknown_scalar_key"),
-                None,
-        )
-        assert fallback_scalar_row is not None
-        assert fallback_scalar_row[1] == "ホスト固有のスカラー変数"
+    fallback_scalar_row: list[str] | None = next(
+        (row for row in data_rows if row[0] == "host_scalar.scalars.unknown_scalar_key"),
+        None,
+    )
+    assert fallback_scalar_row is not None
+    assert fallback_scalar_row[1] == "ホスト固有のスカラー変数"
 
-        fallback_service_row: list[str] | None = next(
-                (row for row in data_rows if row[0] == "host_service.services.unknown_service.config.unknown_config_key"),
-                None,
-        )
-        assert fallback_service_row is not None
-        assert fallback_service_row[1] == "サービス固有の設定"
+    fallback_service_row: list[str] | None = next(
+        (row for row in data_rows if row[0] == "host_service.services.unknown_service.config.unknown_config_key"),
+        None,
+    )
+    assert fallback_service_row is not None
+    assert fallback_service_row[1] == "サービス固有の設定"
 
 
 def test_invalid_topology_raises_value_error(tmp_path: Path) -> None:

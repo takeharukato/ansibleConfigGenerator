@@ -47,7 +47,6 @@ ansibleConfigGenerator は、計算ノードの機能やネットワークトポ
 │       ├── field_metadata.schema.yaml
 │       ├── network_topology.schema.yaml
 │       ├── host_vars_structured.schema.yaml
-│       ├── type_schema.yaml
 │       ├── convert-rule-config.yaml
 │       └── lib/
 ├── config/
@@ -92,7 +91,6 @@ ansibleConfigGenerator は、計算ノードの機能やネットワークトポ
 | `field_metadata.schema.yaml` | field_metadata.yaml のスキーマを定義します。 |
 | `network_topology.schema.yaml` | ネットワークトポロジ定義ファイルのスキーマを定義します。 |
 | `host_vars_structured.schema.yaml` | 構造化 host_vars 出力のスキーマを定義します。 |
-| `type_schema.yaml` | 型定義に関する共通スキーマを保持します。 |
 | `convert-rule-config.yaml` | フィールド変換やサービス変換のルールを定義します。 |
 | `lib/` | 各生成処理で共有する Python ライブラリ群です。 |
 
